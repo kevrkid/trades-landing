@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { biz, telHref, smsHref } from '../lib/derive.ts';
+---
+<Base title="Page not found" description="That page doesn't exist." noindex>
+  <main class="sec"><div class="wrap max-w-xl! grid gap-4">
+    <h1 class="sec-title text-[2.8rem]">That page isn't here</h1>
+    <p class="text-lg">You can still reach me.</p>
+    {biz.phone && <a class="btn btn-go" href={telHref}><Icon name="call" />Call</a>}
+    {biz.phone && <a class="btn btn-go" href={smsHref()}><Icon name="text" />Text</a>}
+    <a class="btn btn-line" href="/">Go to the home page</a>
+  </div></main>
+</Base>

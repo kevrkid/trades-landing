@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import Footer from '../components/Footer.astro';
+import { biz, hasForm } from '../lib/derive.ts';
+const who = biz.name || 'This business';
+---
+<Base title={`Privacy${biz.name ? ` | ${biz.name}` : ''}`} description="What this site collects, in plain English." canonicalPath="/privacy">
+  <main class="sec"><div class="wrap max-w-2xl! grid gap-4">
+    <p><a class="textlink" href="/">‹ Back to home</a></p>
+    <h1 class="sec-title text-[2.6rem]">Privacy, in plain English</h1>
+    <p>{who} is a small local business. This site has no accounts, no ads and no tracking cookies.</p>
+    {hasForm && <><h2 class="text-2xl">The quote form</h2>
+    <p>What you type in the form goes to my email through a service called Web3Forms. I use it only to reply about your job, and I don't sell it or share it for marketing.</p></>}
+    <h2 class="text-2xl">Calls and texts</h2>
+    <p>Calling or texting opens your own phone's app. I'll have your number and whatever you send me, and I use them to help with your job.</p>
+    <h2 class="text-2xl">Booking and payments</h2>
+    <p>Booking and payment links go to Square, which has its own privacy policy. Your card details are entered on Square. This site never sees them.</p>
+    {biz.cloudflareAnalyticsToken && <><h2 class="text-2xl">Visitor counts</h2>
+    <p>Cloudflare Web Analytics counts page visits. It uses no cookies and doesn't follow you to other sites.</p></>}
+    <h2 class="text-2xl">Questions or deletion</h2>
+    <p>{biz.email ? <>Email <a class="underline" href={`mailto:${biz.email}`}>{biz.email}</a></> : 'Contact me'} to ask what I have about you or to have it deleted.</p>
+  </div></main>
+  <Footer />
+</Base>

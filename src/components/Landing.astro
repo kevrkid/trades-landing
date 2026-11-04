@@ -1,0 +1,291 @@
+---
+import Base from '../layouts/Base.astro';
+import Footer from './Footer.astro';
+import Icon from './Icon.astro';
+import vanArt from '../assets/van.svg?raw';
+import { biz, telHref, smsHref, priceText, bookUrl, hasForm, trustBits, serviceNames, jsonLd, siteUrl } from '../lib/derive.ts';
+
+const { scan = false } = Astro.props as { scan?: boolean };
+const hello = scan ? 'Hi, I scanned your van. ' : 'Hi! ';
+const textHref = smsHref(`${hello}I need help with: `);
+const photosHref = smsHref(`${hello}Here are photos for a quote.\nMy name:\nAddress or ZIP:\nWhat I need:\n`);
+const canQuote = hasForm || !!biz.phone;
+const quoteHref = hasForm ? '#quote' : textHref;
+const site = siteUrl();
+
+const what = [biz.whatIDo, biz.area.summary].filter(Boolean).join(' in ');
+const quoteFor = (name: string) => hasForm ? '#quote' : smsHref(`${hello}I'd like a quote for: ${name}`);
+
+const why = [
+  { title: 'All-electric Mercedes eSprinter', text: 'Quiet on your street, no exhaust, and no engine idling at your home. It\'s a long van, with a 170-inch wheelbase.' },
+  biz.van.bringsOwnPower && { title: 'Brings its own power', text: 'No need to use your outlets.' },
+  biz.promises.upfrontPricing && { title: 'Upfront pricing', text: 'You get the price before the work starts.' },
+  biz.promises.cleanUp && { title: 'Clean-up included', text: 'I clean up the work area before I leave.' },
+  biz.credentials.warranty && { title: 'Warranty', text: biz.credentials.warranty },
+  biz.credentials.insurance && { title: 'Insurance', text: biz.credentials.insurance },
+].filter(Boolean) as { title: string; text: string }[];
+
+const steps = [
+  { title: 'Tell me what you need', text: [biz.links.booking && 'Book online', biz.phone && 'call or text', hasForm && 'send the form'].filter(Boolean).join(', ') + '.' },
+  { title: biz.promises.upfrontPricing ? 'Get your price up front' : 'Get a time and a price', text: 'Photos help me give you a real number faster.' },
+  { title: 'I come to you', text: `The electric van pulls up quietly and I get to work.${biz.promises.cleanUp ? ' I clean up before I go.' : ''}` },
+];
+
+const faq = [
+  ['Are estimates free?', biz.faq.estimates],
+  ['How can I pay?', biz.faq.payment],
+  ['Do you need a deposit?', biz.faq.deposits],
+  ['What if I need to cancel?', biz.faq.cancellations],
+  ['Is the work under warranty?', biz.faq.warranty],
+  ['Is there a travel fee?', biz.faq.travelFee],
+].filter(([, a]) => a);
+---
+<Base canonicalPath="/" ld={scan ? null : jsonLd()}>
+  <div class={biz.phone || biz.links.booking || canQuote ? 'has-bar' : ''}>
+    {scan && (
+      <aside class="bg-accent text-accent-ink px-4 py-3 text-center">
+        <p class="display text-2xl">Thanks for scanning the van!</p>
+        {biz.vanOffer.headline && <p class="font-bold text-lg">{biz.vanOffer.headline}</p>}
+        {biz.vanOffer.terms && <p class="text-[15px]">{biz.vanOffer.terms}</p>}
+      </aside>
+    )}
+
+    <header class="bg-brand text-white px-4 pt-6 pb-7">
+      <div class="wrap">
+        {biz.logo && <img src={biz.logo} alt="" class="h-14 w-auto mb-3" />}
+        <h1 class="text-[3.1rem]">{biz.name || 'All-electric mobile service'}</h1>
+        {what && <p class="display text-accent text-[1.65rem] mt-1.5">{what}</p>}
+        <p class="mt-2.5 text-[16px]">{trustBits().join(' · ')}</p>
+
+        {(biz.phone || biz.links.booking || canQuote) && <div class="grid grid-cols-2 gap-2.5 mt-4">
+          {biz.links.booking && <a class="btn btn-go" href={biz.links.booking}><Icon name="book" />Book</a>}
+          {canQuote && <a class="btn btn-go" href={quoteHref}><Icon name="quote" />Get a quote</a>}
+          {biz.phone && <a class="btn btn-white" href={telHref}><Icon name="call" />Call</a>}
+          {biz.phone && <a class="btn btn-white" href={textHref}><Icon name="text" />Text</a>}
+        </div>}
+
+        {biz.photos.van ? (
+          <picture>
+            {biz.photos.vanWebp && <source type="image/webp" srcset={biz.photos.vanWebp} sizes="(min-width: 912px) 880px, calc(100vw - 32px)" />}
+            <img src={biz.photos.van} alt={biz.photos.vanAlt} width="1200" height="900" fetchpriority="high" decoding="async" class="mt-5 w-full h-auto rounded-md" />
+          </picture>
+        ) : <div class="mt-5" set:html={vanArt} />}
+        <p class="mt-3 font-bold">100% electric van. Quiet, no exhaust, no idling at your home.</p>
+      </div>
+    </header>
+    <div class="stripe"></div>
+
+    <main>
+      {biz.trades.length > 0 && (
+        <section class="sec" id="services">
+          <div class="wrap">
+            <h2 class="sec-title">Services</h2>
+            {biz.trades.map((t) => (
+              <div class="mb-8 last:mb-0">
+                {biz.trades.length > 1 && <h3 class="text-[1.7rem] mb-3">{t.name}</h3>}
+                <ul class="grid gap-3 md:grid-cols-2">
+                  {t.services.map((s) => {
+                    const book = s.action === 'book' && bookUrl(s);
+                    const href = book || (canQuote ? quoteFor(s.name) : '');
+                    return (
+                      <li class="flex flex-col border-2 border-line rounded-md p-4">
+                        <h4 class="display text-[1.5rem]">{s.name}</h4>
+                        {priceText(s.price) && <p class="display text-[1.5rem] text-brand mt-1">{priceText(s.price)}</p>}
+                        <p class="mt-1.5 mb-3 text-soft">{s.description}</p>
+                        {href && <a class={`btn mt-auto ${book ? 'btn-go' : 'btn-line'}`} href={href} data-service={book ? undefined : s.name}>{book ? 'Book this' : 'Get a quote'}</a>}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {biz.plans.length > 0 && (
+        <section class="sec bg-brand text-white" id="plans">
+          <div class="wrap">
+            <h2 class="sec-title">Care plans</h2>
+            <ul class="grid gap-3 md:grid-cols-2">
+              {biz.plans.map((p) => {
+                const href = p.signupUrl || (canQuote ? quoteFor(p.name) : '');
+                return (
+                  <li class="flex flex-col bg-white text-ink rounded-md p-4">
+                    <h3 class="text-[1.7rem]">{p.name}</h3>
+                    <p class="display text-[1.5rem] text-brand mt-1">{p.price}</p>
+                    <p class="mt-1.5 text-soft">{p.description}</p>
+                    <ul class="list-disc pl-5 my-3">{p.includes.map((i) => <li>{i}</li>)}</ul>
+                    {href && <a class="btn btn-go mt-auto" href={href} data-service={p.signupUrl ? undefined : p.name}>Sign up</a>}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {(biz.phone || biz.links.booking || hasForm) && (
+        <section class="sec bg-paper" id="how">
+          <div class="wrap">
+            <h2 class="sec-title">How it works</h2>
+            <ol class="grid gap-5 md:grid-cols-3">
+              {steps.map((s, i) => (
+                <li class="flex gap-3">
+                  <span class="display text-[2.6rem] leading-none text-brand" aria-hidden="true">{i + 1}</span>
+                  <div><h3 class="text-[1.45rem]">{s.title}</h3><p class="mt-1 text-soft">{s.text}</p></div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+      )}
+
+      <section class="sec" id="why">
+        <div class="wrap">
+          <h2 class="sec-title">Why hire me</h2>
+          {(biz.owner.note || biz.owner.photo) && (
+            <div class="flex gap-4 items-start mb-6">
+              {biz.owner.photo && <img src={biz.owner.photo} alt={biz.owner.name ? `${biz.owner.name}, the owner` : 'The owner'} width="96" height="96" loading="lazy" class="w-24 h-24 rounded-md object-cover flex-none" />}
+              <p>{biz.owner.note}{biz.owner.name && <strong class="block mt-1">{biz.owner.name}</strong>}</p>
+            </div>
+          )}
+          <ul class="grid gap-4 md:grid-cols-2">
+            {why.map((w) => <li class="border-l-[6px] border-accent pl-3"><h3 class="text-[1.45rem]">{w.title}</h3><p class="text-soft mt-0.5">{w.text}</p></li>)}
+          </ul>
+        </div>
+      </section>
+
+      {biz.photos.gallery.length > 0 && (
+        <section class="sec bg-paper" id="work">
+          <div class="wrap">
+            <h2 class="sec-title">Recent work</h2>
+            <ul class="grid gap-6 md:grid-cols-2">
+              {biz.photos.gallery.map((g) => (
+                <li>
+                  <div class="grid grid-cols-2 gap-1.5">
+                    <figure><img src={g.before} alt={`Before: ${g.caption}`} width="400" height="300" loading="lazy" class="w-full aspect-[4/3] object-cover rounded-md" /><figcaption class="font-bold text-[15px] mt-1">Before</figcaption></figure>
+                    <figure><img src={g.after} alt={`After: ${g.caption}`} width="400" height="300" loading="lazy" class="w-full aspect-[4/3] object-cover rounded-md" /><figcaption class="font-bold text-[15px] mt-1">After</figcaption></figure>
+                  </div>
+                  <p class="mt-1">{g.caption}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {biz.reviews.length > 0 && (
+        <section class="sec" id="reviews">
+          <div class="wrap">
+            <h2 class="sec-title">Reviews</h2>
+            <ul class="grid gap-3 md:grid-cols-2">
+              {biz.reviews.map((r) => (
+                <li class="border-2 border-line rounded-md p-4">
+                  {r.stars && <p class="text-brand font-bold" aria-label={`${r.stars} out of 5 stars`}>{'★'.repeat(r.stars)}</p>}
+                  <blockquote class="mt-1">“{r.text}”</blockquote>
+                  <p class="font-bold mt-2 text-[15px]">{r.name} · {r.source}</p>
+                </li>
+              ))}
+            </ul>
+            {biz.links.googleReview && <p class="mt-3"><a class="textlink" href={biz.links.googleReview} rel="noopener">See or leave a Google review</a></p>}
+          </div>
+        </section>
+      )}
+
+      {(biz.area.summary || biz.area.places.length > 0 || biz.hours.length > 0) && (
+        <section class="sec bg-brand text-white" id="area">
+          <div class="wrap grid gap-8 md:grid-cols-2">
+            {(biz.area.summary || biz.area.places.length > 0) && (
+              <div>
+                <h2 class="sec-title">Service area</h2>
+                {biz.area.summary && <p class="font-bold text-lg">{biz.area.summary}</p>}
+                {biz.area.places.length > 0 && <p class="mt-1">{biz.area.places.join(' · ')}</p>}
+              </div>
+            )}
+            {biz.hours.length > 0 && (
+              <div>
+                <h2 class="sec-title">Hours</h2>
+                <dl class="grid grid-cols-[auto_1fr] gap-x-5 gap-y-1">
+                  {biz.hours.map((h) => <><dt class="font-bold">{h.days}</dt><dd>{h.time}</dd></>)}
+                </dl>
+                {biz.hoursNote && <p class="mt-2">{biz.hoursNote}</p>}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {(faq.length > 0 || biz.links.deposit) && (
+        <section class="sec" id="faq">
+          <div class="wrap">
+            <h2 class="sec-title">Questions</h2>
+            <div class="divide-y-2 divide-line border-y-2 border-line">
+              {faq.map(([q, a]) => <details><summary>{q}</summary><p class="pb-4 text-soft">{a}</p></details>)}
+            </div>
+            {biz.links.deposit && (
+              <div class="mt-5">
+                <a class="btn btn-dark" href={biz.links.deposit} rel="noopener">Pay a deposit</a>
+                <p class="mt-2 text-soft text-[15px]">Payment happens on Square. This site never sees your card details.</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {canQuote && (
+        <section class="sec bg-paper" id="quote">
+          <div class="wrap max-w-xl!">
+            <h2 class="sec-title">Get a quote</h2>
+            {biz.phone && (
+              <a class="btn btn-dark mb-6" href={photosHref}><Icon name="text" />Text me photos instead</a>
+            )}
+            {hasForm && (
+              <form action="https://api.web3forms.com/submit" method="POST" id="quote-form">
+                <input type="hidden" name="access_key" value={biz.web3formsKey} />
+                <input type="hidden" name="subject" value={`New quote request${biz.name ? ` for ${biz.name}` : ''}`} />
+                <input type="hidden" name="from_name" value="Website quote form" />
+                <input type="hidden" name="source" value={scan ? 'Van QR code' : 'Website'} />
+                {site && <input type="hidden" name="redirect" value={`${site}/thanks`} />}
+                <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" />
+                <label class="field">Name<input name="name" required autocomplete="name" /></label>
+                <label class="field">Phone<input name="phone" type="tel" required autocomplete="tel" inputmode="tel" /></label>
+                <label class="field">Address or ZIP<input name="address" required autocomplete="street-address" /></label>
+                <label class="field">Service
+                  <select name="service" id="quote-service">
+                    <option value="">Not sure yet</option>
+                    {serviceNames().map((n) => <option value={n}>{n}</option>)}
+                  </select>
+                </label>
+                <label class="field">What do you need done?<textarea name="details" rows="4" required></textarea></label>
+                <label class="field">Best days and times <small>(optional)</small><input name="preferred_times" /></label>
+                <button class="btn btn-go w-full" type="submit">Send my request</button>
+              </form>
+            )}
+          </div>
+        </section>
+      )}
+    </main>
+    <Footer />
+
+    {(biz.phone || biz.links.booking || canQuote) && (
+      <nav class="sticky-bar md:hidden fixed inset-x-0 bottom-0 z-20 bg-deep grid grid-flow-col auto-cols-fr gap-1.5 px-1.5 pt-1.5" aria-label="Contact" style="padding-bottom:max(6px, env(safe-area-inset-bottom))">
+        {biz.phone && <a class="btn btn-white" href={telHref}><Icon name="call" />Call</a>}
+        {biz.phone && <a class="btn btn-white" href={textHref}><Icon name="text" />Text</a>}
+        {biz.links.booking
+          ? <a class="btn btn-go" href={biz.links.booking}><Icon name="book" />Book</a>
+          : canQuote && <a class="btn btn-go" href={quoteHref}><Icon name="quote" />Quote</a>}
+      </nav>
+    )}
+  </div>
+
+  {hasForm && (
+    <script is:inline>
+      document.addEventListener('click', function (e) {
+        var a = e.target.closest && e.target.closest('[data-service]');
+        var s = document.getElementById('quote-service');
+        if (a && s) s.value = a.getAttribute('data-service');
+      });
+    </script>
+  )}
+</Base>

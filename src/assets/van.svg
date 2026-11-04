@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 250" role="img" aria-label="Side view of a long all-electric work van">
+  <ellipse cx="320" cy="226" rx="300" ry="9" fill="#000" opacity=".28"/>
+  <path d="M28 196V58c0-13 9-22 22-22h362c16 0 29 5 41 16l66 62 72 20c18 5 29 19 29 37v25c0 8-6 14-14 14H42c-8 0-14-6-14-14Z" fill="#fff"/>
+  <path d="M28 150h578c4 6 6 13 6 21v4H28Z" fill="var(--accent,#FF7A00)"/>
+  <path d="M428 58h19c7 0 13 3 18 7l52 49c3 3 1 8-3 8h-86c-4 0-7-3-7-7V65c0-4 3-7 7-7Z" fill="#14304f"/>
+  <path d="M350 58h52c4 0 7 3 7 7v50c0 4-3 7-7 7h-52c-4 0-7-3-7-7V65c0-4 3-7 7-7Z" fill="#14304f"/>
+  <path d="M338 50v144M412 50v144" stroke="#c7d0db" stroke-width="2.5"/>
+  <rect x="426" y="134" width="24" height="6" rx="3" fill="#8b98a8"/>
+  <path d="m196 70-30 44h22l-12 36 36-50h-23l14-30Z" fill="var(--accent,#FF7A00)"/>
+  <path d="M592 139h15c5 2 8 7 9 13h-24Z" fill="#ffd37a"/>
+  <circle cx="142" cy="197" r="36" fill="#0b1626"/><circle cx="142" cy="197" r="17" fill="#c7d0db"/>
+  <circle cx="500" cy="197" r="36" fill="#0b1626"/><circle cx="500" cy="197" r="17" fill="#c7d0db"/>
+</svg>
