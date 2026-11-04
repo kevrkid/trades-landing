@@ -1,0 +1,10 @@
+node_modules/
+dist/
+dist-*/
+.astro/
+.wrangler/
+.env
+.env.*
+*.log
+.DS_Store
+test-shots/
