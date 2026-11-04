@@ -83,9 +83,10 @@ export const business: Business = {
 
   // ---------- CREDENTIALS (only what's true) ----------
   credentials: {
-    // TODO: your TxDMV mover registration, once you have it: { label: 'TxDMV', number: '000000' }
+    // TODO: your DOT number: { label: 'USDOT', number: '0000000' }
+    // and your TxDMV certificate, if you have one: { label: 'TxDMV', number: '000000' }
     licenses: [],
-    insurance: '', // TODO: e.g. 'Fully insured'
+    insurance: 'Commercially insured',
     warranty: '', // TODO: e.g. '1-year warranty on labor'
   },
 

@@ -98,7 +98,7 @@ export function todos(): { item: string; blocker?: boolean }[] {
   need(b.links.deposit, 'Square deposit payment link');
   need(b.links.googleReview, 'Google review link');
   need(b.socials, 'Social links (optional)');
-  need(b.credentials.licenses, 'TxDMV mover registration number, and any other licenses');
+  need(b.credentials.licenses, 'USDOT number, TxDMV certificate number, and any other licenses');
   need(b.credentials.insurance, 'Insurance');
   need(b.credentials.warranty, 'Warranty');
   need(b.owner.name, 'Your first name');
