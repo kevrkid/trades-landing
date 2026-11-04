@@ -156,6 +156,13 @@ try {
   await nojsF.close();
   // Real work.
   await page.goto(R + '/');
+  ok((await page.locator('#how').innerText()).includes('Answer a few quick questions.'), 'real: how-it-works sentence starts with a capital');
+  ok(await page.locator('#why strong', { hasText: 'Kevin' }).count() === 0, 'real: name is not repeated');
+  ok(await page.locator('#work video').first().getAttribute('poster') === null, 'real: video covers wait until scrolled to');
+  await page.locator('#work video').first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+  ok(!!(await page.locator('#work video').first().getAttribute('poster')), 'real: video cover loads when scrolled to');
+  await page.goto(R + '/');
   ok(await page.locator('#work img').count() === business.photos.gallery.length, 'real: work photos show');
   ok(await page.locator('#work video[preload=none]').count() === business.photos.videos.length, 'real: videos wait until tapped');
   for (const p of ['/work/welding-cut.mp4', '/work/welding-weld.mp4', '/work/steel-frame.webp']) ok((await fetch(R + p, { method: 'HEAD' })).status === 200, `real: ${p} loads`);

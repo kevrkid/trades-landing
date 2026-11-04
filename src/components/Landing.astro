@@ -13,6 +13,7 @@ const photosHref = smsHref(`${hello}Here are photos for a quote.\nMy name:\nAddr
 const canQuote = hasForm;
 const quoteHref = hasForm ? '#quote' : textHref;
 
+const sentence = (bits: string[]) => { const t = bits.join(', '); return t ? t[0].toUpperCase() + t.slice(1) + '.' : ''; };
 const what = [biz.whatIDo, biz.area.summary].filter(Boolean).join(' in ');
 const quoteFor = (name: string) => hasForm ? '#quote' : smsHref(`${hello}I'd like a quote for: ${name}`);
 
@@ -26,7 +27,7 @@ const why = [
 ].filter(Boolean) as { title: string; text: string }[];
 
 const steps = [
-  { title: 'Tell me what you need', text: [biz.links.booking && 'Book online', biz.phone && 'call or text', hasForm && 'send the form'].filter(Boolean).join(', ') + '.' },
+  { title: 'Tell me what you need', text: sentence([biz.links.booking && 'book online', biz.phone && 'call or text', hasForm && 'answer a few quick questions'].filter(Boolean) as string[]) },
   { title: biz.promises.upfrontPricing ? (biz.rate ? 'Get your rate up front' : 'Get your price up front') : 'Get a time and a price', text: 'Photos help me give you a real number faster.' },
   { title: 'I come to you', text: `The electric van pulls up quietly and I get to work.${biz.promises.cleanUp ? ' I clean up before I go.' : ''}` },
 ];
@@ -54,7 +55,7 @@ const faq = [
 
     {biz.logo && (
       <div class="bg-white px-4 py-2 text-center">
-        <img src={biz.logo} alt={biz.name} width="510" height="423" fetchpriority="high" class="inline-block w-[150px] h-auto" />
+        <img src={biz.logo} alt={biz.name} width="510" height="423" class="inline-block w-[150px] h-auto" />
       </div>
     )}
     <header class="bg-brand text-white px-4 pt-5 pb-7">
@@ -76,7 +77,7 @@ const faq = [
         {biz.photos.van ? (
           <picture>
             {biz.photos.vanWebp && <source type="image/webp" srcset={biz.photos.vanWebp} sizes="(min-width: 912px) 880px, calc(100vw - 32px)" />}
-            <img src={biz.photos.van} alt={biz.photos.vanAlt} width="1200" height="900" decoding="async" class="mt-5 w-full h-auto rounded-md" />
+            <img src={biz.photos.van} alt={biz.photos.vanAlt} width="1200" height="900" fetchpriority="high" class="mt-5 w-full h-auto rounded-md" />
           </picture>
         ) : <div class="mt-5" set:html={vanArt} />}
         <p class="mt-3 font-bold">{biz.subheading || '100% electric van. Quiet, no exhaust, no idling at your home.'}</p>
@@ -156,7 +157,7 @@ const faq = [
           {(biz.owner.note || biz.owner.photo) && (
             <div class="flex gap-4 items-start mb-6">
               {biz.owner.photo && <img src={biz.owner.photo} alt={biz.owner.name ? `${biz.owner.name}, the owner` : 'The owner'} width="96" height="96" loading="lazy" class="w-24 h-24 rounded-md object-cover flex-none" />}
-              <p>{biz.owner.note}{biz.owner.name && <strong class="block mt-1">{biz.owner.name}</strong>}</p>
+              <p>{biz.owner.note}{biz.owner.name && !biz.owner.note.includes(biz.owner.name) && <strong class="block mt-1">{biz.owner.name}</strong>}</p>
             </div>
           )}
           <ul class="grid gap-4 md:grid-cols-2">
@@ -173,7 +174,7 @@ const faq = [
               <ul class="grid grid-cols-2 gap-2.5 mb-4 md:max-w-xl">
                 {biz.photos.videos.map((v) => (
                   <li>
-                    <video controls muted playsinline preload="none" poster={v.poster} width="540" height="960" class="w-full h-auto rounded-md bg-deep" aria-label={v.caption}>
+                    <video controls muted playsinline preload="none" data-poster={v.poster} width="540" height="960" class="w-full h-auto rounded-md bg-deep" aria-label={v.caption}>
                       <source src={v.src} type="video/mp4" />
                     </video>
                     <p class="font-bold text-[15px] mt-1">{v.caption}</p>
@@ -184,7 +185,7 @@ const faq = [
             <ul class="grid grid-cols-2 gap-2.5 md:grid-cols-4">
               {biz.photos.gallery.map((g) => (
                 <li>
-                  <img src={g.src} alt={g.caption} width={g.width} height={g.height} loading="lazy" decoding="async" class="w-full aspect-[4/3] object-cover rounded-md" />
+                  <img src={g.src} alt="" width={g.width} height={g.height} loading="lazy" decoding="async" class="w-full aspect-[4/3] object-cover rounded-md" />
                   <p class="font-bold text-[15px] mt-1">{g.caption}</p>
                 </li>
               ))}
@@ -277,4 +278,17 @@ const faq = [
     )}
   </div>
 
+  {biz.photos.videos.length > 0 && (
+    <script is:inline>
+      // Video cover images load only when they're about to scroll into view.
+      (function () {
+        var vids = document.querySelectorAll('video[data-poster]');
+        if (!('IntersectionObserver' in window)) { vids.forEach(function (v) { v.poster = v.getAttribute('data-poster'); }); return; }
+        var io = new IntersectionObserver(function (es) {
+          es.forEach(function (e) { if (e.isIntersecting) { e.target.poster = e.target.getAttribute('data-poster'); io.unobserve(e.target); } });
+        }, { rootMargin: '400px' });
+        vids.forEach(function (v) { io.observe(v); });
+      })();
+    </script>
+  )}
 </Base>
