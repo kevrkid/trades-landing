@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import '@fontsource/barlow-condensed/latin-800.css';
 import fontUrl from '@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2?url';
-import { biz, isSample, siteUrl, pageTitle, metaDescription } from '../lib/derive.ts';
+import { biz, isSample, siteUrl, pageTitle, metaDescription, todos } from '../lib/derive.ts';
 
 interface Props { title?: string; description?: string; canonicalPath?: string; noindex?: boolean; ld?: Record<string, unknown> | null }
 const { title = pageTitle(), description = metaDescription(), canonicalPath, noindex = false, ld = null } = Astro.props;
@@ -18,7 +18,7 @@ const vars = `:root{--brand:${c.brand};--brand-deep:${c.brandDeep};--accent:${c.
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    {(noindex || isSample) && <meta name="robots" content="noindex" />}
+    {(noindex || isSample || todos().some((t) => t.blocker)) && <meta name="robots" content="noindex" />}
     {canonical && <link rel="canonical" href={canonical} />}
     <meta name="theme-color" content={c.brand} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

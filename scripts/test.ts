@@ -5,6 +5,7 @@ import { execSync, spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { chromium, type Page } from 'playwright';
 import { business } from '../src/data/business.ts';
+import { todos } from '../src/lib/derive.ts';
 
 const SHOTS = process.env.SHOTS || 'test-shots';
 mkdirSync(SHOTS, { recursive: true });
@@ -131,6 +132,7 @@ try {
   ok(await page.locator('#faq').count() === 0 || !(await page.locator('#faq').innerText()).includes('minimum'), 'real: blank minimum question stays hidden');
   if (!business.rating.score) ok(await page.locator('header').getByText('reviews').count() === 0, 'real: no rating until you have one');
   ok(await page.getByText('3 hours of work comes to $180-$300').count() === 1, 'real: worked example shows');
+  if (todos().some((t) => t.blocker)) ok(await page.locator('meta[name=robots][content=noindex]').count() === 1, 'real: unfinished site stays out of Google');
   // Whatever the config leaves blank must stay hidden.
   const ids = await page.locator('main section').evaluateAll((els) => els.map((x) => x.id));
   const shows = (id: string, should: boolean) => ok(ids.includes(id) === should, `real: section ${id} ${should ? 'shows' : 'stays hidden'}`);
