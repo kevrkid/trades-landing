@@ -1,0 +1,46 @@
+// npm run decal: a simple van sign with logo, phone, a few words and the QR code.
+// Makes qr/van-decal.pdf + .png, or a marked preview until the phone and domain are set.
+import { readFileSync, mkdirSync } from 'node:fs';
+import { chromium } from 'playwright';
+import QRCode from 'qrcode';
+import { business as b } from '../src/data/business.ts';
+
+const WORDS = ['Moving', 'Welding', 'Hauling', 'Tear-downs', 'Junk removal'];
+// DECAL_PHONE, DECAL_DOMAIN and DECAL_BASE are only for testing the layout.
+const bizPhone = process.env.DECAL_PHONE || b.phone;
+const bizDomain = process.env.DECAL_DOMAIN || b.domain;
+const ready = !!(bizPhone && bizDomain);
+const m = bizPhone.match(/^\+1(\d{3})(\d{3})(\d{4})$/);
+const phone = m ? `${m[1]}-${m[2]}-${m[3]}` : bizPhone;
+const font = readFileSync('node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2').toString('base64');
+const logo = readFileSync('public/brand/rangebolt-primary.svg', 'utf8');
+
+let qr = `<div style="width:11in;height:11in;border:.08in dashed #777;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1in;color:#555">QR code goes here<br>once the domain is bought</div>`;
+if (bizDomain) {
+  const svg = await QRCode.toString(`https://${bizDomain}/van`, { type: 'svg', errorCorrectionLevel: 'Q', margin: 4, color: { dark: '#000000', light: '#ffffff' } });
+  qr = `<div style="width:11in;height:11in">${svg}</div>`;
+}
+const html = `<!doctype html><style>@font-face{font-family:B;src:url(data:font/woff2;base64,${font})}
+@page{size:24in 18in;margin:0}*{margin:0;box-sizing:border-box}
+html,body{width:24in;height:18in;background:#fff;color:${b.colors.brandDeep};font-family:B,sans-serif;font-weight:800;text-transform:uppercase;overflow:hidden;position:relative}</style>
+<body><div style="position:absolute;left:.8in;top:.7in;width:22.4in">${logo}</div>
+<div style="position:absolute;left:.8in;top:5.6in">${qr}</div>
+<div style="position:absolute;left:12.2in;top:5.9in;width:11.2in">
+ <div style="font-size:${ready ? 1.95 : 1.5}in;line-height:1;white-space:nowrap">${ready ? phone : 'Your number here'}</div>
+ <div style="height:.25in;width:3in;background:${b.colors.accent};margin:.35in 0"></div>
+ <div style="font-size:1.3in;line-height:1.06">${WORDS.join('<br>')}</div>
+ <div style="font-size:.85in;margin-top:.3in;color:${b.colors.brand}">Scan for prices</div>
+</div>
+${ready ? '' : `<div style="position:absolute;left:0;right:0;bottom:0;background:#ffe14d;color:#000;text-align:center;font-size:.7in;padding:.08in">Preview, do not print</div>`}
+</body>`;
+
+mkdirSync('qr', { recursive: true });
+const base = process.env.DECAL_BASE || (ready ? 'qr/van-decal' : 'qr/van-decal-PREVIEW');
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 2304, height: 1728 } });
+await page.setContent(html);
+await page.evaluate(() => document.fonts.ready);
+await page.screenshot({ path: `${base}.png` });
+if (ready) await page.pdf({ path: `${base}.pdf`, width: '24in', height: '18in', printBackground: true });
+await browser.close();
+console.log(`Made ${base}.png${ready ? ' and .pdf' : ' (needs your phone number and domain before it can be printed)'}`);

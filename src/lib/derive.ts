@@ -52,7 +52,7 @@ export function serviceNames(): string[] {
 
 export function pageTitle(): string {
   const what = [biz.whatIDo, biz.area.summary].filter(Boolean).join(' in ');
-  return [biz.name, what].filter(Boolean).join(' | ') || 'All-electric mobile service';
+  return [biz.name, biz.headline || what].filter(Boolean).join(' | ') || 'All-electric mobile service';
 }
 
 export function metaDescription(): string {
@@ -66,7 +66,7 @@ export function jsonLd(): Record<string, unknown> | null {
   const url = siteUrl();
   const ld: Record<string, unknown> = { '@context': 'https://schema.org', '@type': biz.schemaType, name: biz.name };
   if (url) { ld.url = url; ld.image = `${url}/og.png`; }
-  if (biz.logo && url) ld.logo = url + biz.logo;
+  if (biz.logoOnLight && url) ld.logo = url + biz.logoOnLight;
   if (biz.rate) ld.priceRange = biz.rate;
   if (biz.phone) ld.telephone = biz.phone;
   if (biz.email) ld.email = biz.email;
@@ -92,7 +92,6 @@ export function todos(): { item: string; blocker?: boolean }[] {
   need(b.trades, 'Services and prices', true);
   need(b.area.summary, 'Service area', true);
   need(b.domain, 'Domain (QR code cannot be made until then)');
-  need(b.logo, 'Logo (optional)');
   need(b.plans, 'Care plan (recommended, steady income)');
   need(b.hours, 'Hours');
   need(b.email, 'Email');

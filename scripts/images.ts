@@ -14,14 +14,16 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
 const base = `<style>@font-face{font-family:B;src:url(data:font/woff2;base64,${font})}
 *{margin:0;box-sizing:border-box}:root{--accent:${b.colors.accent}}body{font-family:B,sans-serif}</style>`;
-const og = `${base}<body style="width:1200px;height:630px;background:${b.colors.brand};color:#fff;padding:64px;display:flex;flex-direction:column;overflow:hidden;position:relative">
+const white = readFileSync('public/brand/rangebolt-white.svg', 'utf8');
+const icon = readFileSync('public/brand/rangebolt-icon.svg', 'utf8');
+const og = `${base}<body style="width:1200px;height:630px;background:${b.colors.brand};color:#fff;padding:60px;overflow:hidden;position:relative">
 <div style="position:absolute;left:0;right:0;bottom:0;height:22px;background:repeating-linear-gradient(135deg,${b.colors.accent} 0 28px,${b.colors.brandDeep} 28px 56px)"></div>
-<div style="font-size:${title.length > 14 ? 72 : 96}px;line-height:1;text-transform:uppercase;max-width:490px">${esc(title)}</div>
-<div style="font-size:40px;margin-top:20px;color:${b.colors.accent};max-width:490px">${esc(sub)}</div>
+<div style="width:470px">${white}</div>
+<div style="font-size:66px;line-height:1;text-transform:uppercase;max-width:490px;margin-top:34px">${esc(b.headline || title)}</div>
+<div style="font-size:32px;margin-top:16px;color:${b.colors.accent};max-width:490px;line-height:1.1">${esc(sub)}</div>
 <div style="position:absolute;right:0;top:0;bottom:22px;width:600px">${van}</div>
-${b.whatIDo || b.area.summary ? `<div style="position:absolute;left:64px;bottom:80px;font-size:40px;line-height:1.15;width:480px">${b.rate ? esc(b.rate) + '<br>' : ''}100% electric van.</div>` : ''}</body>`;
-const bolt = (size: number, pad: boolean) => `${base}<body style="width:${size}px;height:${size}px;background:${b.colors.brand};display:flex;align-items:center;justify-content:center">
-<svg viewBox="0 0 32 32" width="${pad ? size * 0.72 : size}" height="${pad ? size * 0.72 : size}"><path d="M19 3 7 18h7l-2 11 13-16h-7.5L19 3Z" fill="${b.colors.accent}"/></svg></body>`;
+<div style="position:absolute;left:60px;bottom:50px;font-size:34px">${b.rate ? esc(b.rate) + ' · ' : ''}100% electric van</div></body>`;
+const appleIcon = `${base}<body style="width:180px;height:180px;background:#fff;display:flex;align-items:center;justify-content:center"><div style="width:180px">${icon}</div></body>`;
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
@@ -32,8 +34,7 @@ const shot = async (html: string, w: number, h: number, path: string) => {
   await page.screenshot({ path });
 };
 await shot(og, 1200, 630, 'public/og.png');
-await shot(bolt(180, true), 180, 180, 'public/apple-touch-icon.png');
+await shot(appleIcon, 180, 180, 'public/apple-touch-icon.png');
 await browser.close();
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="${b.colors.brand}"/><path d="M19 3 7 18h7l-2 11 13-16h-7.5L19 3Z" fill="${b.colors.accent}"/></svg>\n`;
-(await import('node:fs')).writeFileSync('public/favicon.svg', svg);
+(await import('node:fs')).writeFileSync('public/favicon.svg', icon);
 console.log('Made public/og.png, public/apple-touch-icon.png, public/favicon.svg');

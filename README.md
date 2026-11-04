@@ -49,6 +49,10 @@ Never put the token in a file inside this project. The Web3Forms key and the ana
 3. Run `npm run qr`. It makes `qr/van-qr.svg` (for the wrap shop) and `qr/van-qr.png`.
 4. Scan the printed proof with your phone before the wrap shop applies it.
 
+## Van decal (for before a full wrap)
+
+Run `npm run decal`. It makes a 24 x 18 inch sign with your logo, phone number, a few words and the QR code, as a PDF for a sign shop or magnet printer. Until your phone number and domain are both in `business.ts`, it only makes a preview marked "PREVIEW, DO NOT PRINT".
+
 ## The quote form
 
 The form uses [Web3Forms](https://web3forms.com): free for about 250 submissions a month, no server needed. The free plan doesn't include file uploads, so customers send photos with the "Text me photos" button. Spam protection is a hidden honeypot field. Web3Forms now calls that field deprecated, so if spam gets through, its captcha is the next step.

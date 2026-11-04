@@ -10,15 +10,18 @@ const HOURLY = { type: 'hourly', min: 60, max: 100 } as const;
 
 export const business: Business = {
   // ---------- WHO ----------
-  name: '', // TODO: business name
-  logo: '', // TODO (optional): put the file in public/ and write e.g. '/logo.svg'
+  // From the ChatGPT brand kit. Search the Texas Secretary of State records before printing it.
+  name: 'Rangebolt',
+  logo: '/brand/rangebolt-white.svg',
+  logoOnLight: '/brand/rangebolt-primary.png',
+  headline: 'Moving anywhere in Texas',
+  subheading: 'I handle your move myself, using a quiet, all-electric van.',
   whatIDo: 'Moving, welding, material hauling, tear-downs and junk removal',
   rate: '$60-$100/hour',
   // Update this if the rate changes: 3 x $60 and 3 x $100.
   rateExample: 'For example, 3 hours of work comes to $180-$300.',
 
-  // Navy + safety orange, proposed. Change these to match the van wrap.
-  colors: { brand: '#0B2545', brandDeep: '#071A33', accent: '#FF7A00', accentInk: '#0B1B33' },
+  colors: { brand: '#1C3853', brandDeep: '#102337', accent: '#F5823C', accentInk: '#102337' },
 
   // The most specific type for Google. Moving is your top priority, so this says MovingCompany.
   schemaType: 'MovingCompany',
@@ -38,21 +41,21 @@ export const business: Business = {
   // In your priority order.
   trades: [
     { name: 'Moving', services: [
-      { name: 'Moving in Texas', description: 'Moving your things to their new place, anywhere in Texas.',
+      { name: 'Moving in Texas', description: 'I handle moves anywhere in Texas.',
         price: HOURLY, action: 'quote' },
     ] },
     { name: 'Welding', services: [
-      { name: 'Small welding jobs', description: 'Small welding repairs and projects.',
+      { name: 'Small welding jobs', description: 'I take on small welding jobs.',
         price: HOURLY, action: 'quote' },
     ] },
     { name: 'Building materials', services: [
-      { name: 'Building material delivery', description: 'Picking up building materials and bringing them to your job or home.',
+      { name: 'Building material delivery', description: 'I pick up and deliver building materials.',
         price: HOURLY, action: 'quote' },
     ] },
     { name: 'Tear-down and junk', services: [
-      { name: 'Building tear-down', description: 'Taking down a building or structure.',
+      { name: 'Building tear-down', description: 'I take down buildings.',
         price: HOURLY, action: 'quote' },
-      { name: 'Junk removal', description: 'Loading up your junk and hauling it away.',
+      { name: 'Junk removal', description: 'I pick up and haul away junk.',
         price: HOURLY, action: 'quote' },
     ] },
   ],
@@ -61,6 +64,10 @@ export const business: Business = {
   // Copy this shape:
   // { name: 'Home Care Plan', price: '$29/month', description: 'One line.',
   //   includes: ['Yearly check-up', '10% off repairs'], signupUrl: 'Square subscription link' }
+  // Ideas from the brand kit, waiting for your OK (each works out to $80-$90/hour):
+  //   Property Turnover Block: $360/month, one 4-hour block (furniture, junk, material runs)
+  //   Builder Supply Runs: $320/month, two 2-hour material pickup and delivery blocks
+  //   Small Welding Block: $180/month, one 2-hour block
   plans: [],
 
   // ---------- WHERE AND WHEN ----------

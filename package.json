@@ -9,6 +9,7 @@
     "preview": "astro preview --host",
     "todo": "node scripts/todo.ts",
     "qr": "node scripts/qr.ts",
+    "decal": "node scripts/decal.ts",
     "images": "node scripts/images.ts",
     "test": "node scripts/test.ts",
     "deploy": "node scripts/deploy.ts"

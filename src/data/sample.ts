@@ -10,8 +10,6 @@ const pic = (label: string, bg: string) =>
 
 export const sample: Business = {
   ...business,
-  name: 'Sample Trades Co.',
-  whatIDo: 'Moving, welding, material hauling, tear-downs and junk removal',
   plans: [{ name: 'Sample Care Plan', price: '$29/month (sample)', description: 'A sample plan, showing where a real one will go.', includes: ['Sample benefit one', 'Sample benefit two'], signupUrl: '' }],
   trades: [
     { name: 'Moving', services: [

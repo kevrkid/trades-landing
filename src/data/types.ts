@@ -34,7 +34,12 @@ export interface WorkPhoto { before: string; after: string; caption: string }
 
 export interface Business {
   name: string;
+  /** Logo for dark backgrounds (the top of the page). */
   logo: string;
+  /** Logo for white backgrounds (Google, the decal). */
+  logoOnLight: string;
+  headline: string;
+  subheading: string;
   whatIDo: string;
   /** Your general rate, shown near the top of the page, e.g. '$60-$100/hour'. */
   rate: string;
