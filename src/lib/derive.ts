@@ -92,7 +92,7 @@ export function todos(): { item: string; blocker?: boolean }[] {
   need(b.trades, 'Services and prices', true);
   need(b.area.summary, 'Service area', true);
   need(b.domain, 'Domain (QR code cannot be made until then)');
-  need(b.logo, 'Logo (optional, the name shows as text until then)');
+  need(b.logo, 'Your Locker Box logo files (the name shows as text until then)');
   need(b.plans, 'Care plan (recommended, steady income)');
   need(b.hours, 'Hours');
   need(b.email, 'Email');

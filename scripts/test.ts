@@ -133,8 +133,8 @@ try {
   if (!business.rating.score) ok(await page.locator('header').getByText('reviews').count() === 0, 'real: no rating until you have one');
   ok(await page.getByText('3 hours of work comes to $180-$300').count() === 1, 'real: worked example shows');
   if (todos().some((t) => t.blocker)) ok(await page.locator('meta[name=robots][content=noindex]').count() === 1, 'real: unfinished site stays out of Google');
-  ok(!/rangebolt/i.test(home), 'real: old name is gone');
-  ok(await page.getByText('Arc & Haul').count() > 0, 'real: name shows');
+  ok(!/rangebolt|arc &(amp;)? haul/i.test(home), 'real: old names are gone');
+  ok(await page.getByText('Locker Box').count() > 0, 'real: name shows');
   // Whatever the config leaves blank must stay hidden.
   const ids = await page.locator('main section').evaluateAll((els) => els.map((x) => x.id));
   const shows = (id: string, should: boolean) => ok(ids.includes(id) === should, `real: section ${id} ${should ? 'shows' : 'stays hidden'}`);
