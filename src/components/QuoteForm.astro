@@ -1,0 +1,202 @@
+---
+// The quote survey. It asks different questions for each kind of job.
+// With a Web3Forms key, answers go straight to your email. Without one, the customer's own
+// email or text app opens with the answers filled in, and they press send.
+import Icon from './Icon.astro';
+import { biz, surveyChoices, siteUrl, smsHref } from '../lib/derive.ts';
+
+const { scan = false } = Astro.props as { scan?: boolean };
+const choices = surveyChoices();
+const key = biz.web3formsKey;
+const site = siteUrl();
+const native = key
+  ? { action: 'https://api.web3forms.com/submit', method: 'POST' }
+  : biz.email ? { action: `mailto:${biz.email}`, method: 'POST', enctype: 'text/plain' } : {};
+const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevator'];
+---
+<form id="quote-form" class="survey" {...native} data-key={key ? '1' : ''} data-email={biz.email} data-sms={smsHref('X').replace(/X$/, '')} data-source={scan ? 'Van QR code' : 'Website'}>
+  {key && <input type="hidden" name="access_key" value={key} />}
+  {key && <input type="hidden" name="subject" value={`New quote request${biz.name ? ` for ${biz.name}` : ''}`} />}
+  {key && <input type="hidden" name="from_name" value="Website quote form" />}
+  {key && site && <input type="hidden" name="redirect" value={`${site}/thanks`} />}
+  <input type="hidden" name="source" value={scan ? 'Van QR code' : 'Website'} />
+  <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" />
+
+  <p class="survey-progress" aria-live="polite"></p>
+
+  <div class="survey-step is-current" data-step="1">
+    <fieldset>
+      <legend>What do you need?</legend>
+      {choices.map((c) => (
+        <label class="choice"><input type="radio" name="service" value={c.name} data-kind={c.kind} />{c.name}</label>
+      ))}
+      <label class="choice"><input type="radio" name="service" value="Something else" data-kind="other" />Something else</label>
+    </fieldset>
+  </div>
+
+  <div class="survey-step" data-step="2">
+    <p class="step-title">A few details</p>
+    <fieldset class="kind-block" data-kind="moving">
+      <label class="field">Moving from <small>(address or ZIP)</small><input name="moving_from" autocomplete="off" /></label>
+      <label class="field">Moving to <small>(address or ZIP)</small><input name="moving_to" autocomplete="off" /></label>
+      <label class="field">How much is moving?
+        <select name="moving_size"><option value="">Choose one</option><option>A few items</option><option>Studio or 1 bedroom</option><option>2 bedrooms</option><option>3 or more bedrooms</option><option>Office or shop</option></select>
+      </label>
+      <label class="field">Any stairs?
+        <select name="moving_stairs"><option value="">Choose one</option>{stairs.map((o) => <option>{o}</option>)}</select>
+      </label>
+    </fieldset>
+    <fieldset class="kind-block" data-kind="welding">
+      <label class="field">What needs welding?<input name="welding_job" /></label>
+      <label class="field">What's it made of?
+        <select name="welding_material"><option value="">Choose one</option><option>Steel</option><option>Aluminum</option><option>Stainless</option><option>Not sure</option></select>
+      </label>
+    </fieldset>
+    <fieldset class="kind-block" data-kind="materials">
+      <label class="field">What materials?<input name="materials_what" /></label>
+      <label class="field">Pick up from <small>(store or address)</small><input name="materials_pickup" autocomplete="off" /></label>
+      <label class="field">Deliver to <small>(address or ZIP)</small><input name="materials_deliver" autocomplete="off" /></label>
+    </fieldset>
+    <fieldset class="kind-block" data-kind="teardown">
+      <label class="field">What's coming down? <small>(shed, carport, fence...)</small><input name="teardown_what" /></label>
+      <label class="field">About how big?<input name="teardown_size" /></label>
+      <label class="field">Are power and water disconnected?
+        <select name="teardown_utilities"><option value="">Choose one</option><option>Yes</option><option>No</option><option>Not sure</option><option>Doesn't have any</option></select>
+      </label>
+    </fieldset>
+    <fieldset class="kind-block" data-kind="junk">
+      <label class="field">What's going?<input name="junk_what" /></label>
+      <label class="field">About how much?
+        <select name="junk_amount"><option value="">Choose one</option><option>A few items</option><option>About half a van</option><option>A full van</option><option>More than a van</option></select>
+      </label>
+      <label class="field">Any stairs?
+        <select name="junk_stairs"><option value="">Choose one</option>{stairs.map((o) => <option>{o}</option>)}</select>
+      </label>
+    </fieldset>
+    <label class="field mt-4">Anything else I should know? <small>(optional)</small><textarea name="details" rows="3"></textarea></label>
+  </div>
+
+  <div class="survey-step" data-step="3">
+    <fieldset>
+      <legend>When do you need it?</legend>
+      {['As soon as possible', 'This week', 'Within two weeks', "I'm flexible"].map((w) => (
+        <label class="choice"><input type="radio" name="timing" value={w} />{w}</label>
+      ))}
+    </fieldset>
+    <label class="field mt-2">Best days and times <small>(optional)</small><input name="preferred_times" /></label>
+  </div>
+
+  <div class="survey-step" data-step="4">
+    <p class="step-title">How do I reach you?</p>
+    <label class="field">Name<input name="name" required autocomplete="name" /></label>
+    <label class="field">Phone<input name="phone" type="tel" required autocomplete="tel" inputmode="tel" /></label>
+    <label class="field">Job address or ZIP<input name="address" required autocomplete="postal-code" /></label>
+    <button class="btn btn-go w-full" type="submit" id="quote-submit">Send my request</button>
+  </div>
+
+  <div class="survey-nav">
+    <button type="button" class="btn btn-line" id="quote-back">Back</button>
+    <button type="button" class="btn btn-go" id="quote-next">Next</button>
+  </div>
+</form>
+
+<div id="quote-send" hidden class="mt-2">
+  <p class="display text-[1.6rem]">Almost done</p>
+  <p class="mt-1 mb-3">Your answers are filled in. Press send in the app that opens.</p>
+  <div class="grid gap-2.5">
+    {biz.email && <a class="btn btn-go" id="quote-email"><>Send by email</></a>}
+    {biz.phone && <a class="btn btn-dark" id="quote-text"><Icon name="text" />Send by text</a>}
+  </div>
+  <button type="button" class="textlink mt-2 bg-transparent cursor-pointer" id="quote-edit">Change my answers</button>
+</div>
+
+<script is:inline>
+(function () {
+  var f = document.getElementById('quote-form');
+  if (!f) return;
+  var steps = [].slice.call(f.querySelectorAll('.survey-step'));
+  var cur = 0;
+  var progress = f.querySelector('.survey-progress');
+  var back = document.getElementById('quote-back');
+  var next = document.getElementById('quote-next');
+  var nav = f.querySelector('.survey-nav');
+  var blocks = [].slice.call(f.querySelectorAll('.kind-block'));
+
+  function chosen() { return f.querySelector('input[name=service]:checked'); }
+  function applyKind() {
+    var c = chosen();
+    var kind = c ? c.getAttribute('data-kind') : '';
+    blocks.forEach(function (b) {
+      var on = b.getAttribute('data-kind') === kind;
+      b.hidden = !on;
+      b.disabled = !on;
+    });
+  }
+  function show(i, focus) {
+    cur = i;
+    steps.forEach(function (s, n) { s.classList.toggle('is-current', n === i); });
+    progress.textContent = 'Step ' + (i + 1) + ' of ' + steps.length;
+    back.style.display = i === 0 ? 'none' : '';
+    next.style.display = i === steps.length - 1 ? 'none' : '';
+    nav.classList.toggle('solo', i === 0 || i === steps.length - 1);
+    if (focus) {
+      var el = steps[i].querySelector('input:not([type=hidden]),select,textarea');
+      if (el) el.focus({ preventScroll: true });
+      f.scrollIntoView({ block: 'start' });
+    }
+  }
+  function valid() {
+    var els = steps[cur].querySelectorAll('input,select,textarea');
+    for (var i = 0; i < els.length; i++) if (!els[i].disabled && !els[i].reportValidity()) return false;
+    return true;
+  }
+  f.classList.add('js-survey');
+  applyKind();
+  show(0);
+
+  next.addEventListener('click', function () {
+    if (cur === 0 && !chosen()) { progress.textContent = 'Pick one to continue'; return; }
+    if (valid()) show(cur + 1, true);
+  });
+  back.addEventListener('click', function () { show(cur - 1, true); });
+  f.addEventListener('change', function (e) {
+    if (e.target.name === 'service') applyKind();
+  });
+
+  // Service buttons on the page start the survey with that service picked.
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('[data-service]');
+    if (!a) return;
+    var name = a.getAttribute('data-service');
+    var r = [].slice.call(f.querySelectorAll('input[name=service]')).filter(function (x) { return x.value === name; })[0];
+    if (r) { r.checked = true; applyKind(); show(1); }
+  });
+
+  var LABELS = { service: 'Service', moving_from: 'Moving from', moving_to: 'Moving to', moving_size: 'How much', moving_stairs: 'Stairs', welding_job: 'Welding job', welding_material: 'Material', materials_what: 'Materials', materials_pickup: 'Pick up from', materials_deliver: 'Deliver to', teardown_what: 'Tear-down', teardown_size: 'Size', teardown_utilities: 'Utilities disconnected', junk_what: 'Junk', junk_amount: 'How much', junk_stairs: 'Stairs', details: 'Details', timing: 'When', preferred_times: 'Best times', name: 'Name', phone: 'Phone', address: 'Job address or ZIP', source: 'Came from' };
+  function summary() {
+    var d = new FormData(f), out = [];
+    Object.keys(LABELS).forEach(function (k) { var v = d.get(k); if (v) out.push(LABELS[k] + ': ' + v); });
+    return out.join('\n');
+  }
+  f.addEventListener('submit', function (e) {
+    if (f.getAttribute('data-key')) return; // Web3Forms takes it from here.
+    e.preventDefault();
+    if (f.querySelector('[name=botcheck]').checked) return;
+    var body = encodeURIComponent(summary());
+    var sub = encodeURIComponent('Quote request: ' + (new FormData(f).get('service') || 'New job'));
+    var mail = document.getElementById('quote-email');
+    var text = document.getElementById('quote-text');
+    if (mail) mail.href = 'mailto:' + f.getAttribute('data-email') + '?subject=' + sub + '&body=' + body;
+    if (text) text.href = f.getAttribute('data-sms') + body;
+    f.hidden = true;
+    var panel = document.getElementById('quote-send');
+    panel.hidden = false;
+    panel.scrollIntoView({ block: 'center' });
+  });
+  document.getElementById('quote-edit').addEventListener('click', function () {
+    document.getElementById('quote-send').hidden = true;
+    f.hidden = false;
+    show(0, true);
+  });
+})();
+</script>

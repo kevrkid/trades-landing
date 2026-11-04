@@ -2,16 +2,16 @@
 import Base from '../layouts/Base.astro';
 import Footer from './Footer.astro';
 import Icon from './Icon.astro';
+import QuoteForm from './QuoteForm.astro';
 import vanArt from '../assets/van.svg?raw';
-import { biz, telHref, smsHref, priceText, bookUrl, hasForm, trustBits, serviceNames, jsonLd, siteUrl } from '../lib/derive.ts';
+import { biz, telHref, smsHref, priceText, bookUrl, hasForm, trustBits, jsonLd } from '../lib/derive.ts';
 
 const { scan = false } = Astro.props as { scan?: boolean };
 const hello = scan ? 'Hi, I scanned your van. ' : 'Hi! ';
 const textHref = smsHref(`${hello}I need help with: `);
 const photosHref = smsHref(`${hello}Here are photos for a quote.\nMy name:\nAddress or ZIP:\nWhat I need:\n`);
-const canQuote = hasForm || !!biz.phone;
+const canQuote = hasForm;
 const quoteHref = hasForm ? '#quote' : textHref;
-const site = siteUrl();
 
 const what = [biz.whatIDo, biz.area.summary].filter(Boolean).join(' in ');
 const quoteFor = (name: string) => hasForm ? '#quote' : smsHref(`${hello}I'd like a quote for: ${name}`);
@@ -165,18 +165,27 @@ const faq = [
         </div>
       </section>
 
-      {biz.photos.gallery.length > 0 && (
+      {(biz.photos.gallery.length > 0 || biz.photos.videos.length > 0) && (
         <section class="sec bg-paper" id="work">
           <div class="wrap">
             <h2 class="sec-title">Recent work</h2>
-            <ul class="grid gap-6 md:grid-cols-2">
+            {biz.photos.videos.length > 0 && (
+              <ul class="grid grid-cols-2 gap-2.5 mb-4 md:max-w-xl">
+                {biz.photos.videos.map((v) => (
+                  <li>
+                    <video controls muted playsinline preload="none" poster={v.poster} width="540" height="960" class="w-full h-auto rounded-md bg-deep" aria-label={v.caption}>
+                      <source src={v.src} type="video/mp4" />
+                    </video>
+                    <p class="font-bold text-[15px] mt-1">{v.caption}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <ul class="grid grid-cols-2 gap-2.5 md:grid-cols-4">
               {biz.photos.gallery.map((g) => (
                 <li>
-                  <div class="grid grid-cols-2 gap-1.5">
-                    <figure><img src={g.before} alt={`Before: ${g.caption}`} width="400" height="300" loading="lazy" class="w-full aspect-[4/3] object-cover rounded-md" /><figcaption class="font-bold text-[15px] mt-1">Before</figcaption></figure>
-                    <figure><img src={g.after} alt={`After: ${g.caption}`} width="400" height="300" loading="lazy" class="w-full aspect-[4/3] object-cover rounded-md" /><figcaption class="font-bold text-[15px] mt-1">After</figcaption></figure>
-                  </div>
-                  <p class="mt-1">{g.caption}</p>
+                  <img src={g.src} alt={g.caption} width={g.width} height={g.height} loading="lazy" decoding="async" class="w-full aspect-[4/3] object-cover rounded-md" />
+                  <p class="font-bold text-[15px] mt-1">{g.caption}</p>
                 </li>
               ))}
             </ul>
@@ -247,30 +256,9 @@ const faq = [
         <section class="sec bg-paper" id="quote">
           <div class="wrap max-w-xl!">
             <h2 class="sec-title">Get a quote</h2>
+            {hasForm && <QuoteForm scan={scan} />}
             {biz.phone && (
-              <a class="btn btn-dark mb-6" href={photosHref}><Icon name="text" />Text me photos instead</a>
-            )}
-            {hasForm && (
-              <form action="https://api.web3forms.com/submit" method="POST" id="quote-form">
-                <input type="hidden" name="access_key" value={biz.web3formsKey} />
-                <input type="hidden" name="subject" value={`New quote request${biz.name ? ` for ${biz.name}` : ''}`} />
-                <input type="hidden" name="from_name" value="Website quote form" />
-                <input type="hidden" name="source" value={scan ? 'Van QR code' : 'Website'} />
-                {site && <input type="hidden" name="redirect" value={`${site}/thanks`} />}
-                <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" />
-                <label class="field">Name<input name="name" required autocomplete="name" /></label>
-                <label class="field">Phone<input name="phone" type="tel" required autocomplete="tel" inputmode="tel" /></label>
-                <label class="field">Address or ZIP <small>(moving? give both from and to)</small><input name="address" required autocomplete="street-address" /></label>
-                <label class="field">Service
-                  <select name="service" id="quote-service">
-                    <option value="">Not sure yet</option>
-                    {serviceNames().map((n) => <option value={n}>{n}</option>)}
-                  </select>
-                </label>
-                <label class="field">What do you need done?<textarea name="details" rows="4" required></textarea></label>
-                <label class="field">Best days and times <small>(optional)</small><input name="preferred_times" /></label>
-                <button class="btn btn-go w-full" type="submit">Send my request</button>
-              </form>
+              <a class="btn btn-dark mt-5" href={photosHref}><Icon name="text" />Text me photos instead</a>
             )}
           </div>
         </section>
@@ -289,13 +277,4 @@ const faq = [
     )}
   </div>
 
-  {hasForm && (
-    <script is:inline>
-      document.addEventListener('click', function (e) {
-        var a = e.target.closest && e.target.closest('[data-service]');
-        var s = document.getElementById('quote-service');
-        if (a && s) s.value = a.getAttribute('data-service');
-      });
-    </script>
-  )}
 </Base>

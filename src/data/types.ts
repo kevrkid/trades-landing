@@ -11,6 +11,8 @@ export interface Service {
   price: Price;
   /** 'book' sends them to Square; 'quote' opens the quote form with this service picked. */
   action: 'book' | 'quote';
+  /** Which questions the quote survey asks for this service. */
+  kind?: 'moving' | 'welding' | 'materials' | 'teardown' | 'junk';
   /** Optional: a Square link for just this service. Otherwise uses links.booking. */
   bookingUrl?: string;
 }
@@ -30,7 +32,8 @@ export interface HoursRow {
   schema?: string;
 }
 export interface Review { text: string; name: string; source: string; stars?: number }
-export interface WorkPhoto { before: string; after: string; caption: string }
+export interface WorkPhoto { src: string; caption: string; width: number; height: number }
+export interface WorkVideo { src: string; poster: string; caption: string }
 
 export interface Business {
   name: string;
@@ -62,7 +65,7 @@ export interface Business {
   van: { bringsOwnPower: boolean };
   promises: { upfrontPricing: boolean; cleanUp: boolean };
   owner: { name: string; photo: string; note: string };
-  photos: { van: string; vanWebp: string; vanAlt: string; gallery: WorkPhoto[] };
+  photos: { van: string; vanWebp: string; vanAlt: string; gallery: WorkPhoto[]; videos: WorkVideo[] };
   reviews: Review[];
   /** Your real overall score, shown at the top of the page. */
   rating: { score: string; count: number; source: string };

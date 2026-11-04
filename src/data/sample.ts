@@ -13,15 +13,15 @@ export const sample: Business = {
   plans: [{ name: 'Sample Care Plan', price: '$29/month (sample)', description: 'A sample plan, showing where a real one will go.', includes: ['Sample benefit one', 'Sample benefit two'], signupUrl: '' }],
   trades: [
     { name: 'Moving', services: [
-      { name: 'Moving in Texas', description: 'Moving your things to their new place.', price: { type: 'from', amount: 150 }, action: 'book' },
+      { name: 'Moving in Texas', kind: 'moving', description: 'Moving your things to their new place.', price: { type: 'from', amount: 150 }, action: 'book' },
     ] },
     { name: 'Welding', services: [
-      { name: 'Small welding jobs', description: 'Small welding repairs and projects.', price: { type: 'hourly', min: 60, max: 100 }, action: 'book' },
+      { name: 'Small welding jobs', kind: 'welding', description: 'Small welding repairs and projects.', price: { type: 'hourly', min: 60, max: 100 }, action: 'book' },
       { name: 'Sample flat-price job', description: 'Shows how a flat price looks.', price: { type: 'flat', amount: 125 }, action: 'quote' },
     ] },
     { name: 'Tear-down and junk', services: [
-      { name: 'Building tear-down', description: 'Taking down a building or structure.', price: { type: 'estimate' }, action: 'quote' },
-      { name: 'Junk removal', description: 'Loading up your junk and hauling it away.', price: { type: 'none' }, action: 'quote' },
+      { name: 'Building tear-down', kind: 'teardown', description: 'Taking down a building or structure.', price: { type: 'estimate' }, action: 'quote' },
+      { name: 'Junk removal', kind: 'junk', description: 'Loading up your junk and hauling it away.', price: { type: 'none' }, action: 'quote' },
     ] },
   ],
   area: { summary: 'Texas', places: ['North Texas', 'Central Texas', 'South Texas'] },
@@ -34,7 +34,7 @@ export const sample: Business = {
   socials: [{ label: 'Instagram', url: 'https://example.com/instagram' }],
   credentials: { licenses: [{ label: 'Sample license', number: 'SAMPLE-000' }], insurance: 'Fully insured (sample)', warranty: '1-year warranty on labor (sample)' },
   owner: { name: 'Sam', photo: pic('OWNER', '#35506f'), note: 'Sample note: this is where a sentence in your own words goes.' },
-  photos: { ...business.photos, gallery: [{ before: pic('BEFORE', '#7a5a45'), after: pic('AFTER', '#2f7a57'), caption: 'Sample job caption' }] },
+  photos: business.photos,
   rating: { score: '4.9', count: 12, source: 'Google (sample)' },
   reviews: [{ text: 'This is a sample review, showing where a real one will go.', name: 'Sample C.', source: 'Google', stars: 5 }],
   vanOffer: { headline: '$25 off your first job (sample)', terms: 'Sample terms go here.' },

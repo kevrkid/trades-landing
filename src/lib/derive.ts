@@ -33,13 +33,21 @@ export function priceText(p: Price): string {
 }
 
 export const bookUrl = (s: Service) => s.bookingUrl || biz.links.booking;
-export const hasForm = !!biz.web3formsKey;
+/** The survey form shows when answers have somewhere to go. */
+export const hasForm = !!(biz.web3formsKey || biz.email || biz.phone);
 
 export function trustBits(): string[] {
   const bits = biz.credentials.licenses.map((l) => `${l.label} #${l.number}`);
   if (biz.credentials.insurance) bits.push(biz.credentials.insurance);
   if (biz.credentials.warranty) bits.push(biz.credentials.warranty);
   return bits;
+}
+
+export function surveyChoices(): { name: string; kind: string }[] {
+  return [
+    ...biz.trades.flatMap((t) => t.services.map((s) => ({ name: s.name, kind: s.kind || 'other' }))),
+    ...biz.plans.map((p) => ({ name: p.name, kind: 'other' })),
+  ];
 }
 
 export function serviceNames(): string[] {
@@ -101,16 +109,14 @@ export function todos(): { item: string; blocker?: boolean }[] {
   need(b.socials, 'Social links (optional)');
   need(b.credentials.licenses, 'USDOT number, TxDMV certificate number, and any other licenses');
   need(b.credentials.insurance, 'Insurance');
-  need(b.credentials.warranty, 'Warranty');
   need(b.owner.name, 'Your first name');
   need(b.owner.photo, 'Photo of you');
   need(b.photos.van, 'Photo of the van');
-  need(b.photos.gallery, 'Before and after photos');
   need(b.reviews, 'Real reviews');
   need(b.rating.score, 'Your real Google score and review count');
   need(b.vanOffer.headline, 'Van-scan offer (optional)');
-  for (const [k, v] of Object.entries(b.faq)) need(v, `FAQ answer: ${k}`);
-  need(b.web3formsKey, 'Web3Forms key (turns on the quote form)');
+  for (const [k, v] of Object.entries(b.faq)) if (k !== 'warranty') need(v, `FAQ answer: ${k}`);
+  need(b.web3formsKey, 'Web3Forms key (optional: sends quote answers straight to your email)');
   need(b.cloudflareAnalyticsToken, 'Cloudflare Web Analytics token');
   if (b.trades.flatMap((t) => t.services).every((s) => s.price.type === 'none')) out.push({ item: 'Service prices' });
   return out;

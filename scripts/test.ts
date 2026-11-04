@@ -36,7 +36,7 @@ try {
     page.on('pageerror', (e) => errors.push(String(e)));
     await page.goto(S + '/');
     ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${width}: no sideways scroll`);
-    const small = await page.$$eval('a,button,select,input:not([type=hidden]):not([type=checkbox]),textarea,summary', (els) =>
+    const small = await page.$$eval('a,button,select,input:not([type=hidden]):not([type=checkbox]):not([type=radio]),textarea,summary', (els) =>
       els.filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height < 48; }).map((e) => e.outerHTML.slice(0, 80)));
     ok(!small.length, `${width}: tap targets 48px+ ${small.join(' | ')}`);
     await page.screenshot({ path: `${SHOTS}/sample-${width}-top.png` });
@@ -64,7 +64,8 @@ try {
   // Service buttons.
   await page.locator('#services a[data-service="Building tear-down"]').click();
   await page.waitForTimeout(100);
-  ok(await page.locator('#quote-service').inputValue() === 'Building tear-down', 'quote button preselects the service');
+  ok(await page.locator('input[name=service]:checked').getAttribute('value') === 'Building tear-down', 'quote button preselects the service');
+  ok(await page.locator('[name=teardown_what]').isVisible() && !(await page.locator('[name=moving_from]').isVisible()), 'survey asks the tear-down questions only');
   ok(await page.locator('#services a', { hasText: 'Book this' }).first().getAttribute('href') === 'https://example.com/square-booking', 'book button goes to Square');
   ok(await page.locator('#plans a[data-service]').count() === 1, 'plan without a Square link opens the form');
 
@@ -120,6 +121,49 @@ try {
     await page.screenshot({ path: `${SHOTS}/sample-${p.slice(1)}.png`, fullPage: true });
   }
 
+  // Real config: the survey with no outside service, from first question to send.
+  await page.goto(R + '/');
+  const survey = page.locator('#quote-form');
+  ok(await survey.isVisible(), 'real: survey shows');
+  await page.locator('#quote-next').click();
+  ok(await page.locator('[data-step="1"]').isVisible(), 'survey will not move on until a service is picked');
+  await page.locator('label.choice', { hasText: 'Moving in Texas' }).click();
+  await page.locator('#quote-next').click();
+  await page.locator('[name=moving_from]').fill('78641');
+  await page.locator('[name=moving_to]').fill('76504');
+  await page.locator('[name=moving_size]').selectOption('2 bedrooms');
+  ok(!(await page.locator('[name=junk_what]').isVisible()), 'survey hides other jobs');
+  await page.locator('#quote-next').click();
+  await page.locator('label.choice', { hasText: 'This week' }).click();
+  await page.locator('#quote-next').click();
+  await page.locator('#quote-submit').click();
+  ok(await page.locator('[data-step="4"]').isVisible() && !(await page.locator('#quote-send').isVisible()), 'survey requires name, phone and ZIP');
+  await page.locator('[name=name]').fill('Test Person');
+  await page.locator('[name=phone]').fill('5125550199');
+  await page.locator('[name=address]').fill('78641');
+  await page.screenshot({ path: `${SHOTS}/survey-last.png` });
+  await page.locator('#quote-submit').click();
+  ok(await page.locator('#quote-send').isVisible(), 'survey reaches the send step');
+  const mailto = decodeURIComponent((await page.locator('#quote-email').getAttribute('href'))!);
+  ok(mailto.startsWith('mailto:' + business.email) && mailto.includes('Service: Moving in Texas') && mailto.includes('Moving to: 76504') && mailto.includes('When: This week') && mailto.includes('Name: Test Person') && !mailto.includes('Junk'), 'email has the answers');
+  await page.screenshot({ path: `${SHOTS}/survey-send.png` });
+  await page.locator('#quote-edit').click();
+  ok(await survey.isVisible() && await page.locator('[name=moving_to]').inputValue() === '76504', 'can go back and change answers');
+  const nojsF = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 800 } });
+  const nf2 = await nojsF.newPage();
+  await nf2.goto(R + '/');
+  ok(await nf2.locator('[name=moving_from]').isVisible() && await nf2.locator('[name=name]').isVisible(), 'no JS: the whole form still shows');
+  await nojsF.close();
+  // Real work.
+  await page.goto(R + '/');
+  ok(await page.locator('#work img').count() === business.photos.gallery.length, 'real: work photos show');
+  ok(await page.locator('#work video[preload=none]').count() === business.photos.videos.length, 'real: videos wait until tapped');
+  for (const p of ['/work/welding-cut.mp4', '/work/welding-weld.mp4', '/work/steel-frame.webp']) ok((await fetch(R + p, { method: 'HEAD' })).status === 200, `real: ${p} loads`);
+  const faqText = await page.locator('#faq').evaluate((e) => e.textContent || '');
+  ok(/2-hour minimum/.test(faqText) && /Zelle/.test(faqText) && /\$75 trip fee/.test(faqText), 'real: FAQ answers show');
+  ok(!/warranty/i.test(await page.locator('body').evaluate((e) => e.textContent || '')), 'real: warranty stays off the page');
+  ok((await page.locator('header').innerText()).includes('USDOT #9994372'), 'real: DOT number shows');
+
   // The real config: nothing fake, unset things hidden.
   const home = readFileSync('dist-real/index.html', 'utf8');
   ok(!/sample|example\.com|555/i.test(home), 'real build has no sample data');
@@ -131,7 +175,7 @@ try {
   ok(await page.getByText('Brings its own power').count() === 0, 'real: own-power toggle is off by default');
   ok((await page.locator('header').innerText()).includes('/HOUR') || (await page.locator('header').innerText()).includes('/hour'), 'real: rate shows near the top');
   ok(await page.locator('#services').getByText('$60-$100/hour').count() === business.trades.flatMap((t) => t.services).length, 'real: every service shows the hourly rate');
-  ok(await page.locator('#faq').count() === 0 || !(await page.locator('#faq').innerText()).includes('minimum'), 'real: blank minimum question stays hidden');
+  if (!business.faq.extras) ok(!/anything extra on top/i.test(await page.locator('#faq').evaluate((e) => e.textContent || '')), 'real: unanswered FAQ question stays hidden');
   if (!business.rating.score) ok(await page.locator('header').getByText('reviews').count() === 0, 'real: no rating until you have one');
   ok(await page.getByText('3 hours of work comes to $180-$300').count() === 1, 'real: worked example shows');
   if (todos().some((t) => t.blocker)) ok(await page.locator('meta[name=robots][content=noindex]').count() === 1, 'real: unfinished site stays out of Google');

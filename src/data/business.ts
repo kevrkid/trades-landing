@@ -42,21 +42,21 @@ export const business: Business = {
   // In your priority order.
   trades: [
     { name: 'Moving', services: [
-      { name: 'Moving in Texas', description: 'I handle moves anywhere in Texas.',
+      { name: 'Moving in Texas', kind: 'moving', description: 'I handle moves anywhere in Texas.',
         price: HOURLY, action: 'quote' },
     ] },
     { name: 'Welding', services: [
-      { name: 'Small welding jobs', description: 'I take on small welding jobs.',
+      { name: 'Small welding jobs', kind: 'welding', description: 'I take on small welding jobs.',
         price: HOURLY, action: 'quote' },
     ] },
     { name: 'Building materials', services: [
-      { name: 'Building material delivery', description: 'I pick up and deliver building materials.',
+      { name: 'Building material delivery', kind: 'materials', description: 'I pick up and deliver building materials.',
         price: HOURLY, action: 'quote' },
     ] },
     { name: 'Tear-down and junk', services: [
-      { name: 'Building tear-down', description: 'I take down buildings.',
+      { name: 'Building tear-down', kind: 'teardown', description: 'I take down buildings.',
         price: HOURLY, action: 'quote' },
-      { name: 'Junk removal', description: 'I pick up and haul away junk.',
+      { name: 'Junk removal', kind: 'junk', description: 'I pick up and haul away junk.',
         price: HOURLY, action: 'quote' },
     ] },
   ],
@@ -82,7 +82,7 @@ export const business: Business = {
 
   // ---------- CONTACT ----------
   phone: '', // TODO: with country code, e.g. '+15125550100'. Used for both call and text.
-  email: '', // TODO: shown in the footer
+  email: 'lockerbox.tx@gmail.com',
 
   // ---------- WEB ADDRESS ----------
   domain: '', // TODO: e.g. 'example.com' (no https://). Then run: npm run qr
@@ -100,9 +100,9 @@ export const business: Business = {
   credentials: {
     // TODO: your DOT number: { label: 'USDOT', number: '0000000' }
     // and your TxDMV certificate, if you have one: { label: 'TxDMV', number: '000000' }
-    licenses: [],
+    licenses: [{ label: 'USDOT', number: '9994372' }],
     insurance: 'Commercially insured',
-    warranty: '', // TODO: e.g. '1-year warranty on labor'
+    warranty: '', // Left off the page on purpose for now.
   },
 
   // ---------- THE VAN ----------
@@ -117,15 +117,25 @@ export const business: Business = {
 
   // ---------- PHOTOS (put files in public/photos/) ----------
   owner: {
-    name: '', // TODO: your first name
+    name: 'Kevin',
     photo: '', // TODO: e.g. '/photos/me.jpg'
-    note: '', // TODO: a sentence or two in your own words
+    note: "Hi, I'm Kevin, the owner of Locker Box.",
   },
   photos: {
     van: '/img/van-1200.jpg',
     vanWebp: '/img/van-640.webp 640w, /img/van-960.webp 960w, /img/van-1200.webp 1200w',
     vanAlt: 'White all-electric Mercedes eSprinter van parked on a sunny street',
-    gallery: [], // TODO: { before: '/photos/1a.jpg', after: '/photos/1b.jpg', caption: 'What you did' }
+    // Real jobs. Add more by copying a line. Files live in public/work/.
+    gallery: [
+      { src: '/work/steel-frame.webp', caption: 'Steel frame', width: 900, height: 675 },
+      { src: '/work/building-in-progress.webp', caption: 'Building in progress', width: 900, height: 675 },
+      { src: '/work/metal-building.webp', caption: 'Finished metal building', width: 900, height: 675 },
+      { src: '/work/metal-building-inside.webp', caption: 'Inside a finished building', width: 900, height: 675 },
+    ],
+    videos: [
+      { src: '/work/welding-cut.mp4', poster: '/work/welding-cut.webp', caption: 'Cutting steel on site' },
+      { src: '/work/welding-weld.mp4', poster: '/work/welding-weld.webp', caption: 'Welding on site' },
+    ],
   },
 
   // ---------- REVIEWS (real ones only, exact wording) ----------
@@ -142,12 +152,12 @@ export const business: Business = {
   // ---------- FAQ (a blank answer hides that question) ----------
   faq: {
     estimates: '', // TODO: Are estimates free?
-    payment: '', // TODO: e.g. 'Card, Apple Pay or cash. Invoices come as a Square link.'
+    payment: 'Card, cash or Zelle.',
     deposits: '', // TODO: When is a deposit needed, and is it refundable?
     cancellations: '', // TODO: Your cancellation policy
-    warranty: '', // TODO: What your warranty covers
-    travelFee: '', // TODO: Is there a travel fee?
-    minimum: '', // TODO: Is there a minimum charge? e.g. a 2-hour minimum
+    warranty: '', // Left off the page on purpose for now.
+    travelFee: "Travel is free within 30 miles. Farther than that, there's a $75 trip fee, and I'll confirm it before booking. Long moves across Texas are quoted by the trip, including drive time.",
+    minimum: "Yes, there's a 2-hour minimum.",
     extras: '', // TODO: Anything on top of the hourly rate? e.g. dump fees, materials, stairs
   },
 

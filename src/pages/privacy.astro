@@ -10,7 +10,7 @@ const who = biz.name || 'This business';
     <h1 class="sec-title text-[2.6rem]">Privacy, in plain English</h1>
     <p>{who} is a small local business. This site has no accounts, no ads and no tracking cookies.</p>
     {hasForm && <><h2 class="text-2xl">The quote form</h2>
-    <p>What you type in the form goes to my email through a service called Web3Forms. I use it only to reply about your job, and I don't sell it or share it for marketing.</p></>}
+    <p>{biz.web3formsKey ? 'What you type in the form goes to my email through a service called Web3Forms.' : 'The form puts your answers into your own email or text app, and nothing is sent until you press send there. This site does not store them.'} I use your answers only to reply about your job, and I don't sell them or share them for marketing.</p></>}
     <h2 class="text-2xl">Calls and texts</h2>
     <p>Calling or texting opens your own phone's app. I'll have your number and whatever you send me, and I use them to help with your job.</p>
     <h2 class="text-2xl">Booking and payments</h2>
