@@ -11,18 +11,20 @@ const pic = (label: string, bg: string) =>
 export const sample: Business = {
   ...business,
   name: 'Sample Trades Co.',
-  whatIDo: 'Plumbing and home repairs',
+  whatIDo: 'Moving, welding, material hauling, tear-downs and junk removal',
+  plans: [{ name: 'Sample Care Plan', price: '$29/month (sample)', description: 'A sample plan, showing where a real one will go.', includes: ['Sample benefit one', 'Sample benefit two'], signupUrl: '' }],
   trades: [
-    { name: 'Plumbing', services: [
-      { name: 'Faucet replacement', description: 'Old one out, new one in, tested for leaks.', price: { type: 'from', amount: 150 }, action: 'book' },
-      { name: 'Water heater install', description: 'Tank or tankless, old unit hauled away.', price: { type: 'estimate' }, action: 'quote' },
+    { name: 'Moving', services: [
+      { name: 'Moving in Texas', description: 'Moving your things to their new place.', price: { type: 'from', amount: 150 }, action: 'book' },
     ] },
-    { name: 'Home repairs', services: [
-      { name: 'One-hour repair visit', description: 'A list of small fixes, done in one visit.', price: { type: 'flat', amount: 125 }, action: 'book' },
-      { name: 'Drywall patch', description: 'Patched, sanded and ready for paint.', price: { type: 'none' }, action: 'quote' },
+    { name: 'Welding', services: [
+      { name: 'Small welding jobs', description: 'Small welding repairs and projects.', price: { type: 'flat', amount: 125 }, action: 'book' },
+    ] },
+    { name: 'Tear-down and junk', services: [
+      { name: 'Building tear-down', description: 'Taking down a building or structure.', price: { type: 'estimate' }, action: 'quote' },
+      { name: 'Junk removal', description: 'Loading up your junk and hauling it away.', price: { type: 'none' }, action: 'quote' },
     ] },
   ],
-  plans: [{ name: 'Home Care Plan', price: '$29/month', description: 'A yearly check-up and a better rate on everything else.', includes: ['Yearly home check-up', '10% off repairs', 'First in line when you text'], signupUrl: '' }],
   area: { summary: 'Sampletown and nearby', places: ['Sampletown', 'Exampleville', 'Testburg'] },
   hours: [{ days: 'Mon-Fri', time: '8 AM-6 PM', schema: 'Mo-Fr 08:00-18:00' }, { days: 'Sat', time: '9 AM-2 PM', schema: 'Sa 09:00-14:00' }],
   hoursNote: 'After-hours emergencies by text.',

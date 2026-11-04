@@ -9,15 +9,13 @@ export const business: Business = {
   // ---------- WHO ----------
   name: '', // TODO: business name
   logo: '', // TODO (optional): put the file in public/ and write e.g. '/logo.svg'
-  whatIDo: '', // TODO: a few words, e.g. 'Plumbing and home repairs'
+  whatIDo: 'Moving, welding, material hauling, tear-downs and junk removal',
 
   // Navy + safety orange, proposed. Change these to match the van wrap.
   colors: { brand: '#0B2545', brandDeep: '#071A33', accent: '#FF7A00', accentInk: '#0B1B33' },
 
-  // TODO: the most specific type for your trade, for Google. Options: Plumber, Electrician,
-  // HVACBusiness, Locksmith, HousePainter, RoofingContractor, GeneralContractor.
-  // This default fits any home-service trade.
-  schemaType: 'HomeAndConstructionBusiness',
+  // The most specific type for Google. Moving is your top priority, so this says MovingCompany.
+  schemaType: 'MovingCompany',
 
   // ---------- SERVICES ----------
   // TODO: your services, grouped by trade. Copy this shape:
@@ -31,7 +29,27 @@ export const business: Business = {
   //   ],
   // },
   // price type: 'flat' | 'from' (both need amount) | 'estimate' (free estimate) | 'none'
-  trades: [],
+  // In your priority order. TODO: add prices when you have them.
+  trades: [
+    { name: 'Moving', services: [
+      { name: 'Moving in Texas', description: 'Moving your things to their new place, anywhere in Texas.',
+        price: { type: 'none' }, action: 'quote' },
+    ] },
+    { name: 'Welding', services: [
+      { name: 'Small welding jobs', description: 'Small welding repairs and projects.',
+        price: { type: 'none' }, action: 'quote' },
+    ] },
+    { name: 'Building materials', services: [
+      { name: 'Building material delivery', description: 'Picking up building materials and bringing them to your job or home.',
+        price: { type: 'none' }, action: 'quote' },
+    ] },
+    { name: 'Tear-down and junk', services: [
+      { name: 'Building tear-down', description: 'Taking down a building or structure.',
+        price: { type: 'none' }, action: 'quote' },
+      { name: 'Junk removal', description: 'Loading up your junk and hauling it away.',
+        price: { type: 'none' }, action: 'quote' },
+    ] },
+  ],
 
   // TODO (recommended, this is your steady income): a monthly or yearly care plan.
   // Copy this shape:
@@ -41,7 +59,7 @@ export const business: Business = {
 
   // ---------- WHERE AND WHEN ----------
   area: {
-    summary: '', // TODO: e.g. 'Austin and Round Rock'
+    summary: 'Texas', // TODO: name your home base if welding and tear-downs aren't statewide
     places: [], // TODO: e.g. ['Austin', 'Round Rock', 'Pflugerville']. Also used for Google.
   },
   hours: [], // TODO: e.g. { days: 'Mon-Fri', time: '8 AM-6 PM', schema: 'Mo-Fr 08:00-18:00' }
@@ -65,7 +83,8 @@ export const business: Business = {
 
   // ---------- CREDENTIALS (only what's true) ----------
   credentials: {
-    licenses: [], // TODO: e.g. { label: 'Texas Master Plumber', number: 'M-00000' }
+    // TODO: your TxDMV mover registration, once you have it: { label: 'TxDMV', number: '000000' }
+    licenses: [],
     insurance: '', // TODO: e.g. 'Fully insured'
     warranty: '', // TODO: e.g. '1-year warranty on labor'
   },

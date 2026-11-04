@@ -98,7 +98,7 @@ export function todos(): { item: string; blocker?: boolean }[] {
   need(b.links.deposit, 'Square deposit payment link');
   need(b.links.googleReview, 'Google review link');
   need(b.socials, 'Social links (optional)');
-  need(b.credentials.licenses, 'License numbers, if any');
+  need(b.credentials.licenses, 'TxDMV mover registration number, and any other licenses');
   need(b.credentials.insurance, 'Insurance');
   need(b.credentials.warranty, 'Warranty');
   need(b.owner.name, 'Your first name');
@@ -110,6 +110,6 @@ export function todos(): { item: string; blocker?: boolean }[] {
   for (const [k, v] of Object.entries(b.faq)) need(v, `FAQ answer: ${k}`);
   need(b.web3formsKey, 'Web3Forms key (turns on the quote form)');
   need(b.cloudflareAnalyticsToken, 'Cloudflare Web Analytics token');
-  if (b.schemaType === 'HomeAndConstructionBusiness') out.push({ item: 'Most specific Google business type (schemaType)' });
+  if (b.trades.flatMap((t) => t.services).every((s) => s.price.type === 'none')) out.push({ item: 'Service prices' });
   return out;
 }

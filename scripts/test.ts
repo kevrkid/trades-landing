@@ -4,6 +4,7 @@
 import { execSync, spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { chromium, type Page } from 'playwright';
+import { business } from '../src/data/business.ts';
 
 const SHOTS = process.env.SHOTS || 'test-shots';
 mkdirSync(SHOTS, { recursive: true });
@@ -57,9 +58,9 @@ try {
   }
 
   // Service buttons.
-  await page.locator('#services a[data-service="Water heater install"]').click();
+  await page.locator('#services a[data-service="Building tear-down"]').click();
   await page.waitForTimeout(100);
-  ok(await page.locator('#quote-service').inputValue() === 'Water heater install', 'quote button preselects the service');
+  ok(await page.locator('#quote-service').inputValue() === 'Building tear-down', 'quote button preselects the service');
   ok(await page.locator('#services a', { hasText: 'Book this' }).first().getAttribute('href') === 'https://example.com/square-booking', 'book button goes to Square');
   ok(await page.locator('#plans a[data-service]').count() === 1, 'plan without a Square link opens the form');
 
@@ -97,7 +98,7 @@ try {
   await page.goto(S + '/');
   ok(await page.getByText('Thanks for scanning').count() === 0, 'home has no van banner');
   const ld = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent())!);
-  ok(ld['@type'] === 'HomeAndConstructionBusiness' && ld.areaServed?.length === 3 && !ld.address, 'JSON-LD: type, areaServed, no street address');
+  ok(ld['@type'] === 'MovingCompany' && ld.areaServed?.length === 3 && !ld.address, 'JSON-LD: type, areaServed, no street address');
   ok(await page.locator('meta[property="og:image"]').getAttribute('content') === 'https://example.com/og.png', 'OG image');
 
   // Redirects on Cloudflare's server.
@@ -124,10 +125,16 @@ try {
   ok(await page.locator('h1').isVisible(), 'real: page renders');
   ok(await page.getByText('eSprinter').count() > 0, 'real: eSprinter featured');
   ok(await page.getByText('Brings its own power').count() === 0, 'real: own-power toggle is off by default');
-  const hidden = (await page.locator('main section').evaluateAll((s) => s.map((x) => x.id))).join();
-  ok(hidden === 'why', `real: only filled-in sections show (got ${hidden})`);
-  ok(await page.locator('a[href^="tel:"], a[href^="sms:"], form').count() === 0, 'real: no contact links until a phone is set');
-  ok((await fetch(R + '/book', { redirect: 'manual' })).headers.get('location')?.endsWith('/'), 'real: /book goes home until set');
+  // Whatever the config leaves blank must stay hidden.
+  const ids = await page.locator('main section').evaluateAll((els) => els.map((x) => x.id));
+  const shows = (id: string, should: boolean) => ok(ids.includes(id) === should, `real: section ${id} ${should ? 'shows' : 'stays hidden'}`);
+  shows('services', business.trades.length > 0);
+  shows('plans', business.plans.length > 0);
+  shows('work', business.photos.gallery.length > 0);
+  shows('reviews', business.reviews.length > 0);
+  shows('faq', Object.values(business.faq).some(Boolean) || !!business.links.deposit);
+  if (!business.phone) ok(await page.locator('a[href^="tel:"], a[href^="sms:"]').count() === 0, 'real: no call or text links until a phone is set');
+  if (!business.links.booking) ok((await fetch(R + '/book', { redirect: 'manual' })).headers.get('location')?.endsWith('/'), 'real: /book goes home until set');
 } finally {
   await browser.close();
   for (const s of servers) try { process.kill(-s.pid!); } catch {}

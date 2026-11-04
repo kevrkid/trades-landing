@@ -55,6 +55,10 @@ The form uses [Web3Forms](https://web3forms.com): free for about 250 submissions
 
 Get a key by entering your email at web3forms.com, and put it in `web3formsKey`. After the first deploy, send yourself a test request.
 
+## Before you advertise moving
+
+Texas requires TxDMV registration, a USDOT number and filed insurance to move household goods for pay, even in a small vehicle. Check the current rules at txdmv.gov/motor-carriers, then add your number under `credentials.licenses`.
+
 ## Short links
 
 | Link | Goes to |
