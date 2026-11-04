@@ -13,7 +13,7 @@ const ready = !!(bizPhone && bizDomain);
 const m = bizPhone.match(/^\+1(\d{3})(\d{3})(\d{4})$/);
 const phone = m ? `${m[1]}-${m[2]}-${m[3]}` : bizPhone;
 const font = readFileSync('node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2').toString('base64');
-const logo = readFileSync('public/brand/rangebolt-primary.svg', 'utf8');
+const nameHtml = b.name.replace(/&/g, `<span style="color:${b.colors.accent}">&amp;</span>`);
 
 let qr = `<div style="width:11in;height:11in;border:.08in dashed #777;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1in;color:#555">QR code goes here<br>once the domain is bought</div>`;
 if (bizDomain) {
@@ -23,7 +23,7 @@ if (bizDomain) {
 const html = `<!doctype html><style>@font-face{font-family:B;src:url(data:font/woff2;base64,${font})}
 @page{size:24in 18in;margin:0}*{margin:0;box-sizing:border-box}
 html,body{width:24in;height:18in;background:#fff;color:${b.colors.brandDeep};font-family:B,sans-serif;font-weight:800;text-transform:uppercase;overflow:hidden;position:relative}</style>
-<body><div style="position:absolute;left:.8in;top:.7in;width:22.4in">${logo}</div>
+<body><div style="position:absolute;left:.8in;right:.8in;top:.7in;font-size:4.9in;line-height:.95;white-space:nowrap;text-align:center">${nameHtml}</div>
 <div style="position:absolute;left:.8in;top:5.6in">${qr}</div>
 <div style="position:absolute;left:12.2in;top:5.9in;width:11.2in">
  <div style="font-size:${ready ? 1.95 : 1.5}in;line-height:1;white-space:nowrap">${ready ? phone : 'Your number here'}</div>

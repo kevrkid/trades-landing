@@ -10,10 +10,10 @@ const HOURLY = { type: 'hourly', min: 60, max: 100 } as const;
 
 export const business: Business = {
   // ---------- WHO ----------
-  // From the ChatGPT brand kit. Search the Texas Secretary of State records before printing it.
-  name: 'Rangebolt',
-  logo: '/brand/rangebolt-white.svg',
-  logoOnLight: '/brand/rangebolt-primary.png',
+  // Working name. Search the Texas Secretary of State records before printing it.
+  name: 'Arc & Haul',
+  logo: '', // TODO (optional): logo for dark backgrounds. Blank shows the name as text.
+  logoOnLight: '', // TODO (optional): logo for white backgrounds, used by Google.
   headline: 'Moving anywhere in Texas',
   subheading: 'I handle your move myself, using a quiet, all-electric van.',
   whatIDo: 'Moving, welding, material hauling, tear-downs and junk removal',
