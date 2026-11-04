@@ -39,7 +39,6 @@ export function trustBits(): string[] {
   const bits = biz.credentials.licenses.map((l) => `${l.label} #${l.number}`);
   if (biz.credentials.insurance) bits.push(biz.credentials.insurance);
   if (biz.credentials.warranty) bits.push(biz.credentials.warranty);
-  bits.push('All-electric van');
   return bits;
 }
 

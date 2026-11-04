@@ -138,6 +138,7 @@ try {
   ok(!/rangebolt|arc &(amp;)? haul/i.test(home), 'real: old names are gone');
   ok(await page.getByText('Locker Box').count() > 0, 'real: name shows');
   ok(!/handle your move myself|sampletown/i.test(home), 'real: removed wording stays gone');
+  ok(await page.locator('header').getByText('All-electric van', { exact: true }).count() === 1, 'real: all-electric line shows once at the top');
   // Whatever the config leaves blank must stay hidden.
   const ids = await page.locator('main section').evaluateAll((els) => els.map((x) => x.id));
   const shows = (id: string, should: boolean) => ok(ids.includes(id) === should, `real: section ${id} ${should ? 'shows' : 'stays hidden'}`);

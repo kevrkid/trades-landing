@@ -64,7 +64,7 @@ const faq = [
         {what && <p class="display text-[1.45rem] mt-2">{what}</p>}
         {biz.rate && <p class="display text-[1.65rem] mt-2">{biz.rate}</p>}
         {biz.rating.score && <p class="mt-2 font-bold"><span aria-hidden="true">★★★★★</span> {biz.rating.score} from {biz.rating.count} {biz.rating.source} reviews</p>}
-        <p class="mt-2.5 text-[16px]">{trustBits().join(' · ')}</p>
+        {trustBits().length > 0 && <p class="mt-2.5 text-[16px]">{trustBits().join(' · ')}</p>}
 
         {(biz.phone || biz.links.booking || canQuote) && <div class="grid grid-cols-2 gap-2.5 mt-4">
           {biz.links.booking && <a class="btn btn-go" href={biz.links.booking}><Icon name="book" />Book</a>}
