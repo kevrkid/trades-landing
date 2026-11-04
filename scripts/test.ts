@@ -137,6 +137,7 @@ try {
   if (todos().some((t) => t.blocker)) ok(await page.locator('meta[name=robots][content=noindex]').count() === 1, 'real: unfinished site stays out of Google');
   ok(!/rangebolt|arc &(amp;)? haul/i.test(home), 'real: old names are gone');
   ok(await page.getByText('Locker Box').count() > 0, 'real: name shows');
+  ok(!/handle your move myself|sampletown/i.test(home), 'real: removed wording stays gone');
   // Whatever the config leaves blank must stay hidden.
   const ids = await page.locator('main section').evaluateAll((els) => els.map((x) => x.id));
   const shows = (id: string, should: boolean) => ok(ids.includes(id) === should, `real: section ${id} ${should ? 'shows' : 'stays hidden'}`);

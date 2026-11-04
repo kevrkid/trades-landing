@@ -24,7 +24,7 @@ export const sample: Business = {
       { name: 'Junk removal', description: 'Loading up your junk and hauling it away.', price: { type: 'none' }, action: 'quote' },
     ] },
   ],
-  area: { summary: 'Sampletown and nearby', places: ['Sampletown', 'Exampleville', 'Testburg'] },
+  area: { summary: 'Texas', places: ['North Texas', 'Central Texas', 'South Texas'] },
   hours: [{ days: 'Mon-Fri', time: '8 AM-6 PM', schema: 'Mo-Fr 08:00-18:00' }, { days: 'Sat', time: '9 AM-2 PM', schema: 'Sa 09:00-14:00' }],
   hoursNote: 'After-hours emergencies by text.',
   phone: '+15125550100',

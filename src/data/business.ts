@@ -16,7 +16,7 @@ export const business: Business = {
   logo: '/brand/locker-box-logo.webp',
   logoOnLight: '/brand/locker-box-logo.png',
   headline: 'Moving anywhere in Texas',
-  subheading: 'I handle your move myself, using a quiet, all-electric van.',
+  subheading: 'Quiet, all-electric van. No exhaust, no idling at your home.',
   whatIDo: 'Moving, welding, material hauling, tear-downs and junk removal',
   rate: '$60-$100/hour',
   // Update this if the rate changes: 3 x $60 and 3 x $100.
