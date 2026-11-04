@@ -59,6 +59,8 @@ try {
   }
 
   ok(await page.locator('header').getByText('from 12 Google (sample) reviews').isVisible(), 'rating shows at the top when set');
+  ok(await page.locator('img[alt="Locker Box"]').first().evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0), 'logo loads');
+  ok((await fetch(S + '/favicon.png')).status === 200, 'icon loads');
   // Service buttons.
   await page.locator('#services a[data-service="Building tear-down"]').click();
   await page.waitForTimeout(100);

@@ -12,8 +12,9 @@ export const business: Business = {
   // ---------- WHO ----------
   // Search the Texas Secretary of State records before printing it.
   name: 'Locker Box',
-  logo: '', // TODO: your Locker Box logo, for dark backgrounds. Blank shows the name as text.
-  logoOnLight: '', // TODO: your Locker Box logo, for white backgrounds. Used by Google.
+  // Made from brand-source/locker-box-logo.png by `npm run images`.
+  logo: '/brand/locker-box-logo.webp',
+  logoOnLight: '/brand/locker-box-logo.png',
   headline: 'Moving anywhere in Texas',
   subheading: 'I handle your move myself, using a quiet, all-electric van.',
   whatIDo: 'Moving, welding, material hauling, tear-downs and junk removal',
@@ -21,7 +22,7 @@ export const business: Business = {
   // Update this if the rate changes: 3 x $60 and 3 x $100.
   rateExample: 'For example, 3 hours of work comes to $180-$300.',
 
-  colors: { brand: '#1C3853', brandDeep: '#102337', accent: '#F5823C', accentInk: '#102337' },
+  colors: { brand: '#0A1F44', brandDeep: '#001126', accent: '#C8102E', accentInk: '#FFFFFF' },
 
   // The most specific type for Google. Moving is your top priority, so this says MovingCompany.
   schemaType: 'MovingCompany',

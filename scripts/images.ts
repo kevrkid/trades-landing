@@ -1,39 +1,40 @@
-// npm run images: draws the link-preview image and the icons from the config.
-import { readFileSync } from 'node:fs';
+// npm run images: makes the logo sizes, icons and link-preview image from the config
+// and brand-source/locker-box-logo.png.
+import { readFileSync, rmSync } from 'node:fs';
+import sharp from 'sharp';
 import { chromium } from 'playwright';
 import { business as b } from '../src/data/business.ts';
 
-const vanArt = readFileSync('src/assets/van.svg', 'utf8');
-const van = b.photos.van
-  ? `<img src="data:image/jpeg;base64,${readFileSync('public' + b.photos.van).toString('base64')}" style="width:100%;height:100%;object-fit:cover;object-position:right center;display:block">`
-  : vanArt;
-const font = readFileSync('node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2').toString('base64');
-const title = b.name || 'All-electric mobile service';
-const sub = [b.whatIDo, b.area.summary].filter(Boolean).join(' in ') || 'Quiet. No exhaust. No idling at your home.';
-const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const SRC = 'brand-source/locker-box-logo.png';
+const trimmed = await sharp(SRC).removeAlpha().trim({ threshold: 18 }).toBuffer();
+const pad = (s: sharp.Sharp) => s.extend({ top: 8, bottom: 8, left: 8, right: 8, background: '#ffffff' });
+await sharp(trimmed).resize(510).webp({ quality: 82 }).toFile('public/brand/locker-box-logo.webp');
+await sharp(trimmed).resize(512).png({ compressionLevel: 9 }).toFile('public/brand/locker-box-logo.png');
+// The picture part only (locker and gloves), without the wording.
+const { width = 0, height = 0 } = await sharp(trimmed).metadata();
+const mark = await sharp(trimmed).extract({ left: 0, top: 0, width, height: Math.round(height * 0.61) }).png().toBuffer();
+await sharp(mark).toFile('public/brand/locker-box-mark.png');
+const square = (n: number) => pad(sharp(mark).resize(n - 16, n - 16, { fit: 'contain', background: '#ffffff' })).flatten({ background: '#ffffff' });
+await square(180).png().toFile('public/apple-touch-icon.png');
+await square(64).png().toFile('public/favicon.png');
+rmSync('public/favicon.svg', { force: true });
 
-const base = `<style>@font-face{font-family:B;src:url(data:font/woff2;base64,${font})}
-*{margin:0;box-sizing:border-box}:root{--accent:${b.colors.accent}}body{font-family:B,sans-serif}</style>`;
-const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="${b.colors.brand}"/><path d="M19 3 7 18h7l-2 11 13-16h-7.5L19 3Z" fill="${b.colors.accent}"/></svg>\n`;
-const og = `${base}<body style="width:1200px;height:630px;background:${b.colors.brand};color:#fff;padding:60px;overflow:hidden;position:relative">
-<div style="position:absolute;left:0;right:0;bottom:0;height:22px;background:repeating-linear-gradient(135deg,${b.colors.accent} 0 28px,${b.colors.brandDeep} 28px 56px)"></div>
-<div style="font-size:92px;line-height:1;text-transform:uppercase">${esc(title)}</div>
-<div style="font-size:60px;line-height:1;text-transform:uppercase;max-width:490px;margin-top:30px">${esc(b.headline || title)}</div>
-<div style="font-size:32px;margin-top:16px;color:${b.colors.accent};max-width:490px;line-height:1.1">${esc(sub)}</div>
-<div style="position:absolute;right:0;top:0;bottom:22px;width:600px">${van}</div>
-<div style="position:absolute;left:60px;bottom:50px;font-size:34px">${b.rate ? esc(b.rate) + ' · ' : ''}100% electric van</div></body>`;
-const appleIcon = `${base}<body style="width:180px;height:180px;background:#fff;display:flex;align-items:center;justify-content:center"><div style="width:180px">${icon}</div></body>`;
+const font = readFileSync('node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2').toString('base64');
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const logo = readFileSync('public/brand/locker-box-logo.png').toString('base64');
+const van = readFileSync('public' + b.photos.van).toString('base64');
+const og = `<style>@font-face{font-family:B;src:url(data:font/woff2;base64,${font})}*{margin:0;box-sizing:border-box}body{font-family:B,sans-serif}</style>
+<body style="width:1200px;height:630px;background:#fff;color:${b.colors.brandDeep};overflow:hidden;position:relative">
+<img src="data:image/png;base64,${logo}" style="position:absolute;left:60px;top:26px;height:330px;width:auto">
+<div style="position:absolute;left:60px;top:372px;width:510px;font-size:58px;line-height:1;text-transform:uppercase">${esc(b.headline || b.name)}</div>
+<div style="position:absolute;left:60px;bottom:48px;font-size:34px;color:${b.colors.accent}">${b.rate ? esc(b.rate) + ' · ' : ''}100% electric van</div>
+<div style="position:absolute;right:0;top:0;bottom:18px;width:600px"><img src="data:image/jpeg;base64,${van}" style="width:100%;height:100%;object-fit:cover;object-position:right center;display:block"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:18px;background:repeating-linear-gradient(135deg,${b.colors.accent} 0 28px,${b.colors.brandDeep} 28px 56px)"></div></body>`;
 
 const browser = await chromium.launch();
-const page = await browser.newPage();
-const shot = async (html: string, w: number, h: number, path: string) => {
-  await page.setViewportSize({ width: w, height: h });
-  await page.setContent(html);
-  await page.evaluate(() => document.fonts.ready);
-  await page.screenshot({ path });
-};
-await shot(og, 1200, 630, 'public/og.png');
-await shot(appleIcon, 180, 180, 'public/apple-touch-icon.png');
+const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
+await page.setContent(og);
+await page.evaluate(() => document.fonts.ready);
+await page.screenshot({ path: 'public/og.png' });
 await browser.close();
-(await import('node:fs')).writeFileSync('public/favicon.svg', icon);
-console.log('Made public/og.png, public/apple-touch-icon.png, public/favicon.svg');
+console.log('Made the logo sizes, icons and public/og.png');

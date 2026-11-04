@@ -52,15 +52,18 @@ const faq = [
       </aside>
     )}
 
-    <header class="bg-brand text-white px-4 pt-6 pb-7">
+    {biz.logo && (
+      <div class="bg-white px-4 py-2 text-center">
+        <img src={biz.logo} alt={biz.name} width="510" height="423" fetchpriority="high" class="inline-block w-[150px] h-auto" />
+      </div>
+    )}
+    <header class="bg-brand text-white px-4 pt-5 pb-7">
       <div class="wrap">
-        {biz.logo
-          ? <img src={biz.logo} alt={biz.name} width="340" height="50" class="w-[260px] h-auto mb-4" />
-          : biz.headline && <p class="display text-[2.3rem] mb-3">{biz.name}</p>}
+        {!biz.logo && biz.headline && <p class="display text-[2.3rem] mb-3">{biz.name}</p>}
         <h1 class="text-[2.75rem]">{biz.headline || biz.name || 'All-electric mobile service'}</h1>
-        {what && <p class="display text-accent text-[1.45rem] mt-2">{what}</p>}
+        {what && <p class="display text-[1.45rem] mt-2">{what}</p>}
         {biz.rate && <p class="display text-[1.65rem] mt-2">{biz.rate}</p>}
-        {biz.rating.score && <p class="mt-2 font-bold"><span class="text-accent" aria-hidden="true">★★★★★</span> {biz.rating.score} from {biz.rating.count} {biz.rating.source} reviews</p>}
+        {biz.rating.score && <p class="mt-2 font-bold"><span aria-hidden="true">★★★★★</span> {biz.rating.score} from {biz.rating.count} {biz.rating.source} reviews</p>}
         <p class="mt-2.5 text-[16px]">{trustBits().join(' · ')}</p>
 
         {(biz.phone || biz.links.booking || canQuote) && <div class="grid grid-cols-2 gap-2.5 mt-4">
@@ -73,7 +76,7 @@ const faq = [
         {biz.photos.van ? (
           <picture>
             {biz.photos.vanWebp && <source type="image/webp" srcset={biz.photos.vanWebp} sizes="(min-width: 912px) 880px, calc(100vw - 32px)" />}
-            <img src={biz.photos.van} alt={biz.photos.vanAlt} width="1200" height="900" fetchpriority="high" decoding="async" class="mt-5 w-full h-auto rounded-md" />
+            <img src={biz.photos.van} alt={biz.photos.vanAlt} width="1200" height="900" decoding="async" class="mt-5 w-full h-auto rounded-md" />
           </picture>
         ) : <div class="mt-5" set:html={vanArt} />}
         <p class="mt-3 font-bold">{biz.subheading || '100% electric van. Quiet, no exhaust, no idling at your home.'}</p>
