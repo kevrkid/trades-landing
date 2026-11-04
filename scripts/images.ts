@@ -6,7 +6,12 @@ import { chromium } from 'playwright';
 import { business as b } from '../src/data/business.ts';
 
 const SRC = 'brand-source/locker-box-logo.png';
-const trimmed = await sharp(SRC).removeAlpha().trim({ threshold: 18 }).toBuffer();
+const cut = await sharp(SRC).removeAlpha().trim({ threshold: 18 }).raw().toBuffer({ resolveWithObject: true });
+// The source's background is slightly off-white, which shows as a gray box on a white page.
+for (let i = 0; i < cut.data.length; i += 3) {
+  if (Math.min(cut.data[i], cut.data[i + 1], cut.data[i + 2]) >= 236) cut.data[i] = cut.data[i + 1] = cut.data[i + 2] = 255;
+}
+const trimmed = await sharp(cut.data, { raw: { width: cut.info.width, height: cut.info.height, channels: 3 } }).png().toBuffer();
 const pad = (s: sharp.Sharp) => s.extend({ top: 8, bottom: 8, left: 8, right: 8, background: '#ffffff' });
 await sharp(trimmed).resize(510).webp({ quality: 82 }).toFile('public/brand/locker-box-logo.webp');
 await sharp(trimmed).resize(512).png({ compressionLevel: 9 }).toFile('public/brand/locker-box-logo.png');

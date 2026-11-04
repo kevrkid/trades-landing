@@ -23,7 +23,7 @@ if (bizDomain) {
 const html = `<!doctype html><style>@font-face{font-family:B;src:url(data:font/woff2;base64,${font})}
 @page{size:24in 18in;margin:0}*{margin:0;box-sizing:border-box}
 html,body{width:24in;height:18in;background:#fff;color:${b.colors.brandDeep};font-family:B,sans-serif;font-weight:800;text-transform:uppercase;overflow:hidden;position:relative}</style>
-<body><img src="data:image/png;base64,${mark}" style="position:absolute;left:.8in;top:.5in;height:4.8in;width:auto"><div style="position:absolute;left:10in;right:.6in;top:1.05in;font-size:3.6in;line-height:1;white-space:nowrap;text-align:center">${b.name}</div>
+<body><img src="data:image/png;base64,${mark}" style="position:absolute;left:.8in;top:.5in;height:4.8in;width:auto"><div style="position:absolute;left:10in;right:.6in;top:1.35in;font-size:3in;line-height:1;white-space:nowrap;text-align:center" id="name">${b.name}</div>
 <div style="position:absolute;left:.8in;top:5.6in">${qr}</div>
 <div style="position:absolute;left:12.2in;top:5.9in;width:11.2in">
  <div style="font-size:${ready ? 1.95 : 1.5}in;line-height:1;white-space:nowrap">${ready ? phone : 'Your number here'}</div>
@@ -40,6 +40,14 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 2304, height: 1728 } });
 await page.setContent(html);
 await page.evaluate(() => document.fonts.ready);
+// Refuse to make a sign with anything running off the edge.
+const off = await page.evaluate(() => [...document.querySelectorAll('body *')].filter((e) => {
+  const r = document.createRange(); r.selectNodeContents(e);
+  const q = e.tagName === 'IMG' ? e.getBoundingClientRect() : r.getBoundingClientRect();
+  return q.width > 0 && (q.right > 2304 || q.bottom > 1728 || q.left < 0 || q.top < 0);
+}).map((e) => e.tagName + ' ' + (e.textContent || '').trim().slice(0, 30)));
+const name = await page.evaluate(() => { const r = document.createRange(); r.selectNodeContents(document.getElementById('name')!); const q = r.getBoundingClientRect(); return q.right - q.left <= 13.4 * 96; });
+if (off.length || !name) { await browser.close(); console.error('Decal text runs off the sign:', off.join(' | ') || 'name too wide'); process.exit(1); }
 await page.screenshot({ path: `${base}.png` });
 if (ready) await page.pdf({ path: `${base}.pdf`, width: '24in', height: '18in', printBackground: true });
 await browser.close();
