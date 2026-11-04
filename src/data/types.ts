@@ -49,7 +49,7 @@ export interface Business {
   schemaType: string;
   trades: Trade[];
   plans: Plan[];
-  area: { summary: string; places: string[] };
+  area: { summary: string; places: string[]; note?: string };
   hours: HoursRow[];
   hoursNote: string;
   phone: string;

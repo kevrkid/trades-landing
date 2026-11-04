@@ -210,6 +210,7 @@ const faq = [
                 <h2 class="sec-title">Service area</h2>
                 {biz.area.summary && <p class="font-bold text-lg">{biz.area.summary}</p>}
                 {biz.area.places.length > 0 && <p class="mt-1">{biz.area.places.join(' · ')}</p>}
+                {biz.area.note && <p class="mt-1">{biz.area.note}</p>}
               </div>
             )}
             {biz.hours.length > 0 && (

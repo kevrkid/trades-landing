@@ -139,6 +139,7 @@ try {
   ok(await page.getByText('Locker Box').count() > 0, 'real: name shows');
   ok(!/handle your move myself|sampletown/i.test(home), 'real: removed wording stays gone');
   ok(await page.locator('header').getByText('All-electric van', { exact: true }).count() === 1, 'real: all-electric line shows once at the top');
+  ok(await page.locator('#area').getByText('Central Texas').count() === 1 && await page.locator('#area').getByText('Moves anywhere in Texas.').count() === 1, 'real: service area shows');
   // Whatever the config leaves blank must stay hidden.
   const ids = await page.locator('main section').evaluateAll((els) => els.map((x) => x.id));
   const shows = (id: string, should: boolean) => ok(ids.includes(id) === should, `real: section ${id} ${should ? 'shows' : 'stays hidden'}`);

@@ -73,7 +73,8 @@ export const business: Business = {
 
   // ---------- WHERE AND WHEN ----------
   area: {
-    summary: 'Texas', // TODO: name your home base if welding and tear-downs aren't statewide
+    summary: 'Central Texas',
+    note: 'Moves anywhere in Texas.',
     places: [], // TODO: e.g. ['Austin', 'Round Rock', 'Pflugerville']. Also used for Google.
   },
   hours: [], // TODO: e.g. { days: 'Mon-Fri', time: '8 AM-6 PM', schema: 'Mo-Fr 08:00-18:00' }
