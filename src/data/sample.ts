@@ -37,6 +37,7 @@ export const sample: Business = {
   credentials: { licenses: [{ label: 'Sample license', number: 'SAMPLE-000' }], insurance: 'Fully insured (sample)', warranty: '1-year warranty on labor (sample)' },
   owner: { name: 'Sam', photo: pic('OWNER', '#35506f'), note: 'Sample note: this is where a sentence in your own words goes.' },
   photos: { ...business.photos, gallery: [{ before: pic('BEFORE', '#7a5a45'), after: pic('AFTER', '#2f7a57'), caption: 'Sample job caption' }] },
+  rating: { score: '4.9', count: 12, source: 'Google (sample)' },
   reviews: [{ text: 'This is a sample review, showing where a real one will go.', name: 'Sample C.', source: 'Google', stars: 5 }],
   vanOffer: { headline: '$25 off your first job (sample)', terms: 'Sample terms go here.' },
   faq: {

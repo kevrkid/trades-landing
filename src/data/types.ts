@@ -38,6 +38,8 @@ export interface Business {
   whatIDo: string;
   /** Your general rate, shown near the top of the page, e.g. '$60-$100/hour'. */
   rate: string;
+  /** A worked example of the rate. Must be plain arithmetic on your real rate. */
+  rateExample: string;
   colors: { brand: string; brandDeep: string; accent: string; accentInk: string };
   schemaType: string;
   trades: Trade[];
@@ -57,6 +59,8 @@ export interface Business {
   owner: { name: string; photo: string; note: string };
   photos: { van: string; vanWebp: string; vanAlt: string; gallery: WorkPhoto[] };
   reviews: Review[];
+  /** Your real overall score, shown at the top of the page. */
+  rating: { score: string; count: number; source: string };
   vanOffer: { headline: string; terms: string };
   faq: {
     estimates: string; payment: string; deposits: string;

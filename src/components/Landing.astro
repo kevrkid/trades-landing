@@ -19,7 +19,7 @@ const quoteFor = (name: string) => hasForm ? '#quote' : smsHref(`${hello}I'd lik
 const why = [
   { title: 'All-electric Mercedes eSprinter', text: 'Quiet on your street, no exhaust, and no engine idling at your home. It\'s a long van, with a 170-inch wheelbase.' },
   biz.van.bringsOwnPower && { title: 'Brings its own power', text: 'No need to use your outlets.' },
-  biz.promises.upfrontPricing && { title: 'Upfront pricing', text: biz.rate ? `${biz.rate}, depending on the job. I'll confirm your rate before the work starts.` : 'You get the price before the work starts.' },
+  biz.promises.upfrontPricing && { title: 'Upfront pricing', text: biz.rate ? `${biz.rate}, depending on the job. I'll confirm your rate before the work starts.${biz.rateExample ? ' ' + biz.rateExample : ''}` : 'You get the price before the work starts.' },
   biz.promises.cleanUp && { title: 'Clean-up included', text: 'I clean up the work area before I leave.' },
   biz.credentials.warranty && { title: 'Warranty', text: biz.credentials.warranty },
   biz.credentials.insurance && { title: 'Insurance', text: biz.credentials.insurance },
@@ -58,6 +58,7 @@ const faq = [
         <h1 class="text-[3.1rem]">{biz.name || 'All-electric mobile service'}</h1>
         {what && <p class="display text-accent text-[1.65rem] mt-1.5">{what}</p>}
         {biz.rate && <p class="display text-[1.65rem] mt-2">{biz.rate}</p>}
+        {biz.rating.score && <p class="mt-2 font-bold"><span class="text-accent" aria-hidden="true">★★★★★</span> {biz.rating.score} from {biz.rating.count} {biz.rating.source} reviews</p>}
         <p class="mt-2.5 text-[16px]">{trustBits().join(' · ')}</p>
 
         {(biz.phone || biz.links.booking || canQuote) && <div class="grid grid-cols-2 gap-2.5 mt-4">
@@ -253,7 +254,7 @@ const faq = [
                 <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" />
                 <label class="field">Name<input name="name" required autocomplete="name" /></label>
                 <label class="field">Phone<input name="phone" type="tel" required autocomplete="tel" inputmode="tel" /></label>
-                <label class="field">Address or ZIP<input name="address" required autocomplete="street-address" /></label>
+                <label class="field">Address or ZIP <small>(moving? give both from and to)</small><input name="address" required autocomplete="street-address" /></label>
                 <label class="field">Service
                   <select name="service" id="quote-service">
                     <option value="">Not sure yet</option>

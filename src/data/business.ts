@@ -14,6 +14,8 @@ export const business: Business = {
   logo: '', // TODO (optional): put the file in public/ and write e.g. '/logo.svg'
   whatIDo: 'Moving, welding, material hauling, tear-downs and junk removal',
   rate: '$60-$100/hour',
+  // Update this if the rate changes: 3 x $60 and 3 x $100.
+  rateExample: 'For example, 3 hours of work comes to $180-$300.',
 
   // Navy + safety orange, proposed. Change these to match the van wrap.
   colors: { brand: '#0B2545', brandDeep: '#071A33', accent: '#FF7A00', accentInk: '#0B1B33' },
@@ -118,6 +120,8 @@ export const business: Business = {
   },
 
   // ---------- REVIEWS (real ones only, exact wording) ----------
+  // TODO: your real Google score once you have reviews, e.g. { score: '5.0', count: 12, source: 'Google' }
+  rating: { score: '', count: 0, source: '' },
   reviews: [], // TODO: { text: '...', name: 'Maria G.', source: 'Google', stars: 5 }
 
   // ---------- OFFER FOR PEOPLE WHO SCAN THE VAN ----------

@@ -108,6 +108,7 @@ export function todos(): { item: string; blocker?: boolean }[] {
   need(b.photos.van, 'Photo of the van');
   need(b.photos.gallery, 'Before and after photos');
   need(b.reviews, 'Real reviews');
+  need(b.rating.score, 'Your real Google score and review count');
   need(b.vanOffer.headline, 'Van-scan offer (optional)');
   for (const [k, v] of Object.entries(b.faq)) need(v, `FAQ answer: ${k}`);
   need(b.web3formsKey, 'Web3Forms key (turns on the quote form)');

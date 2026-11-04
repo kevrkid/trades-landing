@@ -57,6 +57,7 @@ try {
     ok(box && box.y + box.height <= 800, `hero ${name} above the fold`);
   }
 
+  ok(await page.locator('header').getByText('from 12 Google (sample) reviews').isVisible(), 'rating shows at the top when set');
   // Service buttons.
   await page.locator('#services a[data-service="Building tear-down"]').click();
   await page.waitForTimeout(100);
@@ -128,6 +129,8 @@ try {
   ok((await page.locator('header').innerText()).includes('/HOUR') || (await page.locator('header').innerText()).includes('/hour'), 'real: rate shows near the top');
   ok(await page.locator('#services').getByText('$60-$100/hour').count() === business.trades.flatMap((t) => t.services).length, 'real: every service shows the hourly rate');
   ok(await page.locator('#faq').count() === 0 || !(await page.locator('#faq').innerText()).includes('minimum'), 'real: blank minimum question stays hidden');
+  if (!business.rating.score) ok(await page.locator('header').getByText('reviews').count() === 0, 'real: no rating until you have one');
+  ok(await page.getByText('3 hours of work comes to $180-$300').count() === 1, 'real: worked example shows');
   // Whatever the config leaves blank must stay hidden.
   const ids = await page.locator('main section').evaluateAll((els) => els.map((x) => x.id));
   const shows = (id: string, should: boolean) => ok(ids.includes(id) === should, `real: section ${id} ${should ? 'shows' : 'stays hidden'}`);
