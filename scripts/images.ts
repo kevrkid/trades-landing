@@ -19,7 +19,7 @@ const og = `${base}<body style="width:1200px;height:630px;background:${b.colors.
 <div style="font-size:${title.length > 14 ? 72 : 96}px;line-height:1;text-transform:uppercase;max-width:490px">${esc(title)}</div>
 <div style="font-size:40px;margin-top:20px;color:${b.colors.accent};max-width:490px">${esc(sub)}</div>
 <div style="position:absolute;right:0;top:0;bottom:22px;width:600px">${van}</div>
-${b.whatIDo || b.area.summary ? `<div style="position:absolute;left:64px;bottom:80px;font-size:40px;line-height:1.15;width:480px">100% electric van.<br>Quiet at your home.</div>` : ''}</body>`;
+${b.whatIDo || b.area.summary ? `<div style="position:absolute;left:64px;bottom:80px;font-size:40px;line-height:1.15;width:480px">${b.rate ? esc(b.rate) + '<br>' : ''}100% electric van.</div>` : ''}</body>`;
 const bolt = (size: number, pad: boolean) => `${base}<body style="width:${size}px;height:${size}px;background:${b.colors.brand};display:flex;align-items:center;justify-content:center">
 <svg viewBox="0 0 32 32" width="${pad ? size * 0.72 : size}" height="${pad ? size * 0.72 : size}"><path d="M19 3 7 18h7l-2 11 13-16h-7.5L19 3Z" fill="${b.colors.accent}"/></svg></body>`;
 

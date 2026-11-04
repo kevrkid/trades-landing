@@ -19,7 +19,7 @@ const quoteFor = (name: string) => hasForm ? '#quote' : smsHref(`${hello}I'd lik
 const why = [
   { title: 'All-electric Mercedes eSprinter', text: 'Quiet on your street, no exhaust, and no engine idling at your home. It\'s a long van, with a 170-inch wheelbase.' },
   biz.van.bringsOwnPower && { title: 'Brings its own power', text: 'No need to use your outlets.' },
-  biz.promises.upfrontPricing && { title: 'Upfront pricing', text: 'You get the price before the work starts.' },
+  biz.promises.upfrontPricing && { title: 'Upfront pricing', text: biz.rate ? `${biz.rate}, depending on the job. I'll confirm your rate before the work starts.` : 'You get the price before the work starts.' },
   biz.promises.cleanUp && { title: 'Clean-up included', text: 'I clean up the work area before I leave.' },
   biz.credentials.warranty && { title: 'Warranty', text: biz.credentials.warranty },
   biz.credentials.insurance && { title: 'Insurance', text: biz.credentials.insurance },
@@ -27,7 +27,7 @@ const why = [
 
 const steps = [
   { title: 'Tell me what you need', text: [biz.links.booking && 'Book online', biz.phone && 'call or text', hasForm && 'send the form'].filter(Boolean).join(', ') + '.' },
-  { title: biz.promises.upfrontPricing ? 'Get your price up front' : 'Get a time and a price', text: 'Photos help me give you a real number faster.' },
+  { title: biz.promises.upfrontPricing ? (biz.rate ? 'Get your rate up front' : 'Get your price up front') : 'Get a time and a price', text: 'Photos help me give you a real number faster.' },
   { title: 'I come to you', text: `The electric van pulls up quietly and I get to work.${biz.promises.cleanUp ? ' I clean up before I go.' : ''}` },
 ];
 
@@ -38,6 +38,8 @@ const faq = [
   ['What if I need to cancel?', biz.faq.cancellations],
   ['Is the work under warranty?', biz.faq.warranty],
   ['Is there a travel fee?', biz.faq.travelFee],
+  ['Is there a minimum charge?', biz.faq.minimum],
+  ['Is anything extra on top of the hourly rate?', biz.faq.extras],
 ].filter(([, a]) => a);
 ---
 <Base canonicalPath="/" ld={scan ? null : jsonLd()}>
@@ -55,6 +57,7 @@ const faq = [
         {biz.logo && <img src={biz.logo} alt="" class="h-14 w-auto mb-3" />}
         <h1 class="text-[3.1rem]">{biz.name || 'All-electric mobile service'}</h1>
         {what && <p class="display text-accent text-[1.65rem] mt-1.5">{what}</p>}
+        {biz.rate && <p class="display text-[1.65rem] mt-2">{biz.rate}</p>}
         <p class="mt-2.5 text-[16px]">{trustBits().join(' · ')}</p>
 
         {(biz.phone || biz.links.booking || canQuote) && <div class="grid grid-cols-2 gap-2.5 mt-4">

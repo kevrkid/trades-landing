@@ -5,11 +5,15 @@
 // Never put made-up info here. `npm run todo` lists everything still blank.
 import type { Business } from './types.ts';
 
+// Your hourly rate, used on every service below. Change it here to change them all.
+const HOURLY = { type: 'hourly', min: 60, max: 100 } as const;
+
 export const business: Business = {
   // ---------- WHO ----------
   name: '', // TODO: business name
   logo: '', // TODO (optional): put the file in public/ and write e.g. '/logo.svg'
   whatIDo: 'Moving, welding, material hauling, tear-downs and junk removal',
+  rate: '$60-$100/hour',
 
   // Navy + safety orange, proposed. Change these to match the van wrap.
   colors: { brand: '#0B2545', brandDeep: '#071A33', accent: '#FF7A00', accentInk: '#0B1B33' },
@@ -28,26 +32,26 @@ export const business: Business = {
   //       price: { type: 'estimate' }, action: 'quote' },
   //   ],
   // },
-  // price type: 'flat' | 'from' (both need amount) | 'estimate' (free estimate) | 'none'
-  // In your priority order. TODO: add prices when you have them.
+  // price type: 'hourly' (min, max) | 'flat' | 'from' (both need amount) | 'estimate' | 'none'
+  // In your priority order.
   trades: [
     { name: 'Moving', services: [
       { name: 'Moving in Texas', description: 'Moving your things to their new place, anywhere in Texas.',
-        price: { type: 'none' }, action: 'quote' },
+        price: HOURLY, action: 'quote' },
     ] },
     { name: 'Welding', services: [
       { name: 'Small welding jobs', description: 'Small welding repairs and projects.',
-        price: { type: 'none' }, action: 'quote' },
+        price: HOURLY, action: 'quote' },
     ] },
     { name: 'Building materials', services: [
       { name: 'Building material delivery', description: 'Picking up building materials and bringing them to your job or home.',
-        price: { type: 'none' }, action: 'quote' },
+        price: HOURLY, action: 'quote' },
     ] },
     { name: 'Tear-down and junk', services: [
       { name: 'Building tear-down', description: 'Taking down a building or structure.',
-        price: { type: 'none' }, action: 'quote' },
+        price: HOURLY, action: 'quote' },
       { name: 'Junk removal', description: 'Loading up your junk and hauling it away.',
-        price: { type: 'none' }, action: 'quote' },
+        price: HOURLY, action: 'quote' },
     ] },
   ],
 
@@ -130,6 +134,8 @@ export const business: Business = {
     cancellations: '', // TODO: Your cancellation policy
     warranty: '', // TODO: What your warranty covers
     travelFee: '', // TODO: Is there a travel fee?
+    minimum: '', // TODO: Is there a minimum charge? e.g. a 2-hour minimum
+    extras: '', // TODO: Anything on top of the hourly rate? e.g. dump fees, materials, stairs
   },
 
   // ---------- ACCOUNTS ----------

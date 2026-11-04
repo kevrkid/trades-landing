@@ -27,6 +27,7 @@ export function phoneDisplay(): string {
 export function priceText(p: Price): string {
   if (p.type === 'flat') return `$${p.amount}`;
   if (p.type === 'from') return `From $${p.amount}`;
+  if (p.type === 'hourly') return `$${p.min}-$${p.max}/hour`;
   if (p.type === 'estimate') return 'Free estimate';
   return '';
 }
@@ -57,7 +58,7 @@ export function pageTitle(): string {
 export function metaDescription(): string {
   const lead = [biz.whatIDo, biz.area.summary].filter(Boolean).join(' in ');
   const van = 'I come to you in an all-electric van: quiet, no exhaust, no idling at your home.';
-  return `${lead ? lead + '. ' : ''}${van}${biz.phone ? ' Call, text or book online.' : ''}`;
+  return `${lead ? lead + '. ' : ''}${biz.rate ? biz.rate + '. ' : ''}${van}${biz.phone ? ' Call, text or book online.' : ''}`;
 }
 
 export function jsonLd(): Record<string, unknown> | null {
@@ -66,6 +67,7 @@ export function jsonLd(): Record<string, unknown> | null {
   const ld: Record<string, unknown> = { '@context': 'https://schema.org', '@type': biz.schemaType, name: biz.name };
   if (url) { ld.url = url; ld.image = `${url}/og.png`; }
   if (biz.logo && url) ld.logo = url + biz.logo;
+  if (biz.rate) ld.priceRange = biz.rate;
   if (biz.phone) ld.telephone = biz.phone;
   if (biz.email) ld.email = biz.email;
   if (biz.whatIDo) ld.description = metaDescription();

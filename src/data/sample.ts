@@ -18,7 +18,8 @@ export const sample: Business = {
       { name: 'Moving in Texas', description: 'Moving your things to their new place.', price: { type: 'from', amount: 150 }, action: 'book' },
     ] },
     { name: 'Welding', services: [
-      { name: 'Small welding jobs', description: 'Small welding repairs and projects.', price: { type: 'flat', amount: 125 }, action: 'book' },
+      { name: 'Small welding jobs', description: 'Small welding repairs and projects.', price: { type: 'hourly', min: 60, max: 100 }, action: 'book' },
+      { name: 'Sample flat-price job', description: 'Shows how a flat price looks.', price: { type: 'flat', amount: 125 }, action: 'quote' },
     ] },
     { name: 'Tear-down and junk', services: [
       { name: 'Building tear-down', description: 'Taking down a building or structure.', price: { type: 'estimate' }, action: 'quote' },
@@ -40,7 +41,7 @@ export const sample: Business = {
   vanOffer: { headline: '$25 off your first job (sample)', terms: 'Sample terms go here.' },
   faq: {
     estimates: 'Sample answer about estimates.', payment: 'Sample answer about payment.', deposits: 'Sample answer about deposits.',
-    cancellations: 'Sample answer about cancellations.', warranty: 'Sample answer about warranty.', travelFee: 'Sample answer about travel fee.',
+    cancellations: 'Sample answer about cancellations.', warranty: 'Sample answer about warranty.', travelFee: 'Sample answer about travel fee.', minimum: 'Sample answer about minimums.', extras: 'Sample answer about extra fees.',
   },
   web3formsKey: 'sample-key',
 };

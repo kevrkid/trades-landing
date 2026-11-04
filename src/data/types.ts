@@ -1,6 +1,7 @@
 export type Price =
   | { type: 'flat'; amount: number }
   | { type: 'from'; amount: number }
+  | { type: 'hourly'; min: number; max: number }
   | { type: 'estimate' }
   | { type: 'none' };
 
@@ -35,6 +36,8 @@ export interface Business {
   name: string;
   logo: string;
   whatIDo: string;
+  /** Your general rate, shown near the top of the page, e.g. '$60-$100/hour'. */
+  rate: string;
   colors: { brand: string; brandDeep: string; accent: string; accentInk: string };
   schemaType: string;
   trades: Trade[];
@@ -58,6 +61,7 @@ export interface Business {
   faq: {
     estimates: string; payment: string; deposits: string;
     cancellations: string; warranty: string; travelFee: string;
+    minimum: string; extras: string;
   };
   web3formsKey: string;
   cloudflareAnalyticsToken: string;

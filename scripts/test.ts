@@ -125,6 +125,9 @@ try {
   ok(await page.locator('h1').isVisible(), 'real: page renders');
   ok(await page.getByText('eSprinter').count() > 0, 'real: eSprinter featured');
   ok(await page.getByText('Brings its own power').count() === 0, 'real: own-power toggle is off by default');
+  ok((await page.locator('header').innerText()).includes('/HOUR') || (await page.locator('header').innerText()).includes('/hour'), 'real: rate shows near the top');
+  ok(await page.locator('#services').getByText('$60-$100/hour').count() === business.trades.flatMap((t) => t.services).length, 'real: every service shows the hourly rate');
+  ok(await page.locator('#faq').count() === 0 || !(await page.locator('#faq').innerText()).includes('minimum'), 'real: blank minimum question stays hidden');
   // Whatever the config leaves blank must stay hidden.
   const ids = await page.locator('main section').evaluateAll((els) => els.map((x) => x.id));
   const shows = (id: string, should: boolean) => ok(ids.includes(id) === should, `real: section ${id} ${should ? 'shows' : 'stays hidden'}`);
