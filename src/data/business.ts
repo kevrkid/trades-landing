@@ -98,10 +98,10 @@ export const business: Business = {
 
   // ---------- CREDENTIALS (only what's true) ----------
   credentials: {
-    // TODO: your DOT number: { label: 'USDOT', number: '0000000' }
-    // and your TxDMV certificate, if you have one: { label: 'TxDMV', number: '000000' }
-    licenses: [{ label: 'USDOT', number: '9994372' }],
-    insurance: 'Commercially insured',
+    // TODO: your own numbers once issued, in your name:
+    // { label: 'USDOT', number: '0000000' }, { label: 'TxDMV', number: '000000' }
+    licenses: [],
+    insurance: '', // TODO: 'Commercially insured', once the policy covers you and Locker Box.
     warranty: '', // Left off the page on purpose for now.
   },
 

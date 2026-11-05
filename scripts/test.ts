@@ -169,7 +169,7 @@ try {
   const faqText = await page.locator('#faq').evaluate((e) => e.textContent || '');
   ok(/2-hour minimum/.test(faqText) && /Zelle/.test(faqText) && /\$75 trip fee/.test(faqText), 'real: FAQ answers show');
   ok(!/warranty/i.test(await page.locator('body').evaluate((e) => e.textContent || '')), 'real: warranty stays off the page');
-  ok((await page.locator('header').innerText()).includes('USDOT #9994372'), 'real: DOT number shows');
+  ok(!(await page.locator('body').evaluate((e) => e.textContent || '')).includes('9994372'), 'real: the old DOT number is gone');
 
   // The real config: nothing fake, unset things hidden.
   const home = readFileSync('dist-real/index.html', 'utf8');
