@@ -86,6 +86,9 @@ export function jsonLd(): Record<string, unknown> | null {
   return ld;
 }
 
+/** True when any service is a moving job (needs USDOT + TxDMV in Texas). */
+export const movingListed = () => biz.trades.some((t) => t.services.some((s) => s.kind === 'moving'));
+
 /** Everything still blank, for `npm run todo`. `blocker` = don't publish without it. */
 export function todos(): { item: string; blocker?: boolean }[] {
   const b = biz;
@@ -98,6 +101,8 @@ export function todos(): { item: string; blocker?: boolean }[] {
   need(b.whatIDo, 'What you do (a few words)', true);
   need(b.trades, 'Services and prices', true);
   need(b.area.summary, 'Service area', true);
+  // Texas requires a USDOT number and TxDMV certificate to move household goods for pay.
+  if (movingListed() && !b.credentials.licenses.length) out.push({ item: 'Moving is listed as a service, but your own USDOT and TxDMV numbers are not in credentials.licenses yet. Add them, or take moving off the page, before publishing.', blocker: true });
   need(b.domain, 'Domain (QR code cannot be made until then)');
   out.push({ item: 'Vector or larger logo file for printing (the current one is 1254 px)' });
   need(b.plans, 'Care plan (recommended, steady income)');
@@ -107,7 +112,7 @@ export function todos(): { item: string; blocker?: boolean }[] {
   need(b.links.deposit, 'Square deposit payment link');
   need(b.links.googleReview, 'Google review link');
   need(b.socials, 'Social links (optional)');
-  need(b.credentials.licenses, 'Your own USDOT and TxDMV numbers');
+  if (!movingListed()) need(b.credentials.licenses, 'Your own USDOT and TxDMV numbers');
   need(b.credentials.insurance, 'Insurance in your name');
   need(b.owner.name, 'Your first name');
   need(b.owner.photo, 'Photo of you');

@@ -115,7 +115,7 @@ export const business: Business = {
   // You listed these as selling points. Set to false if they ever stop being true.
   promises: { upfrontPricing: true, cleanUp: true },
 
-  // ---------- PHOTOS (put files in public/photos/) ----------
+  // ---------- PHOTOS (owner photo in public/photos/, job photos and videos in public/work/) ----------
   owner: {
     name: 'Kevin',
     photo: '', // TODO: e.g. '/photos/me.jpg'
@@ -163,7 +163,7 @@ export const business: Business = {
 
   // ---------- ACCOUNTS ----------
   // Free key from web3forms.com, sent to your email. It's made to be public, so it's safe here.
-  // Blank hides the quote form; the page offers Text instead.
+  // Blank: the survey opens the customer's own email or text app with the answers filled in.
   web3formsKey: '', // TODO
   // From Cloudflare > Web Analytics > add site. Public, safe here.
   cloudflareAnalyticsToken: '', // TODO
