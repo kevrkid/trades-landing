@@ -181,7 +181,7 @@ try {
   await page.locator('#work video').first().press('Enter');
   await page.waitForTimeout(600);
   ok(await page.locator('#work video').first().evaluate((v: HTMLVideoElement) => !v.paused), 'real: Enter on a paused video plays it again');
-  if (business.trades.some((t) => t.services.some((s) => s.kind === 'moving')) && !business.credentials.licenses.length) ok(todos().some((t) => t.blocker && /Moving is listed/.test(t.item)), 'real: moving without your own USDOT/TxDMV blocks publishing');
+  if (business.trades.some((t) => t.services.some((s) => s.kind === 'moving')) && !business.credentials.licenses.some((l) => /txdmv/i.test(l.label) && l.number)) ok(todos().some((t) => t.blocker && /Moving is listed/.test(t.item)), 'real: moving without your own USDOT/TxDMV blocks publishing');
   if (!business.links.booking && !business.links.deposit) ok(!(await (await fetch(R + '/privacy')).text()).includes('Square'), 'real: privacy page does not mention Square until a Square link is set');
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(400);
@@ -211,7 +211,7 @@ try {
   ok(await page.getByText('eSprinter').count() > 0, 'real: eSprinter featured');
   ok(await page.getByText('Brings its own power').count() === 0, 'real: own-power toggle is off by default');
   ok((await page.locator('header').innerText()).includes('/HOUR') || (await page.locator('header').innerText()).includes('/hour'), 'real: rate shows near the top');
-  ok(await page.locator('#services').getByText('$60-$100/hour').count() === business.trades.flatMap((t) => t.services).length, 'real: every service shows the hourly rate');
+  ok(await page.locator('#services').getByText('$60-$100/hour').count() === business.trades.flatMap((t) => t.services).filter((s) => s.price.type === 'hourly').length, 'real: every hourly service shows the hourly rate');
   if (!business.faq.extras) ok(!/anything extra on top/i.test(await page.locator('#faq').evaluate((e) => e.textContent || '')), 'real: unanswered FAQ question stays hidden');
   if (!business.rating.score) ok(await page.locator('header').getByText('reviews').count() === 0, 'real: no rating until you have one');
   ok(await page.getByText('3 hours of work comes to $180-$300').count() === 1, 'real: worked example shows');

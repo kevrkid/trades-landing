@@ -10,7 +10,7 @@ const WORDS = ['Moving', 'Welding', 'Hauling', 'Tear-downs', 'Junk removal'];
 const bizPhone = process.env.DECAL_PHONE || b.phone;
 const bizDomain = process.env.DECAL_DOMAIN || b.domain;
 // Moving is on the sign, so it stays a preview until your own USDOT/TxDMV numbers are in the config.
-const movingHeld = b.trades.some((t) => t.services.some((s) => s.kind === 'moving')) && !b.credentials.licenses.length && !process.env.DECAL_PHONE;
+const movingHeld = b.trades.some((t) => t.services.some((s) => s.kind === 'moving')) && !b.credentials.licenses.some((l) => /txdmv/i.test(l.label) && l.number) && !process.env.DECAL_PHONE;
 const ready = !!(bizPhone && bizDomain) && !movingHeld;
 const m = bizPhone.match(/^\+1(\d{3})(\d{3})(\d{4})$/);
 const phone = m ? `${m[1]}-${m[2]}-${m[3]}` : bizPhone;
@@ -53,4 +53,4 @@ if (off.length || !name) { await browser.close(); console.error('Decal text runs
 await page.screenshot({ path: `${base}.png` });
 if (ready) await page.pdf({ path: `${base}.pdf`, width: '24in', height: '18in', printBackground: true });
 await browser.close();
-console.log(`Made ${base}.png${ready ? ' and .pdf' : ` (before it can be printed it needs: ${[!bizPhone && 'your phone number', !bizDomain && 'your domain', movingHeld && 'your own USDOT and TxDMV numbers, since it says Moving'].filter(Boolean).join(', ')})`}`);
+console.log(`Made ${base}.png${ready ? ' and .pdf' : ` (before it can be printed it needs: ${[!bizPhone && 'your phone number', !bizDomain && 'your domain', movingHeld && 'your own TxDMV number, since it says Moving'].filter(Boolean).join(', ')})`}`);

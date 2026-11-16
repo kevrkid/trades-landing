@@ -416,8 +416,8 @@ the live Cloudflare deploy, print output of the decal.
 ### Needed from Kevin
 
 1. **Phone number** (last data blocker).
-2. **Moving decision:** launch now without moving (recommended: welding headline, metal buildings and steel
-   frames as a service), or wait for your own USDOT/TxDMV. The old DOT 9994372 belongs to Investment Services
+2. **Moving decision:** USDOT 4727545 is now on the page, but moving stays blocked until a TxDMV household-goods
+   number is added, or moving comes off the page (then the headline should change too). The old DOT 9994372 belongs to Investment Services
    Group, LLC and was removed.
 3. **Cloudflare sign-in** at dash.cloudflare.com, then `npx wrangler login`.
 4. **Domain:** buy `lockerboxtx.com` → `npm run qr`, `npm run decal`, custom domain in Cloudflare.
@@ -455,6 +455,8 @@ the live Cloudflare deploy, print output of the decal.
 | 11-15 | Publishing and the printable decal blocked while moving is listed without own USDOT/TxDMV | Keeps the promise not to advertise moving before registration |
 | 11-15 | Tap/Enter pauses a video | Accessibility: moving content needs a way to stop it |
 | 11-15 | `BRAND_PROMPT.md` deleted | The ChatGPT brand brief was scrapped and contained facts that are no longer true |
+| 11-15 | Added owner's USDOT 4727545 (SAFER: Kevin Kidd, Intrastate Only, Active), a "Business freight runs" service (quoted per run), owner bio, service places Leander/Austin/San Antonio, open-availability hours | Owner supplied details for his B2B Sprinter freight work |
+| 11-15 | Moving gate now requires a TxDMV number, not just any license | Texas requires a TxDMV certificate for household-goods moves at any weight; USDOT alone isn't enough |
 
 ---
 

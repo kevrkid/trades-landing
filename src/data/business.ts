@@ -49,6 +49,11 @@ export const business: Business = {
       { name: 'Small welding jobs', kind: 'welding', description: 'I take on small welding jobs.',
         price: HOURLY, action: 'quote' },
     ] },
+    { name: 'Business freight', services: [
+      { name: 'Business freight runs', kind: 'materials',
+        description: 'Scheduled or same-day cargo van runs for businesses between Austin and San Antonio. Dock-to-dock, up to 3 pallets or 2,300 lb.',
+        price: { type: 'none' }, action: 'quote' },
+    ] },
     { name: 'Building materials', services: [
       { name: 'Building material delivery', kind: 'materials', description: 'I pick up and deliver building materials.',
         price: HOURLY, action: 'quote' },
@@ -75,10 +80,10 @@ export const business: Business = {
   area: {
     summary: 'Central Texas',
     note: 'Moves anywhere in Texas.',
-    places: [], // TODO: e.g. ['Austin', 'Round Rock', 'Pflugerville']. Also used for Google.
+    places: ['Leander', 'Austin', 'San Antonio'], // Also used for Google. Base: Leander (FMCSA record).
   },
-  hours: [], // TODO: e.g. { days: 'Mon-Fri', time: '8 AM-6 PM', schema: 'Mo-Fr 08:00-18:00' }
-  hoursNote: '', // TODO (optional): e.g. 'After-hours emergencies by text'
+  hours: [{ days: 'Every day', time: 'Open availability' }], // Owner said "open availability" (11-15)
+  hoursNote: 'Call or text to schedule, including early starts.',
 
   // ---------- CONTACT ----------
   phone: '', // TODO: with country code, e.g. '+15125550100'. Used for both call and text.
@@ -98,9 +103,9 @@ export const business: Business = {
 
   // ---------- CREDENTIALS (only what's true) ----------
   credentials: {
-    // TODO: your own numbers once issued, in your name:
-    // { label: 'USDOT', number: '0000000' }, { label: 'TxDMV', number: '000000' }
-    licenses: [],
+    // Your own numbers, in your name. USDOT 4727545 = Kevin Kidd, Intrastate Only, Active (SAFER, 11-15).
+    // Add { label: 'TxDMV', number: '...' } once issued: Texas needs it to move household goods.
+    licenses: [{ label: 'USDOT', number: '4727545' }],
     insurance: '', // TODO: 'Commercially insured', once the policy covers you and Locker Box.
     warranty: '', // Left off the page on purpose for now.
   },
@@ -117,9 +122,9 @@ export const business: Business = {
 
   // ---------- PHOTOS (owner photo in public/photos/, job photos and videos in public/work/) ----------
   owner: {
-    name: 'Kevin',
+    name: 'Kevin Kidd',
     photo: '', // TODO: e.g. '/photos/me.jpg'
-    note: "Hi, I'm Kevin, the owner of Locker Box.",
+    note: "Hi, I'm Kevin Kidd, the owner of Locker Box. I'm a registered Texas carrier (USDOT 4727545) running a Mercedes eSprinter with an extended high roof: it fits 3 pallets or up to 2,300 lb. I build steel frames and metal buildings, weld on site, and haul materials and freight for businesses between Austin and San Antonio.",
   },
   photos: {
     van: '/img/van-1200.jpg',
