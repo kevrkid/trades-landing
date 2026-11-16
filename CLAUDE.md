@@ -14,4 +14,4 @@ Quick rules:
 - After a change: `npm test` (all must pass) and look at the screenshots in `test-shots/`.
 - Deploying (`npm run deploy`) publishes to the internet: ask Kevin first. Never commit tokens;
   Cloudflare credentials live only in env vars.
-- Commit as you go on `main` (local repo, no remote).
+- Commit as you go on `main`; push to `origin` (github.com/kevrkid/trades-landing, public: never commit secrets or private details).

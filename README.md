@@ -406,8 +406,8 @@ the live Cloudflare deploy, print output of the decal.
 
 ### Where things stand (2026-11-15)
 
-- Site complete against the real config; git repo `~/claude/trades-landing` (branch `main`, local only,
-  no remote). Nothing deployed; Cloudflare not logged in (`wrangler login` timed out once while waiting).
+- Site complete against the real config; git repo `~/claude/trades-landing` (branch `main`, pushed to the public repo
+  https://github.com/kevrkid/trades-landing). Nothing deployed; Cloudflare not logged in (`wrangler login` timed out once while waiting).
 - A private preview artifact exists but is out of date (before the autoplay change):
   https://claude.ai/artifact/7Xvsi6WCUvyZ7HGFpQy28i
 - Local review server, when running: `npx wrangler pages dev dist-sample --port 8850 --ip 0.0.0.0`
