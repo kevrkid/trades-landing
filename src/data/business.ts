@@ -118,7 +118,7 @@ export const business: Business = {
     // Height and volume: Mercedes/KBB published specs for this model. Length: measure the floor behind the seats.
     cargoHeight: '79 inches', // KBB: 79.1" interior cargo height, eSprinter high roof
     cargoVolume: '488 cubic feet', // mbvans.com/en/esprinter: 488.1 cu ft, 170" high roof
-    cargoLength: '', // TODO: measured floor length behind the seats, e.g. '14 feet (170 inches)'
+    cargoLength: '14 feet 6 inches', // Owner 11-17 (14 1/2 ft); matches the published 174 in Sprinter 170 high-roof floor
   },
 
   // ---------- PROMISES ----------

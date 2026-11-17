@@ -10,6 +10,11 @@ export const freight = {
   showPhotoProof: true, // "Photo proof of delivery"
   showTextUpdates: true, // "text updates on the way"
 
+  // Inside the cargo area, in inches. Same body as the Sprinter 170 in high roof (battery sits under the floor):
+  // 174 in floor (owner: 14 1/2 ft; vanometry.com), 70 in wide, ~53 in between wheel wells, 79 in tall (KBB eSprinter),
+  // side door ~50 x 72 in, rear doors ~61 x 73 in (published Sprinter high-roof figures). Re-measure the van to confirm.
+  cargo: { length: 174, width: 70, wheelWells: 53, height: 79, sideDoor: [50, 72], rearDoor: [61, 73] },
+
   headline: 'Same-day delivery of parts and materials to Texas job sites',
   lead: 'Electrical components, electronics, and building materials, delivered by cargo van for the contractors and supply houses building data centers, chip plants, and advanced factories across the Texas Triangle.',
 

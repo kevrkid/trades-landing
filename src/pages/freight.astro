@@ -20,6 +20,11 @@ const pickupBits = [F.showPhotoProof && 'Photo at pickup', F.showTextUpdates && 
 const pickupLine = pickupBits.length ? pickupBits.join(' and ') + '.' : 'Loaded and driven to your site.';
 const deliveredLine = F.showPhotoProof ? 'Photo proof of delivery sent to you right away.' : F.showTextUpdates ? 'You get a text as soon as it’s delivered.' : 'Delivered to your site and signed for.';
 const url = siteUrl();
+const C = F.cargo;
+/** 174 -> "14 ft 6 in". */
+const ft = (i: number) => `${Math.floor(i / 12)} ft${i % 12 ? ` ${i % 12} in` : ''}`;
+// Logo: a van's front in the circuit style: headlights are the two dots, the orange trace between them is the grille.
+const mark = (size: number, bg: string) => `<svg width="${size}" height="${size}" viewBox="0 0 48 48" aria-hidden="true"><rect x="0.5" y="0.5" width="47" height="47" rx="10" fill="${bg}" stroke="#fff" stroke-opacity="${bg === '#0A1F44' ? 0 : 1}"/><path d="M13 8.5 H35 Q38.5 8.5 39.3 12 L41 22 V35.5 Q41 37.5 39 37.5 H9 Q7 37.5 7 35.5 V22 L8.7 12 Q9.5 8.5 13 8.5 Z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M12.6 12 H35.4 L37 20.5 H11 Z" fill="#fff" fill-opacity="0.18" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/><path d="M9.2 24.5 L17.5 24.5 L15.2 28.6 L9.2 28 Z" fill="#fff"/><path d="M38.8 24.5 L30.5 24.5 L32.8 28.6 L38.8 28 Z" fill="#fff"/><path d="M15.5 26.5 H32.5" stroke="#F26A1B" stroke-width="2.6" stroke-linecap="round"/><circle cx="15.5" cy="26.5" r="2.2" fill="#F26A1B" stroke="#fff" stroke-width="1.2"/><circle cx="32.5" cy="26.5" r="2.2" fill="#F26A1B" stroke="#fff" stroke-width="1.2"/><path d="M19 30.5 H29 M20.5 33.5 H27.5" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="0.4 2.6" opacity="0.75"/><path d="M9 37.5 V41 H15 V37.5 M33 37.5 V41 H39 V37.5" fill="#fff"/></svg>`;
 const description = `Hot shot, same-day, scheduled and dedicated-route cargo van delivery of parts and materials to job sites across the Texas Triangle. Based in Leander, Texas.${usdot() ? ` USDOT ${usdot()}.` : ''}`;
 const ld = {
   '@context': 'https://schema.org', '@type': 'LocalBusiness', name: F.name, description,
@@ -42,7 +47,7 @@ const faq = [
   <header class="top">
     <div class="w">
       <a class="brand" href="#top">
-        <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="7" fill="#0A1F44"/><path d="M10 12.5 H24 M12 23.5 H22" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="0.5 3" opacity="0.6"/><path d="M7 18 H27" fill="none" stroke="#F26A1B" stroke-width="3.5" stroke-linecap="round"/><circle cx="7" cy="18" r="3" fill="#fff"/><circle cx="27" cy="18" r="3" fill="#fff"/></svg>
+        <Fragment set:html={mark(52, "#0A1F44")} />
         <span>{F.name}</span>
       </a>
       <nav class="nav" aria-label="Main">
@@ -76,8 +81,8 @@ const faq = [
             <span style="display:flex;align-items:center;gap:8px"><svg width="40" height="14" viewBox="0 0 40 14" aria-hidden="true"><path d="M4 7 H36" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-dasharray="0.5 13"/></svg>By arrangement</span>
           </div>
         </div>
-        <div style="overflow-x:auto;margin-top:12px">
-          <svg viewBox="0 0 1200 560" role="img" aria-label={`Route map: same-day lines link ${listText(F.sameDay)}. ${listText(F.byArrangement)} are served by arrangement.`} style="display:block;width:100%;height:auto;min-width:640px">
+        <div style="margin-top:12px">
+          <svg viewBox="100 10 1090 545" role="img" aria-label={`Route map: same-day lines link ${listText(F.sameDay)}. ${listText(F.byArrangement)} are served by arrangement.`} style="display:block;width:100%;max-width:1000px;height:auto;margin-inline:auto">
             <defs><filter id="chalk" x="-2%" y="-10%" width="104%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G"/></filter></defs>
             <g filter="url(#chalk)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
               <path stroke-width="5" stroke-dasharray="0.5 13" d="M760 100 L190 100"/>
@@ -90,9 +95,10 @@ const faq = [
             <g fill="#0A1F44" stroke="#fff" stroke-width="4">
               {[[190,100,8],[330,100,8],[820,40,8],[760,100,11],[600,262,8],[600,310,8],[700,310,8],[600,380,11],[700,380,8],[510,470,11],[1040,470,11],[510,532,8]].map(([x, y, r]) => <circle cx={x} cy={y} r={r}/>)}
             </g>
-            <rect class="tok" x="-13" y="-8" width="26" height="16" rx="4" fill="#F26A1B"><animateMotion dur="5s" repeatCount="indefinite" path="M520 310 L700 310"/></rect>
+            <path class="tok" d="M520 310 L600 310 L600 380 L510 470 L1040 470 L1040 320 L820 100 L760 100 L600 260 L600 310 L700 310 L600 310 L520 310" fill="none" stroke="#F26A1B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="140 1800" stroke-dashoffset="140"><animate attributeName="stroke-dashoffset" from="140" to="-1745" dur="18s" repeatCount="indefinite"/></path>
+            <rect class="tok" x="-15" y="-9" width="30" height="18" rx="5" fill="#F26A1B" stroke="#fff" stroke-width="3"><animateMotion dur="18s" repeatCount="indefinite" rotate="auto" path="M520 310 L600 310 L600 380 L510 470 L1040 470 L1040 320 L820 100 L760 100 L600 260 L600 310 L700 310 L600 310 L520 310"/></rect>
             <circle cx="520" cy="310" r="15" fill="#F26A1B" stroke="#fff" stroke-width="4"/>
-            <g font-family="Hanken Grotesk Variable, Hanken Grotesk, system-ui, sans-serif" font-weight="600" font-size="20" fill="#fff" paint-order="stroke" stroke="#0A1F44" stroke-width="7" stroke-linejoin="round">
+            <g font-family="Hanken Grotesk Variable, Hanken Grotesk, system-ui, sans-serif" font-weight="600" font-size="24" fill="#fff" paint-order="stroke" stroke="#0A1F44" stroke-width="8" stroke-linejoin="round">
               <text x="190" y="84" text-anchor="middle">West Texas</text><text x="330" y="84" text-anchor="middle">Abilene</text>
               <text x="836" y="47">Sherman</text><text x="744" y="86" text-anchor="end">Dallas–Fort Worth</text>
               <text x="616" y="276">Georgetown</text><text x="520" y="284" text-anchor="middle">Leander</text>
@@ -100,7 +106,7 @@ const faq = [
               <text x="700" y="410" text-anchor="middle">Bastrop</text><text x="494" y="476" text-anchor="end">San Antonio</text>
               <text x="1056" y="477">Houston</text><text x="526" y="539">South Texas</text>
             </g>
-            <text x="520" y="350" text-anchor="middle" font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="500" font-size="15" fill="#C9D3E3" paint-order="stroke" stroke="#0A1F44" stroke-width="6">Home base</text>
+            <text x="520" y="350" text-anchor="middle" font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="500" font-size="19" fill="#C9D3E3" paint-order="stroke" stroke="#0A1F44" stroke-width="7">Home base</text>
           </svg>
         </div>
         <p class="mist" style="margin-top:14px;max-width:92ch">Same-day: {listText(F.sameDay)}. By arrangement: {listText(F.byArrangement)}.</p>
@@ -167,7 +173,7 @@ const faq = [
     <section id="van" class="band">
       <div class="w cols" style="--min:460px;align-items:center;gap:32px clamp(28px,4vw,56px)">
         <div style="border:1px solid var(--line);border-radius:10px;padding:clamp(12px,2vw,24px)">
-          <svg viewBox="0 0 680 330" role="img" aria-label="Side drawing of the 2025 eSprinter: 488 cubic feet of cargo space, 79 inches of standing height, room for 3 pallets or 2,300 pounds, 170-inch wheelbase" style="display:block;width:100%;height:auto">
+          <svg viewBox="0 0 680 330" role="img" aria-label={`Side drawing of the 2025 eSprinter: cargo floor ${ft(C.length)} long, ${ft(C.height)} tall inside, 488 cubic feet, room for 3 pallets or 2,300 pounds, 170-inch wheelbase`} style="display:block;width:100%;height:auto">
             <g fill="none" stroke="#0A1F44" stroke-width="2" stroke-linecap="round"><path d="M250 30 L622 30 M250 22 L250 38 M622 22 L622 38"/></g>
             <path d="M58 236 L56 196 Q57 178 72 174 L112 158 L158 74 Q163 64 176 64 L612 64 Q630 64 630 82 L630 236 Z" fill="#fff" stroke="#0A1F44" stroke-width="3" stroke-linejoin="round"/>
             <rect x="250" y="80" width="372" height="146" fill="#F26A1B" opacity="0.45"/>
@@ -177,9 +183,9 @@ const faq = [
             <path d="M118 236 A52 52 0 0 1 222 236 Z" fill="#fff" stroke="#0A1F44" stroke-width="3"/><path d="M468 236 A52 52 0 0 1 572 236 Z" fill="#fff" stroke="#0A1F44" stroke-width="3"/>
             <circle cx="170" cy="240" r="36" fill="#0A1F44"/><circle cx="170" cy="240" r="14" fill="#C9D3E3"/>
             <circle cx="520" cy="240" r="36" fill="#0A1F44"/><circle cx="520" cy="240" r="14" fill="#C9D3E3"/>
-            <g font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="600" font-size="15" fill="#0A1F44" paint-order="stroke" stroke="#fff" stroke-width="8" stroke-linejoin="round">
-              <text x="436" y="24" text-anchor="middle">488 cu ft of cargo space</text><text x="345" y="322" text-anchor="middle">170 in wheelbase</text>
-              <text x="588" y="158" text-anchor="end">79 in tall</text><text x="400" y="158" text-anchor="middle">3 pallets or 2,300 lb</text>
+            <g font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="600" font-size="23" fill="#0A1F44" paint-order="stroke" stroke="#fff" stroke-width="8" stroke-linejoin="round">
+              <text x="436" y="20" text-anchor="middle">Floor {ft(C.length)} ({C.length} in)</text><text x="345" y="322" text-anchor="middle">170 in wheelbase</text>
+              <text x="590" y="150" text-anchor="end">{ft(C.height)}</text><text x="590" y="176" text-anchor="end">tall</text><text x="420" y="122" text-anchor="middle">488 cu ft</text>
             </g>
           </svg>
         </div>
@@ -189,12 +195,68 @@ const faq = [
           <dl class="spec">
             <div><dt>Vehicle</dt><dd>2025 Mercedes-Benz eSprinter, all-electric</dd></div>
             <div><dt>Wheelbase and roof</dt><dd>170 in, high roof</dd></div>
+            <div><dt>Cargo floor length</dt><dd>{ft(C.length)} ({C.length} in)</dd></div>
+            <div><dt>Width inside</dt><dd>{ft(C.width)} ({C.width} in); {ft(C.wheelWells)} ({C.wheelWells} in) between the wheel wells</dd></div>
+            <div><dt>Standing height inside</dt><dd>{ft(C.height)} ({C.height} in)</dd></div>
             <div><dt>Cargo space</dt><dd>488 cu ft</dd></div>
-            <div><dt>Standing height inside</dt><dd>79 in</dd></div>
+            <div><dt>Rear doors</dt><dd>About {ft(C.rearDoor[0])} wide × {ft(C.rearDoor[1])} tall</dd></div>
+            <div><dt>Side door</dt><dd>About {ft(C.sideDoor[0])} wide × {ft(C.sideDoor[1])} tall</dd></div>
             <div><dt>Capacity</dt><dd>3 pallets or up to 2,300 lb</dd></div>
             <div><dt>Not carried</dt><dd>Hazardous materials</dd></div>
           </dl>
         </div>
+      </div>
+    </section>
+
+    <section id="fits" class="band gray">
+      <div class="w" style="display:flex;flex-direction:column;gap:24px">
+        <div><h2 class="h2">What fits, in feet and inches</h2>
+        <p class="lede" style="max-width:60ch">Measured inside the bare cargo area. Sheet goods lie flat between the wheel wells, and boards, pipe and conduit up to 14 feet ride on the floor with the doors closed.</p></div>
+        <div class="cols" style="--min:320px">
+          <figure class="card" style="margin:0"><h3 style="font-size:20px;margin-bottom:10px">3 standard pallets</h3>
+            <svg viewBox="0 0 640 352" role="img" aria-label={`Floor plan from above: ${ft(C.length)} long, ${ft(C.width)} wide, ${ft(C.wheelWells)} between the wheel wells. Three 48 by 40 inch pallets in a row.`} style="display:block;width:100%;height:auto">
+              <rect x="24" y="52" width="557" height="224" rx="4" fill="#fff" stroke="#0A1F44" stroke-width="3"/>
+              <rect x="371" y="52" width="115" height="27" fill="#C9D3E3" stroke="#0A1F44" stroke-width="2"/><rect x="371" y="249" width="115" height="27" fill="#C9D3E3" stroke="#0A1F44" stroke-width="2"/>
+              <rect x="34" y="100" width="154" height="128" rx="3" fill="#F26A1B" fill-opacity="0.3" stroke="#F26A1B" stroke-width="3"/><text x="111" y="172" text-anchor="middle" font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="600" fill="#0A1F44" font-size="22">4 × 3⅓ ft</text><rect x="198" y="100" width="154" height="128" rx="3" fill="#F26A1B" fill-opacity="0.3" stroke="#F26A1B" stroke-width="3"/><text x="274" y="172" text-anchor="middle" font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="600" fill="#0A1F44" font-size="22">4 × 3⅓ ft</text><rect x="361" y="100" width="154" height="128" rx="3" fill="#F26A1B" fill-opacity="0.3" stroke="#F26A1B" stroke-width="3"/><text x="438" y="172" text-anchor="middle" font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="600" fill="#0A1F44" font-size="22">4 × 3⅓ ft</text>
+              <g fill="none" stroke="#0A1F44" stroke-width="2" stroke-linecap="round"><path d="M24 34 H581 M24 26 V42 M581 26 V42"/><path d="M597 52 V276 M589 52 H605 M589 276 H605"/></g>
+              <g font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="600" fill="#0A1F44" paint-order="stroke" stroke="#fff" stroke-width="7" stroke-linejoin="round" font-size="26">
+                <text x="302" y="28" text-anchor="middle">{ft(C.length)} long</text>
+                <text transform="translate(619 164) rotate(90)" text-anchor="middle" dy="9">{ft(C.width)}</text>
+              </g>
+              <g font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="600" fill="#0A1F44" paint-order="stroke" stroke="#fff" stroke-width="7" stroke-linejoin="round" font-size="21"><text x="24" y="308">Cab</text><text x="581" y="308" text-anchor="end">Rear doors</text></g>
+            </svg>
+            <figcaption style="margin:12px 0 0;font-size:16px;line-height:1.5;color:#3A4A63">Three 48 × 40 in pallets in a row, up to 2,300 lb.</figcaption>
+          </figure>
+          <figure class="card" style="margin:0"><h3 style="font-size:20px;margin-bottom:10px">Sheet goods and long stock</h3>
+            <svg viewBox="0 0 640 352" role="img" aria-label={`Floor plan from above: ${ft(C.length)} long, ${ft(C.width)} wide, ${ft(C.wheelWells)} between the wheel wells. A 4 by 8 foot sheet lies flat between the wheel wells, and 14 foot boards or pipe run the length of the floor.`} style="display:block;width:100%;height:auto">
+              <rect x="24" y="52" width="557" height="224" rx="4" fill="#fff" stroke="#0A1F44" stroke-width="3"/>
+              <rect x="371" y="52" width="115" height="27" fill="#C9D3E3" stroke="#0A1F44" stroke-width="2"/><rect x="371" y="249" width="115" height="27" fill="#C9D3E3" stroke="#0A1F44" stroke-width="2"/>
+              <rect x="264" y="87" width="307" height="154" rx="2" fill="#F26A1B" fill-opacity="0.3" stroke="#F26A1B" stroke-width="3"/><text x="417" y="225" text-anchor="middle" font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="600" fill="#0A1F44" paint-order="stroke" stroke="#fff" stroke-width="7" stroke-linejoin="round" font-size="22">4 × 8 ft sheet</text><rect x="34" y="144" width="538" height="12" rx="2" fill="#0A1F44"/><rect x="34" y="160" width="538" height="12" rx="2" fill="#0A1F44" fill-opacity="0.7"/><text x="38" y="132" font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="600" fill="#0A1F44" paint-order="stroke" stroke="#fff" stroke-width="7" stroke-linejoin="round" font-size="22">14 ft boards or pipe</text>
+              <g fill="none" stroke="#0A1F44" stroke-width="2" stroke-linecap="round"><path d="M24 34 H581 M24 26 V42 M581 26 V42"/><path d="M597 52 V276 M589 52 H605 M589 276 H605"/></g>
+              <g font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="600" fill="#0A1F44" paint-order="stroke" stroke="#fff" stroke-width="7" stroke-linejoin="round" font-size="26">
+                <text x="302" y="28" text-anchor="middle">{ft(C.length)} long</text>
+                <text transform="translate(619 164) rotate(90)" text-anchor="middle" dy="9">{ft(C.width)}</text>
+              </g>
+              <g font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="600" fill="#0A1F44" paint-order="stroke" stroke="#fff" stroke-width="7" stroke-linejoin="round" font-size="21"><text x="24" y="308">Cab</text><text x="581" y="308" text-anchor="end">Rear doors</text></g>
+            </svg>
+            <figcaption style="margin:12px 0 0;font-size:16px;line-height:1.5;color:#3A4A63">4 × 8 ft sheets lie flat: {ft(C.wheelWells)} ({C.wheelWells} in) between the wheel wells. Floor is {C.length} in, so 14 ft (168 in) stock fits.</figcaption>
+          </figure>
+          <figure class="card" style="margin:0"><h3 style="font-size:20px;margin-bottom:10px">Through the back doors</h3>
+            <svg viewBox="0 0 640 330" role="img" aria-label={`Rear view: the back doors open about ${ft(C.rearDoor[0])} wide and ${ft(C.rearDoor[1])} tall; inside is ${ft(C.width)} wide and ${ft(C.height)} tall`} style="display:block;width:100%;height:auto">
+              <rect x="150" y="14" width="217" height="245" rx="10" fill="#fff" stroke="#0A1F44" stroke-width="3"/>
+              <rect x="164" y="33" width="189" height="226" fill="#F26A1B" fill-opacity="0.25" stroke="#F26A1B" stroke-width="3" stroke-dasharray="8 6"/>
+              <g fill="#0A1F44" opacity="0.85"><circle cx="258" cy="59" r="14"/><path d="M236 259 L240 81 Q258 69 276 81 L280 259 Z"/></g>
+              <g fill="none" stroke="#0A1F44" stroke-width="2" stroke-linecap="round"><path d="M130 14 V259 M122 14 H138 M122 259 H138"/><path d="M150 279 H367 M150 271 V287 M367 271 V287"/></g>
+              <g font-family="Hanken Grotesk Variable, system-ui, sans-serif" font-weight="600" fill="#0A1F44" paint-order="stroke" stroke="#fff" stroke-width="7" stroke-linejoin="round" font-size="26">
+                <text x="118" y="136" text-anchor="end">{ft(C.height)}</text><text x="118" y="166" text-anchor="end">tall</text>
+                <text x="258" y="287" text-anchor="middle">{ft(C.width)} wide</text>
+                <text x="387" y="136">Doors open</text><text x="387" y="166">≈ {ft(C.rearDoor[0])}</text><text x="387" y="196">× {ft(C.rearDoor[1])}</text>
+              </g>
+            </svg>
+            <figcaption style="margin:12px 0 0;font-size:16px;line-height:1.5;color:#3A4A63">Inside: {ft(C.width)} wide, {ft(C.height)} tall. Rear doors open about {ft(C.rearDoor[0])} × {ft(C.rearDoor[1])}; side door about {ft(C.sideDoor[0])} × {ft(C.sideDoor[1])}.</figcaption>
+          </figure>
+        </div>
+        <p style="font-size:15px;color:#3A4A63">Sizes are for a bare cargo floor. Text a photo or the measurements of anything close and you’ll get a straight answer before pickup.</p>
       </div>
     </section>
 
@@ -258,7 +320,7 @@ const faq = [
     <div class="w">
       <div class="cols" style="--min:220px;gap:32px 40px">
         <div class="col" style="gap:14px">
-          <div style="display:flex;align-items:center;gap:10px"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="7" fill="#071733" stroke="#fff"/><path d="M7 18 H27" fill="none" stroke="#F26A1B" stroke-width="3.5" stroke-linecap="round"/><circle cx="7" cy="18" r="3" fill="#fff"/><circle cx="27" cy="18" r="3" fill="#fff"/></svg><span style="font-size:21px;font-weight:700">{F.name}</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><Fragment set:html={mark(44, "#071733")} /><span style="font-size:21px;font-weight:700">{F.name}</span></div>
           <p style="max-width:34ch">Same-day job-site delivery across the Texas Triangle. Based in Leander, Texas.</p>
         </div>
         <div class="col">
