@@ -16,7 +16,7 @@ const native = key
 const kinds = new Set(choices.map((c) => c.kind));
 const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevator'];
 ---
-<form id="quote-form" class="survey card" {...native} data-key={key ? '1' : ''} data-email={biz.email} data-sms={smsHref('X').replace(/X$/, '')} data-source={scan ? 'Van QR code' : 'Website'}>
+<form id="quote-form" class="survey" {...native} data-key={key ? '1' : ''} data-email={biz.email} data-sms={smsHref('X').replace(/X$/, '')} data-source={scan ? 'Van QR code' : 'Website'}>
   {key && <input type="hidden" name="access_key" value={key} />}
   {key && <input type="hidden" name="subject" value={`New quote request${biz.name ? ` for ${biz.name}` : ''}`} />}
   {key && <input type="hidden" name="from_name" value="Website quote form" />}
@@ -29,12 +29,10 @@ const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevat
   <div class="survey-step is-current" data-step="1">
     <fieldset>
       <legend>What do you need?</legend>
-      <div class="choices">
-        {choices.map((c) => (
-          <label class="choice"><input type="radio" name="service" value={c.name} data-kind={c.kind} />{c.name}</label>
-        ))}
-        <label class="choice"><input type="radio" name="service" value="Something else" data-kind="other" />Something else</label>
-      </div>
+      {choices.map((c) => (
+        <label class="choice"><input type="radio" name="service" value={c.name} data-kind={c.kind} />{c.name}</label>
+      ))}
+      <label class="choice"><input type="radio" name="service" value="Something else" data-kind="other" />Something else</label>
     </fieldset>
   </div>
 
@@ -58,12 +56,6 @@ const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevat
       <label class="field">What's it made of?
         <select name="welding_material"><option value="">Choose one</option><option>Steel</option><option>Aluminum</option><option>Stainless</option><option>Not sure</option></select>
       </label>
-    </fieldset>
-    )}
-    {kinds.has('steel') && (
-    <fieldset class="kind-block" data-kind="steel">
-      <label class="field">What are you building? <small>(frame, carport, shop, metal building...)</small><input name="steel_what" /></label>
-      <label class="field">About how big? <small>(e.g. 30 x 40 ft)</small><input name="steel_size" /></label>
     </fieldset>
     )}
     {kinds.has('materials') && (
@@ -93,19 +85,17 @@ const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevat
       </label>
     </fieldset>
     )}
-    <label class="field" style="margin-top:16px">Anything else I should know? <small>(optional)</small><textarea name="details" rows="3"></textarea></label>
+    <label class="field mt-4">Anything else I should know? <small>(optional)</small><textarea name="details" rows="3"></textarea></label>
   </div>
 
   <div class="survey-step" data-step="3">
     <fieldset>
       <legend>When do you need it?</legend>
-      <div class="choices">
-        {['As soon as possible', 'This week', 'Within two weeks', "I'm flexible"].map((w) => (
-          <label class="choice"><input type="radio" name="timing" value={w} />{w}</label>
-        ))}
-      </div>
+      {['As soon as possible', 'This week', 'Within two weeks', "I'm flexible"].map((w) => (
+        <label class="choice"><input type="radio" name="timing" value={w} />{w}</label>
+      ))}
     </fieldset>
-    <label class="field" style="margin-top:16px">Best days and times <small>(optional)</small><input name="preferred_times" /></label>
+    <label class="field mt-2">Best days and times <small>(optional)</small><input name="preferred_times" /></label>
   </div>
 
   <div class="survey-step" data-step="4">
@@ -113,23 +103,23 @@ const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevat
     <label class="field">Name<input name="name" required autocomplete="name" /></label>
     <label class="field">Phone<input name="phone" type="tel" required autocomplete="tel" inputmode="tel" /></label>
     <label class="field">Job address or ZIP<input name="address" required autocomplete="postal-code" /></label>
-    <button class="b b-cta" style="width:100%" type="submit" id="quote-submit">Send my request</button>
+    <button class="btn btn-go w-full" type="submit" id="quote-submit">Send my request</button>
   </div>
 
   <div class="survey-nav">
-    <button type="button" class="b b-line" id="quote-back">Back</button>
-    <button type="button" class="b b-cta" id="quote-next">Next</button>
+    <button type="button" class="btn btn-line" id="quote-back">Back</button>
+    <button type="button" class="btn btn-go" id="quote-next">Next</button>
   </div>
 </form>
 
-<div id="quote-send" hidden class="card send-step">
-  <p class="title">Almost done</p>
-  <p style="margin:4px 0 14px">Your answers are filled in. Press send in the app that opens.</p>
-  <div style="display:grid;gap:10px">
-    {biz.email && <a class="b b-cta" id="quote-email">Send by email</a>}
-    {biz.phone && <a class="b b-line" id="quote-text"><Icon name="text" />Send by text</a>}
+<div id="quote-send" hidden class="mt-2">
+  <p class="display text-[1.6rem]">Almost done</p>
+  <p class="mt-1 mb-3">Your answers are filled in. Press send in the app that opens.</p>
+  <div class="grid gap-2.5">
+    {biz.email && <a class="btn btn-go" id="quote-email"><>Send by email</></a>}
+    {biz.phone && <a class="btn btn-dark" id="quote-text"><Icon name="text" />Send by text</a>}
   </div>
-  <button type="button" class="textbtn" style="margin-top:8px" id="quote-edit">Change my answers</button>
+  <button type="button" class="textlink mt-2 bg-transparent cursor-pointer" id="quote-edit">Change my answers</button>
 </div>
 
 <script is:inline>
@@ -194,7 +184,7 @@ const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevat
     if (r) { r.checked = true; applyKind(); show(1); }
   });
 
-  var LABELS = { service: 'Service', moving_from: 'Moving from', moving_to: 'Moving to', moving_size: 'How much', moving_stairs: 'Stairs', welding_job: 'Welding job', welding_material: 'Material', steel_what: 'Building', steel_size: 'Size', materials_what: 'Materials', materials_pickup: 'Pick up from', materials_deliver: 'Deliver to', teardown_what: 'Tear-down', teardown_size: 'Size', teardown_utilities: 'Utilities disconnected', junk_what: 'Junk', junk_amount: 'How much', junk_stairs: 'Stairs', details: 'Details', timing: 'When', preferred_times: 'Best times', name: 'Name', phone: 'Phone', address: 'Job address or ZIP', source: 'Came from' };
+  var LABELS = { service: 'Service', moving_from: 'Moving from', moving_to: 'Moving to', moving_size: 'How much', moving_stairs: 'Stairs', welding_job: 'Welding job', welding_material: 'Material', materials_what: 'Materials', materials_pickup: 'Pick up from', materials_deliver: 'Deliver to', teardown_what: 'Tear-down', teardown_size: 'Size', teardown_utilities: 'Utilities disconnected', junk_what: 'Junk', junk_amount: 'How much', junk_stairs: 'Stairs', details: 'Details', timing: 'When', preferred_times: 'Best times', name: 'Name', phone: 'Phone', address: 'Job address or ZIP', source: 'Came from' };
   function summary() {
     var d = new FormData(f), out = [];
     Object.keys(LABELS).forEach(function (k) { var v = d.get(k); if (v) out.push(LABELS[k] + ': ' + v); });

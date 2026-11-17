@@ -6,8 +6,8 @@ by scanning the QR code on the van, so it loads fast and puts **Call, Text, Book
 a thumb's reach.
 
 > **Status (2026-11-17): LIVE at https://trades-landing-321.pages.dev** (Cloudflare Pages project `trades-landing`,
-> deployed from `main`). Two brands: Locker Box trade services at `/` and `/van` (the QR code), Chalkline Freight at
-> `/freight` (until it has its own domain; name only in `src/data/freight.ts`). Moving is off the page until the TxDMV number is issued (restore steps are in the comment by
+> deployed from `main`). Locker Box at `/` and `/van` (the QR code) is back to its pre-split design (owner, 11-17: didn't like the
+> rebuild). The freight brand page stays at `/freight` (name only in `src/data/freight.ts`; the name itself is under review). Moving is off the page until the TxDMV number is issued (restore steps are in the comment by
 > `headline` in business.ts). The old `delivery-pages` branch is superseded by `/freight`. Deploy note: wrangler 4.15x tries to turn Pages projects into Workers and rewrites astro.config,
 > package.json and wrangler.jsonc; the project was created on classic Pages, so `npm run deploy` now works as is.
 > If those files ever change during a deploy, revert them.
@@ -465,7 +465,7 @@ the live Cloudflare deploy, print output of the decal.
 | 11-16 | Per-service prices replace the single $60-$100 rate: welding $95-$125/hr, material delivery $85-$120/hr, tear-down $60-$100/hr, junk from $150, freight from $95 (Triangle runs ~$2.50-$3/mi) | Austin-area research 11-16: mobile welding $85-$150/hr, cargo van service $90-$150/hr, haulers ~$300 minimum; owner wants to match or slightly beat competitors |
 | 11-16 | Dump fees and landfill per-item fees charged at cost with the receipt | 2026 TDS rates: Georgetown $33 pickup minimum, Creedmoor $66 minimum + $12/yd; a full van load is ~$270-$325 to dump, so it can't be built into a flat price |
 | 11-16 | Service area: the Texas Triangle, based in Leander | Owner's request |
-| 11-16 | Brand split (merged and live 11-17): Locker Box trade services at `/` and `/van` (navy + gold #FFC72C), Chalkline Freight job-site delivery at `/freight` (navy + orange #F26A1B), from `reference/*-reference.html` | Owner's brief. Freight name lives only in `src/data/freight.ts` (trademark search pending); shared look in `src/styles/brand.css` + `src/layouts/Brand.astro` |
+| 11-16 | Brand split (live 11-17; Locker Box half reverted the same day, freight page kept): Locker Box trade services at `/` and `/van` (navy + gold #FFC72C), Chalkline Freight job-site delivery at `/freight` (navy + orange #F26A1B), from `reference/*-reference.html` | Owner's brief. Freight name lives only in `src/data/freight.ts` (trademark search pending); shared look in `src/styles/brand.css` + `src/layouts/Brand.astro` |
 | 11-16 | Kept the 11-16 email (lockerbox.us) and per-service prices instead of the brief's lockerbox.tx / flat $60-$100 | Both were changed earlier the same day; the brief predates them. Owner said "continue with the plan" after being told |
 | 11-16 | Locker Box keeps its multi-step quote survey (restyled) instead of the reference's shorter form | Brief: never drop a field the current form sends. Freight form keeps every old freight field plus date, pieces, weight, company, email |
 | 11-16 | "Photo proof of delivery" and "text updates" on /freight behind `showPhotoProof` / `showTextUpdates` in freight.ts | Owner must confirm before deploy |

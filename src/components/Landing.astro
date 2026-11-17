@@ -1,303 +1,286 @@
 ---
-// Locker Box trade services page, shown at / and at /van (the van's QR code).
-// Built from reference/locker-box-trades-reference.html with the real logo, van photo, work photos and videos.
-import Brand from '../layouts/Brand.astro';
+import Base from '../layouts/Base.astro';
+import Footer from './Footer.astro';
 import Icon from './Icon.astro';
 import QuoteForm from './QuoteForm.astro';
-import { biz, telHref, smsHref, phoneDisplay, priceText, hasForm, bookUrl, jsonLd, saferUrl, usdot, metaDescription } from '../lib/derive.ts';
-import { freight } from '../data/freight.ts';
+import vanArt from '../assets/van.svg?raw';
+import { biz, telHref, smsHref, priceText, bookUrl, hasForm, trustBits, jsonLd } from '../lib/derive.ts';
 
 const { scan = false } = Astro.props as { scan?: boolean };
 const hello = scan ? 'Hi, I scanned your van. ' : 'Hi! ';
 const textHref = smsHref(`${hello}I need help with: `);
 const photosHref = smsHref(`${hello}Here are photos for a quote.\nMy name:\nAddress or ZIP:\nWhat I need:\n`);
+const canQuote = hasForm;
 const quoteHref = hasForm ? '#quote' : textHref;
-const name = biz.name || 'Locker Box';
-const services = biz.trades.flatMap((t) => t.services);
+
 const sentence = (bits: string[]) => { const t = bits.length > 1 ? bits.slice(0, -1).join(', ') + ', or ' + bits.at(-1) : bits.join(''); return t ? t[0].toUpperCase() + t.slice(1) + '.' : ''; };
-const hours = biz.hours.map((h) => `${h.days}: ${h.time}`).join(' · ');
-const [feature, ...rest] = biz.photos.gallery;
+const what = [biz.whatIDo, biz.area.summary].filter(Boolean).join(' in ');
+const quoteFor = (name: string) => hasForm ? '#quote' : smsHref(`${hello}I'd like a quote for: ${name}`);
+
+const why = [
+  { title: '2025 Mercedes eSprinter, all-electric', text: [
+    '170-inch wheelbase, high roof.',
+    sentence([biz.van.cargoLength && `${biz.van.cargoLength} of cargo floor`, biz.van.cargoHeight && `${biz.van.cargoHeight} of standing height inside`, biz.van.cargoVolume && `${biz.van.cargoVolume} of cargo space`].filter(Boolean) as string[]).replace(/, or ([^,]*)\.$/, ' and $1.').replace(/, or /, ', '),
+    'Fits 3 pallets or up to 2,300 lb.',
+  ].filter(Boolean).join(' ') },
+  biz.van.bringsOwnPower && { title: 'Brings its own power', text: 'No need to use your outlets.' },
+  biz.promises.upfrontPricing && { title: 'Upfront pricing', text: biz.rate ? `${biz.rate}, depending on the job. I'll confirm your rate before the work starts.${biz.rateExample ? ' ' + biz.rateExample : ''}` : 'You get the price before the work starts.' },
+  biz.promises.cleanUp && { title: 'Clean-up included', text: 'I clean up the work area before I leave.' },
+  biz.credentials.warranty && { title: 'Warranty', text: biz.credentials.warranty },
+  biz.credentials.insurance && { title: 'Insurance', text: biz.credentials.insurance },
+].filter(Boolean) as { title: string; text: string }[];
+
+const steps = [
+  { title: 'Tell me what you need', text: sentence([biz.links.booking && 'book online', biz.phone && 'call or text', hasForm && 'answer a few quick questions'].filter(Boolean) as string[]) },
+  { title: biz.promises.upfrontPricing ? (biz.rate ? 'Get your rate up front' : 'Get your price up front') : 'Get a time and a price', text: 'Photos help me give you a real number faster.' },
+  { title: 'I come to you', text: `I bring the van and the tools and get to work.${biz.promises.cleanUp ? ' I clean up before I go.' : ''}` },
+];
+
 const faq = [
   ['Are estimates free?', biz.faq.estimates],
   ['How can I pay?', biz.faq.payment],
   ['Do you need a deposit?', biz.faq.deposits],
   ['What if I need to cancel?', biz.faq.cancellations],
+  ['Is the work under warranty?', biz.faq.warranty],
   ['Is there a travel fee?', biz.faq.travelFee],
   ['Is there a minimum charge?', biz.faq.minimum],
   ['Is anything extra on top of the price?', biz.faq.extras],
 ].filter(([, a]) => a);
-const year = new Date().getFullYear();
 ---
-<Brand theme="lb" siteName={name} canonicalPath="/" ogImage="/og.png" ld={scan ? null : jsonLd()}
-  title={`${name} | ${biz.headline}`} description={metaDescription()}>
-  {scan && (
-    <aside class="scan">
-      <p>Thanks for scanning the van!</p>
-      {biz.vanOffer.headline && <p>{biz.vanOffer.headline}</p>}
-      {biz.vanOffer.terms && <p style="font-weight:400;font-size:15px">{biz.vanOffer.terms}</p>}
-    </aside>
-  )}
+<Base canonicalPath="/" ld={scan ? null : jsonLd()}>
+  <div class={biz.phone || biz.links.booking || canQuote ? 'has-bar' : ''}>
+    {scan && (
+      <aside class="bg-accent text-accent-ink px-4 py-3 text-center">
+        <p class="display text-2xl">Thanks for scanning the van!</p>
+        {biz.vanOffer.headline && <p class="font-bold text-lg">{biz.vanOffer.headline}</p>}
+        {biz.vanOffer.terms && <p class="text-[15px]">{biz.vanOffer.terms}</p>}
+      </aside>
+    )}
 
-  <header class="top">
-    <div class="w">
-      <a class="brand" href="#top" aria-label={`${name}, back to top`}>
-        {biz.logo ? <img src={biz.logo} alt={name} width="510" height="423" /> : name}
-      </a>
-      <nav class="nav" aria-label="Main">
-        <a href={freight.path}>Freight delivery</a>
-        <a href="#services">Trade services</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#work">Recent work</a>
-      </nav>
-      <div class="top-cta">
-        {biz.phone && <a class="tel hide-sm" href={telHref}>{phoneDisplay()}</a>}
-        <a class="b b-cta b-sm" href={quoteHref}>Get a quote</a>
+    {biz.logo && (
+      <div class="bg-white px-4 py-2 text-center">
+        <img src={biz.logo} alt={biz.name} width="510" height="423" class="inline-block w-[150px] h-auto" />
       </div>
-    </div>
-  </header>
+    )}
+    <header class="bg-brand text-white px-4 pt-5 pb-7">
+      <div class="wrap">
+        {!biz.logo && biz.headline && <p class="display text-[2.3rem] mb-3">{biz.name}</p>}
+        <h1 class="text-[2.75rem]">{biz.headline || biz.name || 'All-electric mobile service'}</h1>
+        {what && <p class="display text-[1.45rem] mt-2">{what}</p>}
+        {biz.rate && <p class="display text-[1.65rem] mt-2">{biz.rate}</p>}
+        {biz.rating.score && <p class="mt-2 font-bold"><span aria-hidden="true">★★★★★</span> {biz.rating.score} from {biz.rating.count} {biz.rating.source} reviews</p>}
+        {trustBits().length > 0 && <p class="mt-2.5 text-[16px]">{trustBits().join(' · ')}</p>}
 
-  <main>
-    <section id="top" class="navy hero">
-      <div class="w">
-        <h1>{biz.headline}</h1>
-        <div class="copy">
-          <p>On-site work across {biz.area.summary || 'Central Texas'}, with material delivery from the same van. Your rate is confirmed before work starts.</p>
-          {biz.subheading && <p style="color:#fff;font-weight:600">{biz.subheading}</p>}
-          {biz.rating.score && <p style="color:#fff;font-weight:600"><span aria-hidden="true">★★★★★</span> {biz.rating.score} from {biz.rating.count} {biz.rating.source} reviews</p>}
-          <div class="btns">
-            {biz.links.booking && <a class="b b-cta" href={biz.links.booking}><Icon name="book" />Book</a>}
-            <a class={`b ${biz.links.booking ? 'b-ghost' : 'b-cta'}`} href={quoteHref}>Get a quote</a>
-            {biz.phone && <a class="b b-ghost" href={photosHref}>Text photos to {phoneDisplay()}</a>}
-          </div>
-        </div>
-      </div>
-      <div class="w" style="padding-bottom:clamp(28px,3vw,36px)">
-        <ul class="trust">
-          {usdot() && <li><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><a href={saferUrl()} rel="noopener">USDOT {usdot()}</a></li>}
-          {biz.credentials.insurance && <li><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>{biz.credentials.insurance}</li>}
-          <li><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>Quiet electric van</li>
-          {biz.hours.length > 0 && <li><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Open every day</li>}
-        </ul>
-        {biz.photos.van && (
+        {(biz.phone || biz.links.booking || canQuote) && <div class="grid grid-cols-2 gap-2.5 mt-4">
+          {biz.links.booking && <a class="btn btn-go" href={biz.links.booking}><Icon name="book" />Book</a>}
+          {canQuote && <a class="btn btn-go" href={quoteHref}><Icon name="quote" />Get a quote</a>}
+          {biz.phone && <a class="btn btn-white" href={telHref}><Icon name="call" />Call</a>}
+          {biz.phone && <a class="btn btn-white" href={textHref}><Icon name="text" />Text</a>}
+        </div>}
+
+        {biz.photos.van ? (
           <picture>
-            {biz.photos.vanWebp && <source type="image/webp" srcset={biz.photos.vanWebp} sizes="(min-width: 1240px) 1160px, calc(100vw - 32px)" />}
-            <img src={biz.photos.van} alt={biz.photos.vanAlt} width="1200" height="900" fetchpriority="high" style="display:block;width:100%;height:auto;max-height:620px;object-fit:cover;margin-top:24px;border-radius:10px" />
+            {biz.photos.vanWebp && <source type="image/webp" srcset={biz.photos.vanWebp} sizes="(min-width: 912px) 880px, calc(100vw - 32px)" />}
+            <img src={biz.photos.van} alt={biz.photos.vanAlt} width="1200" height="900" fetchpriority="high" class="mt-5 w-full h-auto rounded-md" />
           </picture>
-        )}
+        ) : <div class="mt-5" set:html={vanArt} />}
+        {biz.subheading && <p class="mt-3 font-bold">{biz.subheading}</p>}
       </div>
-    </section>
+    </header>
+    <div class="stripe"></div>
 
-    <section class="gray" aria-label="Steel building drawing">
-      <div class="w" style="padding-block:clamp(24px,3vw,40px)">
-        <div style="overflow-x:auto">
-          <svg viewBox="0 0 1200 420" role="img" aria-label="Drawing of a steel building frame with wall panels going up, a weld at the eave, and the electric van parked on site" style="display:block;width:100%;height:auto;min-width:640px">
-            <defs><pattern id="rib" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M7 0 V14" fill="none" stroke="#0A1F44" stroke-width="2"/></pattern></defs>
-            <g fill="none" stroke="#0A1F44" stroke-linecap="round">
-              <path stroke-width="2" d="M30 360 L1170 360"/>
-            </g>
-            <polygon points="380,360 540,360 540,132 380,170" fill="#fff"/>
-            <polygon points="380,360 540,360 540,132 380,170" fill="url(#rib)" stroke="#0A1F44"/>
-            <path d="M380 360 L380 170 L720 90 L1060 170 L1060 360" fill="none" stroke="#0A1F44" stroke-width="14" stroke-linecap="square"/>
-            <g fill="#0A1F44">
-              {[[437,157],[493,143],[550,130],[607,117],[663,103],[777,103],[833,117],[890,130],[947,143],[1003,157],[380,220],[380,270],[380,320],[1060,220],[1060,270],[1060,320]].map(([x, y]) => <circle cx={x} cy={y} r="6"/>)}
-              <rect x="362" y="354" width="36" height="9"/><rect x="1042" y="354" width="36" height="9"/>
-            </g>
-            <path d="M1074 160 L1092 146 M1078 172 L1102 172 M1074 184 L1090 198 M1046 160 L1030 146 M1060 150 L1060 132" fill="none" stroke="#0A1F44" stroke-width="8" stroke-linecap="round"/>
-            <path d="M1074 160 L1092 146 M1078 172 L1102 172 M1074 184 L1090 198 M1046 160 L1030 146 M1060 150 L1060 132" fill="none" stroke="#FFC72C" stroke-width="4" stroke-linecap="round"/>
-            <circle cx="1060" cy="170" r="10" stroke="#0A1F44" fill="#FFC72C"/>
-            <g transform="translate(40 244) scale(0.42)" stroke="#0A1F44" stroke-linejoin="round">
-              <path d="M58 236 L56 196 Q57 178 72 174 L112 158 L158 74 Q163 64 176 64 L612 64 Q630 64 630 82 L630 236 Z" fill="#fff" stroke-width="6"/>
-              <rect x="250" y="80" width="372" height="146" fill="#FFC72C" opacity="0.45" stroke="none"/>
-              <path d="M140 136 L168 86 L234 86 L234 136 Z" fill="#C9D3E3" stroke-width="6"/>
-              <path d="M242 72 L242 230 M300 72 L300 230 M430 72 L430 230" fill="none" stroke-width="4" stroke-linecap="round"/>
-              <path d="M118 236 A52 52 0 0 1 222 236 Z" fill="#fff" stroke-width="6"/><path d="M468 236 A52 52 0 0 1 572 236 Z" fill="#fff" stroke-width="6"/>
-              <circle cx="170" cy="240" r="36" fill="#0A1F44"/><circle cx="170" cy="240" r="14" fill="#C9D3E3" stroke="none"/>
-              <circle cx="520" cy="240" r="36" fill="#0A1F44"/><circle cx="520" cy="240" r="14" fill="#C9D3E3" stroke="none"/>
-            </g>
-            <g font-family="Hanken Grotesk Variable, Hanken Grotesk, system-ui, sans-serif" font-weight="600" font-size="20" fill="#0A1F44" paint-order="stroke" stroke="#F3F5F8" stroke-width="7" stroke-linejoin="round">
-              <text x="720" y="66" text-anchor="middle">Ridge</text><text x="896" y="110">Rafter</text>
-              <text x="1060" y="122" text-anchor="middle">On-site weld</text><text x="1082" y="272">Column</text>
-              <text x="1082" y="352">Base plate</text><text x="460" y="398" text-anchor="middle">Wall panels going up</text>
-              <text x="184" y="398" text-anchor="middle">The van, on site</text>
-            </g>
-          </svg>
-        </div>
-        <p style="margin-top:16px;color:var(--body);max-width:88ch"><strong>The van:</strong> 2025 Mercedes-Benz eSprinter, all-electric. 170 in wheelbase, high roof{biz.van.cargoHeight && `, ${biz.van.cargoHeight.replace(' inches', ' in')} standing height`}{biz.van.cargoVolume && `, ${biz.van.cargoVolume.replace(' cubic feet', ' cu ft')}`}, up to 3 pallets or 2,300 lb.</p>
-        <p style="margin-top:10px;color:var(--body);max-width:88ch">{biz.owner.note || `${biz.owner.name} builds steel frames and metal buildings, welds on site, and hauls materials for businesses across ${biz.area.summary}.`}</p>
-      </div>
-    </section>
-
-    {services.length > 0 && (
-      <section id="services" class="band">
-        <div class="w">
-          <h2 class="h2">Trade services</h2>
-          <ul class="rows" style="list-style:none;padding:0;margin-bottom:0">
-            {services.map((s) => (
-              <li class="row">
-                <h3>{s.name}</h3>
-                {priceText(s.price) && <p class="price">{priceText(s.price)}</p>}
-                {s.description && <p class="desc">{s.description}</p>}
-                {s.action === 'book' && bookUrl(s)
-                  ? <a class="textbtn" href={bookUrl(s)}>Book this</a>
-                  : hasForm && <a class="textbtn" href={quoteHref} data-service={s.name}>Get a quote for this</a>}
-              </li>
+    <main>
+      {biz.trades.length > 0 && (
+        <section class="sec" id="services">
+          <div class="wrap">
+            <h2 class="sec-title">Services</h2>
+            {biz.trades.map((t) => (
+              <div class="mb-8 last:mb-0">
+                {biz.trades.length > 1 && <h3 class="text-[1.7rem] mb-3">{t.name}</h3>}
+                <ul class="grid gap-3 md:grid-cols-2">
+                  {t.services.map((s) => {
+                    const book = s.action === 'book' && bookUrl(s);
+                    const href = book || (canQuote ? quoteFor(s.name) : '');
+                    return (
+                      <li class="flex flex-col border-2 border-line rounded-md p-4">
+                        <h4 class="display text-[1.5rem]">{s.name}</h4>
+                        {priceText(s.price) && <p class="display text-[1.5rem] text-brand mt-1">{priceText(s.price)}</p>}
+                        <p class="mt-1.5 mb-3 text-soft">{s.description}</p>
+                        {href && <a class={`btn mt-auto ${book ? 'btn-go' : 'btn-line'}`} href={href} data-service={book ? undefined : s.name}>{book ? 'Book this' : 'Get a quote'}</a>}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             ))}
-          </ul>
-          <p style="margin-top:20px;color:var(--body)">Need freight moved for your business? <a href={freight.path} style="font-weight:600">See {freight.name}</a></p>
-        </div>
-      </section>
-    )}
+          </div>
+        </section>
+      )}
 
-    {biz.plans.length > 0 && (
-      <section id="plans" class="band navy">
-        <div class="w">
-          <h2 class="h2">Care plans</h2>
-          <ul class="cols" style="--min:280px;list-style:none;padding:0;margin-top:28px">
-            {biz.plans.map((p) => {
-              const href = p.signupUrl || (hasForm ? quoteHref : '');
-              return (
-                <li class="card" style="color:var(--navy);display:flex;flex-direction:column;gap:8px">
-                  <h3 style="font-size:22px;font-weight:700">{p.name}</h3>
-                  <p style="font-size:20px;font-weight:700">{p.price}</p>
-                  <p style="color:var(--body)">{p.description}</p>
-                  <ul style="padding-left:18px;color:var(--body)">{p.includes.map((i) => <li>{i}</li>)}</ul>
-                  {href && <a class="b b-cta" style="margin-top:auto" href={href} data-service={p.signupUrl ? undefined : p.name}>Sign up</a>}
+      {biz.plans.length > 0 && (
+        <section class="sec bg-brand text-white" id="plans">
+          <div class="wrap">
+            <h2 class="sec-title">Care plans</h2>
+            <ul class="grid gap-3 md:grid-cols-2">
+              {biz.plans.map((p) => {
+                const href = p.signupUrl || (canQuote ? quoteFor(p.name) : '');
+                return (
+                  <li class="flex flex-col bg-white text-ink rounded-md p-4">
+                    <h3 class="text-[1.7rem]">{p.name}</h3>
+                    <p class="display text-[1.5rem] text-brand mt-1">{p.price}</p>
+                    <p class="mt-1.5 text-soft">{p.description}</p>
+                    <ul class="list-disc pl-5 my-3">{p.includes.map((i) => <li>{i}</li>)}</ul>
+                    {href && <a class="btn btn-go mt-auto" href={href} data-service={p.signupUrl ? undefined : p.name}>Sign up</a>}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {(biz.phone || biz.links.booking || hasForm) && (
+        <section class="sec bg-paper" id="how">
+          <div class="wrap">
+            <h2 class="sec-title">How it works</h2>
+            <ol class="grid gap-5 md:grid-cols-3">
+              {steps.map((s, i) => (
+                <li class="flex gap-3">
+                  <span class="display text-[2.6rem] leading-none text-brand" aria-hidden="true">{i + 1}</span>
+                  <div><h3 class="text-[1.45rem]">{s.title}</h3><p class="mt-1 text-soft">{s.text}</p></div>
                 </li>
-              );
-            })}
+              ))}
+            </ol>
+          </div>
+        </section>
+      )}
+
+      <section class="sec" id="why">
+        <div class="wrap">
+          <h2 class="sec-title">Why hire me</h2>
+          {(biz.owner.note || biz.owner.photo) && (
+            <div class="flex gap-4 items-start mb-6">
+              {biz.owner.photo && <img src={biz.owner.photo} alt={biz.owner.name ? `${biz.owner.name}, the owner` : 'The owner'} width="96" height="96" loading="lazy" class="w-24 h-24 rounded-md object-cover flex-none" />}
+              <p>{biz.owner.note}{biz.owner.name && !biz.owner.note.includes(biz.owner.name) && <strong class="block mt-1">{biz.owner.name}</strong>}</p>
+            </div>
+          )}
+          <ul class="grid gap-4 md:grid-cols-2">
+            {why.map((w) => <li class="border-l-[6px] border-accent pl-3"><h3 class="text-[1.45rem]">{w.title}</h3><p class="text-soft mt-0.5">{w.text}</p></li>)}
           </ul>
         </div>
       </section>
-    )}
 
-    <section id="pricing" class="band gray">
-      <div class="w">
-        <h2 class="h2">Pricing</h2>
-        <div class="tiles">
-          {biz.faq.minimum && <div><p class="k">Minimum</p><p class="v">2 hours on hourly jobs</p><p>Junk removal from $150</p></div>}
-          {biz.faq.travelFee && <div><p class="k">Travel</p><p class="v">Free within 30 miles</p><p>$75 trip fee beyond that</p></div>}
-          {biz.faq.payment && <div><p class="k">Payment</p><p class="v">{biz.faq.payment.replace(/\.$/, '')}</p></div>}
-          {biz.faq.extras && <div><p class="k">Dump fees</p><p class="v">At cost</p><p>With the receipt</p></div>}
-        </div>
-        <p style="margin-top:18px;color:var(--body);max-width:80ch">Each service’s rate is listed above. Your rate and any trip fee are confirmed before booking. Long runs across Texas are quoted by the trip, including drive time.</p>
-      </div>
-    </section>
-
-    {(biz.photos.gallery.length > 0 || biz.photos.videos.length > 0) && (
-      <section id="work" class="band">
-        <div class="w">
-          <h2 class="h2">Recent work</h2>
-          {biz.photos.videos.length > 0 && (
-            <ul class="vids" style="list-style:none;padding:0">
-              {biz.photos.videos.map((v) => (
-                <li>
-                  <video muted loop playsinline preload="none" data-poster={v.poster} width="540" height="960" aria-label={v.caption}>
-                    <source src={v.src} type="video/mp4" />
-                  </video>
-                  <noscript><img src={v.poster} alt={v.caption} width="540" height="960" loading="lazy" style="width:100%;height:auto;border-radius:10px" /></noscript>
+      {(biz.photos.gallery.length > 0 || biz.photos.videos.length > 0) && (
+        <section class="sec bg-paper" id="work">
+          <div class="wrap">
+            <h2 class="sec-title">Recent work</h2>
+            {biz.photos.videos.length > 0 && (
+              <ul class="grid grid-cols-2 gap-2.5 mb-4 md:max-w-xl">
+                {biz.photos.videos.map((v) => (
+                  <li>
+                    <video muted loop playsinline preload="none" data-poster={v.poster} width="540" height="960" class="w-full h-auto rounded-md bg-deep" aria-label={v.caption}>
+                      <source src={v.src} type="video/mp4" />
+                    </video>
+                    <noscript><img src={v.poster} alt={v.caption} width="540" height="960" loading="lazy" class="w-full h-auto rounded-md" /></noscript>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <ul class="grid grid-cols-2 gap-2.5 md:grid-cols-3">
+              {biz.photos.gallery.map((g, i) => (
+                <li class={i === 0 ? 'col-span-2 md:col-span-3' : (biz.photos.gallery.length - 1) % 2 === 1 && i === biz.photos.gallery.length - 1 ? 'col-span-2 md:col-span-1' : ''}>
+                  <img src={g.src} alt={g.caption} width={g.width} height={g.height} loading="lazy" decoding="async" class={`w-full object-cover rounded-md ${i === 0 ? 'aspect-[4/3] md:aspect-[16/9]' : 'aspect-[4/3]'}`} />
                 </li>
               ))}
             </ul>
-          )}
-          {feature && (
-            <ul class="gallery" style="list-style:none;padding:0">
-              <li class="wide"><img src={feature.src} alt={feature.caption} width={feature.width} height={feature.height} loading="lazy" decoding="async" /></li>
-              {rest.map((g, i) => (
-                <li class={rest.length % 2 === 1 && i === rest.length - 1 ? 'wide-sm' : ''}><img src={g.src} alt={g.caption} width={g.width} height={g.height} loading="lazy" decoding="async" /></li>
+          </div>
+        </section>
+      )}
+
+      {biz.reviews.length > 0 && (
+        <section class="sec" id="reviews">
+          <div class="wrap">
+            <h2 class="sec-title">Reviews</h2>
+            <ul class="grid gap-3 md:grid-cols-2">
+              {biz.reviews.map((r) => (
+                <li class="border-2 border-line rounded-md p-4">
+                  {r.stars && <p class="text-brand font-bold" aria-label={`${r.stars} out of 5 stars`}>{'★'.repeat(r.stars)}</p>}
+                  <blockquote class="mt-1">“{r.text}”</blockquote>
+                  <p class="font-bold mt-2 text-[15px]">{r.name} · {r.source}</p>
+                </li>
               ))}
             </ul>
-          )}
-        </div>
-      </section>
-    )}
-
-    <section id="how" class="band gray">
-      <div class="w">
-        <h2 class="h2">How it works</h2>
-        <ol class="steps">
-          <li><span class="n" aria-hidden="true">1</span><h3>Tell us what you need</h3><p>{sentence([biz.links.booking && 'book online', biz.phone && 'call or text', hasForm && 'answer a few quick questions'].filter(Boolean) as string[])}</p></li>
-          <li><span class="n" aria-hidden="true">2</span><h3>Get your rate up front</h3><p>Photos help give a faster, more accurate number.</p></li>
-          <li><span class="n" aria-hidden="true">3</span><h3>We come to you</h3><p>{biz.owner.name ? biz.owner.name.split(' ')[0] : 'We'} brings the van and the tools and gets to work.</p></li>
-        </ol>
-      </div>
-    </section>
-
-    {faq.length > 0 && (
-      <section id="faq" class="band">
-        <div class="w cols" style="--min:340px;align-items:start">
-          <h2 class="h2">Common questions</h2>
-          <div class="faq">
-            {faq.map(([q, a]) => <details><summary>{q}</summary><p>{a}</p></details>)}
+            {biz.links.googleReview && <p class="mt-3"><a class="textlink" href={biz.links.googleReview} rel="noopener">See or leave a Google review</a></p>}
           </div>
-        </div>
-      </section>
-    )}
+        </section>
+      )}
 
-    {hasForm && (
-      <section id="quote" class="band gray">
-        <div class="w cols" style="--min:380px;align-items:start">
-          <div style="display:flex;flex-direction:column;gap:18px">
-            <h2 style="font-size:clamp(30px,3.6vw,46px);line-height:1.06">Get a quote</h2>
-            <p class="lede" style="font-size:18px;max-width:44ch">Answer a few quick questions, or text photos of the job.</p>
-            <dl class="spec">
-              {biz.phone && <div><dt>Call or text</dt><dd><a href={telHref} style="font-weight:600;text-decoration:none">{phoneDisplay()}</a></dd></div>}
-              {biz.email && <div><dt>Email</dt><dd><a href={`mailto:${biz.email}`}>{biz.email}</a></dd></div>}
-              {hours && <div><dt>Hours</dt><dd>{hours}. {biz.hoursNote}</dd></div>}
-            </dl>
+      {(biz.area.summary || biz.area.places.length > 0 || biz.hours.length > 0) && (
+        <section class="sec bg-brand text-white" id="area">
+          <div class="wrap grid gap-8 md:grid-cols-2">
+            {(biz.area.summary || biz.area.places.length > 0) && (
+              <div>
+                <h2 class="sec-title">Service area</h2>
+                {biz.area.summary && <p class="font-bold text-lg">{biz.area.summary.replace(/^the /, 'The ')}</p>}
+                {biz.area.places.length > 0 && <p class="mt-1">{biz.area.places.join(' · ')}</p>}
+                {biz.area.note && <p class="mt-1">{biz.area.note}</p>}
+              </div>
+            )}
+            {biz.hours.length > 0 && (
+              <div>
+                <h2 class="sec-title">Hours</h2>
+                <dl class="grid grid-cols-[auto_1fr] gap-x-5 gap-y-1">
+                  {biz.hours.map((h) => <><dt class="font-bold">{h.days}</dt><dd>{h.time}</dd></>)}
+                </dl>
+                {biz.hoursNote && <p class="mt-2">{biz.hoursNote}</p>}
+              </div>
+            )}
           </div>
-          <div>
-            <QuoteForm scan={scan} />
-            {biz.phone && <p style="margin-top:12px"><a class="b b-line" href={photosHref}><Icon name="text" />Text me photos instead</a></p>}
+        </section>
+      )}
+
+      {(faq.length > 0 || biz.links.deposit) && (
+        <section class="sec" id="faq">
+          <div class="wrap">
+            <h2 class="sec-title">Questions</h2>
+            <div class="divide-y-2 divide-line border-y-2 border-line">
+              {faq.map(([q, a]) => <details><summary>{q}</summary><p class="pb-4 text-soft">{a}</p></details>)}
+            </div>
+            {biz.links.deposit && (
+              <div class="mt-5">
+                <a class="btn btn-dark" href={biz.links.deposit} rel="noopener">Pay a deposit</a>
+                <p class="mt-2 text-soft text-[15px]">Payment happens on Square. This site never sees your card details.</p>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {canQuote && (
+        <section class="sec bg-paper" id="quote">
+          <div class="wrap max-w-xl!">
+            <h2 class="sec-title">Get a quote</h2>
+            {hasForm && <QuoteForm scan={scan} />}
+            {biz.phone && (
+              <a class="btn btn-dark mt-5" href={photosHref}><Icon name="text" />Text me photos instead</a>
+            )}
+          </div>
+        </section>
+      )}
+    </main>
+    <Footer />
+
+    {(biz.phone || biz.links.booking || canQuote) && (
+      <nav class="sticky-bar md:hidden fixed inset-x-0 bottom-0 z-20 bg-deep grid grid-flow-col auto-cols-fr gap-1.5 px-1.5 pt-1.5" aria-label="Contact" style="padding-bottom:max(6px, env(safe-area-inset-bottom))">
+        {biz.phone && <a class="btn btn-white" href={telHref}><Icon name="call" />Call</a>}
+        {biz.phone && <a class="btn btn-white" href={textHref}><Icon name="text" />Text</a>}
+        {biz.links.booking
+          ? <a class="btn btn-go" href={biz.links.booking}><Icon name="book" />Book</a>
+          : canQuote && <a class="btn btn-go" href={quoteHref}><Icon name="quote" />Quote</a>}
+      </nav>
     )}
-  </main>
+  </div>
 
-  <footer class="foot">
-    <div class="w">
-      <div class="cols" style="--min:220px;gap:32px 40px">
-        <div class="col" style="gap:14px">
-          {biz.logo && <img src={biz.logo} alt="" width="510" height="423" loading="lazy" style="width:96px;height:auto;background:#fff;border-radius:8px;padding:4px" />}
-          <p style="max-width:34ch">{biz.headline} across {biz.area.summary}. {biz.area.note}</p>
-        </div>
-        <div class="col">
-          <h3>Contact</h3>
-          {biz.phone && <a href={telHref}>{phoneDisplay()}, call or text</a>}
-          {biz.phone && <a href="/contact.vcf">Save my number</a>}
-          {biz.email && <a href={`mailto:${biz.email}`} style="overflow-wrap:anywhere">{biz.email}</a>}
-          {hours && <span>{hours}</span>}
-        </div>
-        <div class="col" id="area">
-          <h3>Service area</h3>
-          {biz.area.summary && <span>{biz.area.summary.replace(/^the /, 'The ')}</span>}
-          {biz.area.places.map((p) => <span>{p}</span>)}
-          {biz.area.note && <span>{biz.area.note}</span>}
-          <span>Statewide by arrangement</span>
-        </div>
-        <div class="col">
-          <h3>Company</h3>
-          <a href={freight.path}>Freight delivery by {freight.name}</a>
-          <a href="#services">Trade services</a>
-          <a href="#pricing">Pricing</a>
-          {hasForm && <a href="#quote">Get a quote</a>}
-          <a href="/privacy">Privacy</a>
-        </div>
-      </div>
-      <div class="legal">
-        <span>© {year} {name}. Owner: {biz.owner.name}.</span>
-        <span>{usdot() && <><a href={saferUrl()} rel="noopener" style="text-decoration:underline">USDOT {usdot()}</a>.</>} {biz.credentials.insurance && `${biz.credentials.insurance}.`}</span>
-      </div>
-    </div>
-  </footer>
-
-  {(biz.phone || hasForm) && (
-    <nav class="bar" aria-label="Contact">
-      {biz.phone && <a class="b b-line" href={telHref}><Icon name="call" />Call</a>}
-      {biz.phone && <a class="b b-line" href={textHref}><Icon name="text" />Text</a>}
-      {biz.links.booking ? <a class="b b-cta" href={biz.links.booking}><Icon name="book" />Book</a> : hasForm && <a class="b b-cta" href={quoteHref}><Icon name="quote" />Quote</a>}
-    </nav>
-  )}
   {biz.photos.videos.length > 0 && (
     <script is:inline>
       // Videos loop silently while on screen, with no player controls, and only download once close to it.
@@ -335,4 +318,4 @@ const year = new Date().getFullYear();
       })();
     </script>
   )}
-</Brand>
+</Base>
