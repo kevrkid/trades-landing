@@ -5,9 +5,12 @@ A one-page, phone-first website for **Locker Box**, Kevin's one-person mobile bu
 by scanning the QR code on the van, so it loads fast and puts **Call, Text, Book and Get a quote** within
 a thumb's reach.
 
-> **Status (2026-11-16): ready to publish from `main`.** Phone (512) 791-3853 is in. Moving is off the page
-> until the TxDMV number is issued (restore steps are in the comment by `headline` in business.ts). Waiting on
-> `wrangler login`. The B2B delivery pages are on branch `delivery-pages`, held back until their facts are filled in.
+> **Status (2026-11-16): LIVE at https://trades-landing-321.pages.dev** (Cloudflare Pages project `trades-landing`,
+> deployed from `main`). Moving is off the page until the TxDMV number is issued (restore steps are in the comment by
+> `headline` in business.ts). The B2B delivery pages are on branch `delivery-pages`, held back until their facts are
+> filled in. Deploy note: wrangler 4.15x tries to turn Pages projects into Workers and rewrites astro.config,
+> package.json and wrangler.jsonc; the project was created on classic Pages, so `npm run deploy` now works as is.
+> If those files ever change during a deploy, revert them.
 > See [Status and next steps](#7-status-and-next-steps).
 
 Contents
