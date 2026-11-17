@@ -137,9 +137,11 @@ export const business: Business = {
     vanAlt: 'White all-electric Mercedes eSprinter van parked on a sunny street',
     // Real jobs. Add more by copying a line. Files live in public/work/.
     // These three are the same building, in build order (owner, 11-16).
+    // The first photo shows large, the rest in a row underneath.
     gallery: [
+      { src: '/work/metal-building-finished.webp', caption: 'Finished metal building with sliding doors', width: 1400, height: 1050 },
       { src: '/work/steel-frame.webp', caption: 'Steel frame', width: 900, height: 675 },
-      { src: '/work/metal-building.webp', caption: 'Finished metal building', width: 900, height: 675 },
+      { src: '/work/metal-building.webp', caption: 'Front of the finished building, with the walk-in door', width: 900, height: 675 },
       { src: '/work/metal-building-inside.webp', caption: 'Inside the finished building', width: 900, height: 675 },
     ],
     videos: [

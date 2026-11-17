@@ -186,10 +186,10 @@ const faq = [
                 ))}
               </ul>
             )}
-            <ul class="grid grid-cols-2 gap-2.5 md:grid-cols-3">
+            <ul class="grid grid-cols-3 gap-2.5">
               {biz.photos.gallery.map((g, i) => (
-                <li class={i === 0 && biz.photos.gallery.length % 2 === 1 ? 'col-span-2 md:col-span-1' : ''}>
-                  <img src={g.src} alt={g.caption} width={g.width} height={g.height} loading="lazy" decoding="async" class="w-full aspect-[4/3] object-cover rounded-md" />
+                <li class={i === 0 ? 'col-span-3' : ''}>
+                  <img src={g.src} alt={g.caption} width={g.width} height={g.height} loading="lazy" decoding="async" class={`w-full object-cover rounded-md ${i === 0 ? 'aspect-[4/3] md:aspect-[16/9]' : 'aspect-[4/3]'}`} />
                 </li>
               ))}
             </ul>
