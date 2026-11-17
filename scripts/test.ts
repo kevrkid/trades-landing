@@ -283,6 +283,7 @@ try {
   ok(business.email && ftext.includes(business.email), 'freight: business email shows');
   await page.goto(R + '/van');
   ok(await page.getByText('Thanks for scanning the van!').isVisible(), 'van: greeting kept');
+  ok(await page.locator(`#freight a[href="${freight.path}"]`).isVisible(), 'van: small section links to the freight brand');
   // Freight form end to end (no Web3Forms key: opens the visitor's email/text app with the answers).
   await page.goto(R + freight.path);
   const ff = page.locator('#freight-form');

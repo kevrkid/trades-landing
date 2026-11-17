@@ -4,6 +4,7 @@ import Footer from './Footer.astro';
 import Icon from './Icon.astro';
 import QuoteForm from './QuoteForm.astro';
 import vanArt from '../assets/van.svg?raw';
+import { freight } from '../data/freight.ts';
 import { biz, telHref, smsHref, priceText, bookUrl, hasForm, trustBits, jsonLd } from '../lib/derive.ts';
 
 const { scan = false } = Astro.props as { scan?: boolean };
@@ -116,6 +117,14 @@ const faq = [
           </div>
         </section>
       )}
+
+      <section class="sec bg-brand text-white" id="freight">
+        <div class="wrap">
+          <h2 class="sec-title">{freight.name}</h2>
+          <p class="text-lg">Need parts or materials at a job site today? {freight.name} is my business delivery service: hot shot, same-day, scheduled and dedicated-route runs across the Texas Triangle, in the same all-electric van.</p>
+          <a class="btn btn-go mt-4" href={freight.path}>See {freight.name}</a>
+        </div>
+      </section>
 
       {biz.plans.length > 0 && (
         <section class="sec bg-brand text-white" id="plans">
