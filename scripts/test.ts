@@ -54,11 +54,11 @@ try {
   // Above the fold: all four actions visible without scrolling.
   await page.goto(S + '/');
   for (const name of ['Book', 'Get a quote']) {
-    const box = await page.locator('header a', { hasText: name }).first().boundingBox();
+    const box = await page.locator('#top a', { hasText: name }).first().boundingBox();
     ok(box && box.y + box.height <= 800, `hero ${name} above the fold`);
   }
 
-  ok(await page.locator('header').getByText('from 12 Google (sample) reviews').isVisible(), 'rating shows at the top when set');
+  ok(await page.locator('#top').getByText('from 12 Google (sample) reviews').isVisible(), 'rating shows at the top when set');
   ok(await page.locator('img[alt="Locker Box"]').first().evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0), 'logo loads');
   ok((await fetch(S + '/favicon.png')).status === 200, 'icon loads');
   // Service buttons.
@@ -217,21 +217,21 @@ try {
   ok(await page.locator('h1').isVisible(), 'real: page renders');
   ok(await page.getByText('eSprinter').count() > 0, 'real: eSprinter featured');
   ok(await page.getByText('Brings its own power').count() === 0, 'real: own-power toggle is off by default');
-  ok(business.rate ? (await page.locator('header').innerText()).toLowerCase().includes(business.rate.toLowerCase()) : !/\/hour/i.test(await page.locator('header').innerText()), 'real: header shows the one rate, or none when prices differ by service');
+  ok(business.rate ? (await page.locator('#top').innerText()).toLowerCase().includes(business.rate.toLowerCase()) : !/\/hour/i.test(await page.locator('#top').innerText()), 'real: header shows the one rate, or none when prices differ by service');
   const priceOf = (p: { type: string; amount?: number; min?: number; max?: number }) => p.type === 'from' ? `From $${p.amount}` : p.type === 'hourly' ? `$${p.min}-$${p.max}/hour` : p.type === 'flat' ? `$${p.amount}` : '';
   for (const sv of business.trades.flatMap((t) => t.services).filter((x) => priceOf(x.price))) {
     ok(await page.locator('#services li', { hasText: sv.name }).getByText(priceOf(sv.price), { exact: true }).count() === 1, `real: ${sv.name} shows ${priceOf(sv.price)}`);
   }
   if (!business.faq.extras) ok(!/anything extra on top/i.test(await page.locator('#faq').evaluate((e) => e.textContent || '')), 'real: unanswered FAQ question stays hidden');
   else ok((await page.locator('#faq').evaluate((e) => e.textContent || '')).includes('charged at cost'), 'real: dump-fee answer shows in the FAQ');
-  if (!business.rating.score) ok(await page.locator('header').getByText('reviews').count() === 0, 'real: no rating until you have one');
+  if (!business.rating.score) ok(await page.locator('#top').getByText('reviews').count() === 0, 'real: no rating until you have one');
   ok(business.rateExample ? await page.getByText(business.rateExample).count() === 1 : !(await page.content()).includes('hours of work comes to'), 'real: worked example matches the config');
   if (todos().some((t) => t.blocker)) ok(await page.locator('meta[name=robots][content=noindex]').count() === 1, 'real: unfinished site stays out of Google');
   else ok(await page.locator('meta[name=robots][content=noindex]').count() === 0, 'real: finished site can be found on Google');
   ok(!/rangebolt|arc &(amp;)? haul/i.test(home), 'real: old names are gone');
   ok(await page.getByText('Locker Box').count() > 0, 'real: name shows');
   ok(!/handle your move myself|sampletown/i.test(home), 'real: removed wording stays gone');
-  ok(!business.subheading || await page.locator('header').getByText(business.subheading, { exact: true }).count() === 1, 'real: subheading shows once at the top, or not at all when blank');
+  ok(!business.subheading || await page.locator('#top').getByText(business.subheading, { exact: true }).count() === 1, 'real: subheading shows once at the top, or not at all when blank');
   ok(business.promises.cleanUp || !/clean up|clean-up/i.test(await page.locator('main').innerText()), 'real: no clean-up promise when it is off');
   ok(await page.locator('#area').getByText(business.area.summary.replace(/^the /, 'The ')).count() === 1 && (business.area.note ? await page.locator('#area').getByText(business.area.note).count() === 1 : true), 'real: service area shows');
   // Whatever the config leaves blank must stay hidden.
@@ -245,6 +245,71 @@ try {
   if (!business.phone) ok(await page.locator('a[href^="tel:"], a[href^="sms:"]').count() === 0, 'real: no call or text links until a phone is set');
   else ok(await page.locator(`a[href="tel:${business.phone}"]`).count() > 0 && await page.locator(`a[href^="sms:${business.phone}"]`).count() > 0, 'real: call and text links use the business phone');
   if (!business.links.booking) ok((await fetch(R + '/book', { redirect: 'manual' })).headers.get('location')?.endsWith('/'), 'real: /book goes home until set');
+
+  // ---------- Chalkline Freight (/freight) and the brand split ----------
+  const { freight } = await import('../src/data/freight.ts');
+  const { readdirSync, statSync } = await import('node:fs');
+  const walk = (d: string): string[] => readdirSync(d).flatMap((f) => { const x = `${d}/${f}`; return statSync(x).isDirectory() ? walk(x) : [x]; });
+  const nameHits = walk('src').filter((f) => f !== 'src/data/freight.ts' && readFileSync(f, 'utf8').includes(freight.name));
+  ok(!nameHits.length, `freight: brand name stored only in src/data/freight.ts ${nameHits.join(', ')}`);
+  for (const w of [360, 390]) {
+    const fc = await browser.newContext({ viewport: { width: w, height: 800 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+    const fp = await fc.newPage(); const ferr: string[] = [];
+    fp.on('console', (m) => { if (m.type() === 'error') ferr.push(m.text()); }); fp.on('pageerror', (e) => ferr.push(String(e)));
+    await fp.goto(R + freight.path);
+    ok(await fp.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `freight ${w}: no sideways scroll`);
+    const fsmall = await fp.$$eval('a,button,select,input:not([type=hidden]):not([type=checkbox]),textarea,summary', (els) =>
+      els.filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height < 48; }).map((e) => e.outerHTML.slice(0, 70)));
+    ok(!fsmall.length, `freight ${w}: tap targets 48px+ ${fsmall.join(' | ')}`);
+    ok(!ferr.length, `freight ${w}: no console errors ${ferr.join(' | ')}`);
+    await fp.screenshot({ path: `${SHOTS}/freight-${w}-full.png`, fullPage: true });
+    await fc.close();
+  }
+  await page.goto(R + freight.path);
+  const fhtml = await page.content();
+  const ftitle = await page.title(), fdesc = (await page.locator('meta[name=description]').getAttribute('content')) || '';
+  ok(ftitle.includes(freight.name) && fdesc.length >= 70 && fdesc.length <= 200, `freight: title and search description (${fdesc.length} chars)`);
+  ok(ftitle !== (await (async () => { const t = await browser.newPage(); await t.goto(R + '/'); const x = await t.title(); await t.close(); return x; })()), 'freight: title differs from Locker Box');
+  const op = `${freight.name}, operated by ${business.name}.`;
+  ok((await page.locator('#about').innerText()).includes(`${op} USDOT 4727545.`), 'freight: About says operated by Locker Box with USDOT');
+  ok((await page.locator('footer').innerText()).includes(op) && (await page.locator('footer').innerText()).includes('USDOT 4727545'), 'freight: footer says operated by Locker Box with USDOT');
+  ok(await page.locator('a[href*="safer.fmcsa.dot.gov"][href*="4727545"]').count() > 0, 'freight: USDOT links to the FMCSA SAFER lookup');
+  ok(await page.locator('a[href="/"]', { hasText: 'trade services' }).count() > 0, 'freight: links to Locker Box trade services');
+  ok(await page.locator('#services h3').allInnerTexts().then((t) => t.join('|') === 'Hot shot|Same-day|Scheduled|Dedicated route'), 'freight: the four delivery services');
+  const ftext = (await page.locator('body').innerText());
+  ok(!/tesla|spacex|samsung|badg|\bPPE\b|\bgates?\b/i.test(ftext + (await (async () => { await page.goto(R + '/'); return page.locator('body').innerText(); })())), 'brand pages: no client names, gates, PPE or badging');
+  ok(!/testimonial|★/i.test(ftext), 'freight: no reviews or ratings');
+  ok(fhtml.includes('hazardous') || /Hazardous/.test(ftext), 'freight: no hazardous materials stated');
+  ok(business.email && ftext.includes(business.email), 'freight: business email shows');
+  await page.goto(R + '/van');
+  ok(await page.getByText('Thanks for scanning the van!').isVisible(), 'van: greeting kept');
+  ok(await page.locator(`a[href="${freight.path}"]`).count() > 0, 'van: links to Chalkline Freight');
+  ok(await page.locator('#services h3', { hasText: 'Steel frames and metal buildings' }).count() === 1 && await page.locator('#services li', { hasText: 'Steel frames' }).getByText('By quote').count() === 1, 'van: steel frames and metal buildings, by quote');
+  ok(await page.locator('header img[src*="locker-box-logo"]').count() === 1, 'van: real Locker Box logo in the header');
+  // Freight form end to end (no Web3Forms key: opens the visitor's email/text app with the answers).
+  await page.goto(R + freight.path);
+  const ff = page.locator('#freight-form');
+  await page.locator('#freight-submit').click();
+  ok(await ff.isVisible() && !(await page.locator('#freight-send').isVisible()), 'freight form: requires pickup, delivery, what, name and phone');
+  await page.locator('#services a[data-level="Hot shot"]').click();
+  ok(await ff.locator('[name=service]').inputValue() === 'Hot shot', 'freight form: service link preselects the service');
+  await ff.locator('[name=materials_pickup]').fill('Supply house, Round Rock');
+  await ff.locator('[name=address]').fill('Job site, Taylor');
+  await ff.locator('[name=materials_what]').fill('2 reels of wire');
+  await ff.locator('[name=pieces]').fill('2');
+  await ff.locator('[name=weight]').fill('300');
+  await ff.locator('[name=name]').fill('Test Person');
+  await ff.locator('[name=company]').fill('Test Electric');
+  await ff.locator('[name=phone]').fill('5125550199');
+  await page.locator('#freight-submit').click();
+  ok(await page.locator('#freight-send').isVisible(), 'freight form: reaches the send step');
+  const fmail = decodeURIComponent((await page.locator('#freight-email').getAttribute('href')) || '');
+  ok(fmail.startsWith('mailto:' + business.email) && ['Service: Hot shot', 'Pickup: Supply house, Round Rock', 'Delivery: Job site, Taylor', 'What: 2 reels of wire', 'Pieces or pallets: 2', 'Weight (lb): 300', 'Company: Test Electric', 'Came from: ' + freight.name].every((x) => fmail.includes(x)), 'freight form: email carries the answers');
+  const ftextHref = decodeURIComponent((await page.locator('#freight-text').getAttribute('href')) || '');
+  ok(ftextHref.startsWith('sms:' + business.phone) && ftextHref.includes('Name: Test Person'), 'freight form: text carries the answers');
+  const fields = await ff.evaluate((f) => [...new Set([...(f as HTMLFormElement).elements].map((e) => (e as HTMLInputElement).name).filter(Boolean))]);
+  ok(['service', 'materials_what', 'materials_pickup', 'address', 'timing', 'preferred_times', 'details', 'name', 'phone', 'source'].every((n) => fields.includes(n)), 'freight form: keeps every field the old freight quote sent');
+  ok(readFileSync('dist-real/sitemap.xml', 'utf8').includes('/freight'), 'freight: in the sitemap');
 } finally {
   await browser.close();
   for (const s of servers) try { process.kill(-s.pid!); } catch {}

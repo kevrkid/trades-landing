@@ -29,6 +29,7 @@ export function priceText(p: Price): string {
   if (p.type === 'from') return `From $${p.amount}`;
   if (p.type === 'hourly') return `$${p.min}-$${p.max}/hour`;
   if (p.type === 'estimate') return 'Free estimate';
+  if (p.type === 'quote') return 'By quote';
   return '';
 }
 
@@ -136,3 +137,7 @@ export function todos(): { item: string; blocker?: boolean }[] {
   if (b.trades.flatMap((t) => t.services).every((s) => s.price.type === 'none')) out.push({ item: 'Service prices' });
   return out;
 }
+
+/** USDOT number from credentials, and its public FMCSA SAFER lookup. */
+export const usdot = () => biz.credentials.licenses.find((l) => /usdot/i.test(l.label))?.number || '';
+export const saferUrl = () => usdot() ? `https://safer.fmcsa.dot.gov/query.asp?searchtype=ANY&query_type=queryCarrierSnapshot&query_param=USDOT&query_string=${usdot()}` : '';

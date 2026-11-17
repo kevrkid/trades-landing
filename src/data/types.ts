@@ -3,6 +3,7 @@ export type Price =
   | { type: 'from'; amount: number }
   | { type: 'hourly'; min: number; max: number }
   | { type: 'estimate' }
+  | { type: 'quote' }
   | { type: 'none' };
 
 export interface Service {
@@ -12,7 +13,7 @@ export interface Service {
   /** 'book' sends them to Square; 'quote' opens the quote form with this service picked. */
   action: 'book' | 'quote';
   /** Which questions the quote survey asks for this service. */
-  kind?: 'moving' | 'welding' | 'materials' | 'teardown' | 'junk';
+  kind?: 'moving' | 'welding' | 'steel' | 'materials' | 'teardown' | 'junk';
   /** Optional: a Square link for just this service. Otherwise uses links.booking. */
   bookingUrl?: string;
 }

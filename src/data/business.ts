@@ -19,9 +19,9 @@ export const business: Business = {
   logoOnLight: '/brand/locker-box-logo.png',
   // Moving is off until the TxDMV household-goods number is issued (2026-11-16). Then restore
   // headline 'Moving anywhere in Texas', the Moving trade below, schemaType 'MovingCompany', area.note and the travel-fee line.
-  headline: 'Welding, hauling and tear-downs',
+  headline: 'Welding, steel buildings, tear-downs, and junk removal',
   subheading: '', // Blank: no extra line under the van photo.
-  whatIDo: 'Welding, material hauling, business freight, tear-downs and junk removal',
+  whatIDo: 'Welding, steel frames and metal buildings, material delivery, tear-downs and junk removal',
   rate: '', // Blank: prices differ by service, so each service card shows its own.
   // Update this if the rate changes: 3 x $60 and 3 x $100.
   rateExample: '',
@@ -48,12 +48,10 @@ export const business: Business = {
     { name: 'Welding', services: [
       { name: 'Small welding jobs', kind: 'welding', description: 'Repairs and small fabrication on site. Travel within 30 miles is free.',
         price: WELDING, action: 'quote' },
+      { name: 'Steel frames and metal buildings', kind: 'steel', description: 'Frames, carports, shops and metal buildings, built on site.',
+        price: { type: 'quote' }, action: 'quote' },
     ] },
-    { name: 'Business freight', services: [
-      { name: 'Business freight runs', kind: 'materials',
-        description: 'Scheduled or same-day cargo van runs for businesses across the Texas Triangle. Dock-to-dock, up to 3 pallets or 2,300 lb. Longer Triangle runs are about $2.50-$3 per mile; every run is quoted before pickup.',
-        price: { type: 'from', amount: 95 }, action: 'quote' },
-    ] },
+    // Business freight now lives on the freight brand page (/freight, src/data/freight.ts).
     { name: 'Building materials', services: [
       { name: 'Building material delivery', kind: 'materials', description: 'I pick up and deliver building materials.',
         price: DELIVERY, action: 'quote' },
@@ -106,7 +104,7 @@ export const business: Business = {
     // Your own numbers, in your name. USDOT 4727545 = Kevin Kidd, Intrastate Only, Active (SAFER, 11-15).
     // Add { label: 'TxDMV', number: '...' } once issued: Texas needs it to move household goods.
     licenses: [{ label: 'USDOT', number: '4727545' }],
-    insurance: '', // TODO: 'Commercially insured', once the policy covers you and Locker Box.
+    insurance: 'Commercially insured', // Owner, 11-16: certificate available on request.
     warranty: '', // Left off the page on purpose for now.
   },
 

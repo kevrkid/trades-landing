@@ -1,0 +1,103 @@
+---
+// Freight-brand quote form. Field names match the current business-freight quote (service, materials_what,
+// materials_pickup, address, timing, preferred_times, details, name, phone, source) plus the reference's
+// freight fields (date_needed, pieces, weight, company, email). Sent the same way as the Locker Box form:
+// Web3Forms when a key is set, otherwise the visitor's own email or text app with the answers filled in.
+import Icon from './Icon.astro';
+import { biz, siteUrl, smsHref } from '../lib/derive.ts';
+import { freight } from '../data/freight.ts';
+
+const key = biz.web3formsKey;
+const site = siteUrl();
+const native = key
+  ? { action: 'https://api.web3forms.com/submit', method: 'POST' }
+  : biz.email ? { action: `mailto:${biz.email}`, method: 'POST', enctype: 'text/plain' } : {};
+const levels = [...freight.services.map((s) => s.name), 'Trade service'];
+---
+<form id="freight-form" class="card" {...native} data-key={key ? '1' : ''} data-email={biz.email} data-sms={smsHref('X').replace(/X$/, '')}>
+  {key && <input type="hidden" name="access_key" value={key} />}
+  {key && <input type="hidden" name="subject" value={`New freight quote request for ${freight.name}`} />}
+  {key && <input type="hidden" name="from_name" value={`${freight.name} quote form`} />}
+  {key && site && <input type="hidden" name="redirect" value={`${site}/thanks`} />}
+  <input type="hidden" name="source" value={freight.name} />
+  <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off" />
+
+  <div class="grid2">
+    <label class="field">Service
+      <select name="service" required>
+        {levels.map((l) => <option>{l}</option>)}
+      </select>
+    </label>
+    <label class="field">When
+      <select name="timing">
+        <option>As soon as possible</option><option>Today</option><option>On a set date</option><option>This week</option><option>I'm flexible</option>
+      </select>
+    </label>
+    <label class="field">Date needed <small>(optional)</small><input name="date_needed" type="date" /></label>
+    <label class="field">Pickup or delivery time <small>(optional)</small><input name="preferred_times" placeholder="e.g. before 10 AM" /></label>
+    <label class="field">Pickup address<input name="materials_pickup" required autocomplete="off" /></label>
+    <label class="field">Delivery address<input name="address" required autocomplete="off" /></label>
+  </div>
+  <label class="field">What’s being delivered<textarea name="materials_what" rows="3" required placeholder="12 boxes of breakers and 2 reels of wire"></textarea></label>
+  <div class="grid2">
+    <label class="field">Pieces or pallets <small>(optional)</small><input name="pieces" /></label>
+    <label class="field">Approx. weight, lb <small>(optional)</small><input name="weight" inputmode="numeric" /></label>
+    <label class="field">Name<input name="name" required autocomplete="name" /></label>
+    <label class="field">Company <small>(optional)</small><input name="company" autocomplete="organization" /></label>
+    <label class="field">Phone<input name="phone" type="tel" required autocomplete="tel" inputmode="tel" /></label>
+    <label class="field">Email <small>(optional)</small><input name="email" type="email" autocomplete="email" /></label>
+  </div>
+  <label class="field">Notes <small>(optional)</small><textarea name="details" rows="2"></textarea></label>
+  <div class="btns">
+    <button class="b b-cta" type="submit" id="freight-submit">Request a quote</button>
+    {biz.phone && <a class="b b-line" href={smsHref('Hi! Photos for a freight quote.\nPickup:\nDelivery:\n')}>Text photos instead</a>}
+  </div>
+</form>
+
+<div id="freight-send" hidden class="card send-step">
+  <p class="title">Almost done</p>
+  <p style="margin:4px 0 14px">Your answers are filled in. Press send in the app that opens.</p>
+  <div style="display:grid;gap:10px">
+    {biz.email && <a class="b b-cta" id="freight-email">Send by email</a>}
+    {biz.phone && <a class="b b-line" id="freight-text"><Icon name="text" />Send by text</a>}
+  </div>
+  <button type="button" class="textbtn" style="margin-top:8px" id="freight-edit">Change my answers</button>
+</div>
+
+<script is:inline>
+(function () {
+  var f = document.getElementById('freight-form');
+  if (!f) return;
+  var LABELS = { service: 'Service', timing: 'When', date_needed: 'Date needed', preferred_times: 'Time', materials_pickup: 'Pickup', address: 'Delivery', materials_what: 'What', pieces: 'Pieces or pallets', weight: 'Weight (lb)', name: 'Name', company: 'Company', phone: 'Phone', email: 'Email', details: 'Notes', source: 'Came from' };
+  function summary() {
+    var d = new FormData(f), out = [];
+    Object.keys(LABELS).forEach(function (k) { var v = d.get(k); if (v) out.push(LABELS[k] + ': ' + v); });
+    return out.join('\n');
+  }
+  // Service links on the page pick that service in the form.
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('[data-level]');
+    if (a) f.querySelector('[name=service]').value = a.getAttribute('data-level');
+  });
+  f.addEventListener('submit', function (e) {
+    if (f.getAttribute('data-key')) return; // Web3Forms takes it from here.
+    e.preventDefault();
+    if (f.querySelector('[name=botcheck]').checked) return;
+    var body = encodeURIComponent(summary());
+    var sub = encodeURIComponent('Freight quote request: ' + (new FormData(f).get('service') || 'New run'));
+    var mail = document.getElementById('freight-email');
+    var text = document.getElementById('freight-text');
+    if (mail) mail.href = 'mailto:' + f.getAttribute('data-email') + '?subject=' + sub + '&body=' + body;
+    if (text) text.href = f.getAttribute('data-sms') + body;
+    f.hidden = true;
+    var panel = document.getElementById('freight-send');
+    panel.hidden = false;
+    panel.scrollIntoView({ block: 'center' });
+  });
+  document.getElementById('freight-edit').addEventListener('click', function () {
+    document.getElementById('freight-send').hidden = true;
+    f.hidden = false;
+    f.scrollIntoView({ block: 'start' });
+  });
+})();
+</script>

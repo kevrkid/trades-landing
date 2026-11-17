@@ -30,7 +30,7 @@ export function siteFiles() {
         write('robots.txt', `User-agent: *\nAllow: /\n${url ? `Sitemap: ${url}/sitemap.xml\n` : ''}`);
 
         if (url) {
-          const locs = ['/', '/privacy'].map((p) => `  <url><loc>${url}${p === '/' ? '/' : p}</loc></url>`).join('\n');
+          const locs = ['/', '/freight', '/privacy'].map((p) => `  <url><loc>${url}${p === '/' ? '/' : p}</loc></url>`).join('\n');
           write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${locs}\n</urlset>\n`);
         }
 
