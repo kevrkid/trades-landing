@@ -1,9 +1,9 @@
-// Chalkline Freight: the job-site delivery brand, shown at /freight.
+// The job-site delivery brand (renamed from Chalkline Freight, 11-17), shown at /freight.
 // The brand NAME lives only here. If the trademark search fails, change `name` and rebuild.
 // Contact details, USDOT, insurance and the van come from business.ts, so they stay in one place.
 
 export const freight = {
-  name: 'Chalkline Freight',
+  name: 'ELEKTRX Freight',
   path: '/freight',
 
   // Waiting on the owner's yes before deploy (11-16 brief): set to false to drop the line everywhere.
@@ -45,7 +45,7 @@ export const freight = {
   // Owner, 11-16: commercially insured, certificate on request. Shown on this page only.
   insurance: 'Commercially insured',
   about: [
-    'Chalkline Freight is the delivery service of Locker Box, based in Leander, Texas, and owned and run by Kevin Kidd. Kevin also welds and builds steel frames and metal buildings, so job sites are familiar ground.',
+    'ELEKTRX Freight is the delivery service of Locker Box, based in Leander, Texas, and owned and run by Kevin Kidd. Kevin also welds and builds steel frames and metal buildings, so job sites are familiar ground.',
     'We’re building toward a fleet of electric vans and box trucks serving job sites across Texas.',
   ],
 };

@@ -246,7 +246,7 @@ try {
   else ok(await page.locator(`a[href="tel:${business.phone}"]`).count() > 0 && await page.locator(`a[href^="sms:${business.phone}"]`).count() > 0, 'real: call and text links use the business phone');
   if (!business.links.booking) ok((await fetch(R + '/book', { redirect: 'manual' })).headers.get('location')?.endsWith('/'), 'real: /book goes home until set');
 
-  // ---------- Chalkline Freight (/freight) and the brand split ----------
+  // ---------- Freight brand (/freight) and the brand split ----------
   const { freight } = await import('../src/data/freight.ts');
   const { readdirSync, statSync } = await import('node:fs');
   const walk = (d: string): string[] => readdirSync(d).flatMap((f) => { const x = `${d}/${f}`; return statSync(x).isDirectory() ? walk(x) : [x]; });
