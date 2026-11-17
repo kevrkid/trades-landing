@@ -89,7 +89,7 @@ export const business: Business = {
 
   // ---------- WEB ADDRESS ----------
   domain: '', // TODO: e.g. 'example.com' (no https://). Then run: npm run qr
-  temporaryUrl: '', // Before you have a domain: the https://....pages.dev address.
+  temporaryUrl: 'https://trades-landing-321.pages.dev', // Until the domain is set up.
 
   // ---------- LINKS ----------
   links: {

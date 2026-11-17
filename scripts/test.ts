@@ -154,7 +154,7 @@ try {
   ok(await nf2.locator('[name=junk_what]').isVisible() && await nf2.locator('[name=name]').isVisible(), 'no JS: the whole form still shows');
   await nojsF.close();
   // Moving needs a TxDMV number before it can be advertised.
-  if (!business.credentials.licenses.some((l) => /txdmv/i.test(l.label) && l.number)) ok(!/moving|moves\b/i.test(readFileSync('dist/index.html', 'utf8').replace(/<script[\s\S]*?<\/script>/g, '')), 'real: no moving on the page without a TxDMV number');
+  if (!business.credentials.licenses.some((l) => /txdmv/i.test(l.label) && l.number)) ok(!/moving|moves\b/i.test(readFileSync('dist-real/index.html', 'utf8').replace(/<script[\s\S]*?<\/script>/g, '')), 'real: no moving on the page without a TxDMV number');
   // Real work.
   await page.goto(R + '/');
   const howStep = (await page.locator('#how li').first().locator('p').innerText()).trim();
