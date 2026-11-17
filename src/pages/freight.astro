@@ -6,6 +6,7 @@ import Icon from '../components/Icon.astro';
 import FreightForm from '../components/FreightForm.astro';
 import { biz, telHref, smsHref, phoneDisplay, priceText, siteUrl, saferUrl, usdot } from '../lib/derive.ts';
 import { freight as F } from '../data/freight.ts';
+import markSvg from '../assets/elektrx-mark.svg?raw';
 
 const lb = biz.name || 'Locker Box';
 // Locker Box trade services, minus its own freight runs (this page covers those).
@@ -23,8 +24,9 @@ const url = siteUrl();
 const C = F.cargo;
 /** 174 -> "14 ft 6 in". */
 const ft = (i: number) => `${Math.floor(i / 12)} ft${i % 12 ? ` ${i % 12} in` : ''}`;
-// Logo: a van's front in the circuit style: headlights are the two dots, the orange trace between them is the grille.
-const mark = (size: number, bg: string) => `<svg width="${size}" height="${size}" viewBox="0 0 48 48" aria-hidden="true"><rect x="0.5" y="0.5" width="47" height="47" rx="10" fill="${bg}" stroke="#fff" stroke-opacity="${bg === '#0A1F44' ? 0 : 1}"/><path d="M13 8.5 H35 Q38.5 8.5 39.3 12 L41 22 V35.5 Q41 37.5 39 37.5 H9 Q7 37.5 7 35.5 V22 L8.7 12 Q9.5 8.5 13 8.5 Z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M12.6 12 H35.4 L37 20.5 H11 Z" fill="#fff" fill-opacity="0.18" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/><path d="M9.2 24.5 L17.5 24.5 L15.2 28.6 L9.2 28 Z" fill="#fff"/><path d="M38.8 24.5 L30.5 24.5 L32.8 28.6 L38.8 28 Z" fill="#fff"/><path d="M15.5 26.5 H32.5" stroke="#F26A1B" stroke-width="2.6" stroke-linecap="round"/><circle cx="15.5" cy="26.5" r="2.2" fill="#F26A1B" stroke="#fff" stroke-width="1.2"/><circle cx="32.5" cy="26.5" r="2.2" fill="#F26A1B" stroke="#fff" stroke-width="1.2"/><path d="M19 30.5 H29 M20.5 33.5 H27.5" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="0.4 2.6" opacity="0.75"/><path d="M9 37.5 V41 H15 V37.5 M33 37.5 V41 H39 V37.5" fill="#fff"/></svg>`;
+// Logo: the front of the van (Sprinter-style roof, windshield, hood slits, swept headlights, grille) with an
+// orange circuit trace from headlight to headlight through a charge node. Source: src/assets/elektrx-mark.svg.
+const mark = (size: number) => markSvg.replace('<svg ', `<svg width="${size}" height="${size}" aria-hidden="true" `);
 const description = `Hot shot, same-day, scheduled and dedicated-route cargo van delivery of parts and materials to job sites across the Texas Triangle. Based in Leander, Texas.${usdot() ? ` USDOT ${usdot()}.` : ''}`;
 const ld = {
   '@context': 'https://schema.org', '@type': 'LocalBusiness', name: F.name, description,
@@ -47,7 +49,7 @@ const faq = [
   <header class="top">
     <div class="w">
       <a class="brand" href="#top">
-        <Fragment set:html={mark(52, "#0A1F44")} />
+        <Fragment set:html={mark(56)} />
         <span>{F.name}</span>
       </a>
       <nav class="nav" aria-label="Main">
@@ -320,7 +322,7 @@ const faq = [
     <div class="w">
       <div class="cols" style="--min:220px;gap:32px 40px">
         <div class="col" style="gap:14px">
-          <div style="display:flex;align-items:center;gap:10px"><Fragment set:html={mark(44, "#071733")} /><span style="font-size:21px;font-weight:700">{F.name}</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><Fragment set:html={mark(48)} /><span style="font-size:21px;font-weight:700">{F.name}</span></div>
           <p style="max-width:34ch">Same-day job-site delivery across the Texas Triangle. Based in Leander, Texas.</p>
         </div>
         <div class="col">
