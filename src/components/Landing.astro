@@ -18,7 +18,11 @@ const what = [biz.whatIDo, biz.area.summary].filter(Boolean).join(' in ');
 const quoteFor = (name: string) => hasForm ? '#quote' : smsHref(`${hello}I'd like a quote for: ${name}`);
 
 const why = [
-  { title: 'All-electric Mercedes eSprinter', text: 'Quiet on your street, no exhaust, and no engine idling at your home. It\'s a long van, with a 170-inch wheelbase.' },
+  { title: '2025 Mercedes eSprinter, all-electric', text: [
+    '170-inch wheelbase, high roof.',
+    sentence([biz.van.cargoLength && `${biz.van.cargoLength} of cargo floor`, biz.van.cargoHeight && `${biz.van.cargoHeight} of standing height inside`, biz.van.cargoVolume && `${biz.van.cargoVolume} of cargo space`].filter(Boolean) as string[]).replace(/, or ([^,]*)\.$/, ' and $1.').replace(/, or /, ', '),
+    'Fits 3 pallets or up to 2,300 lb.',
+  ].filter(Boolean).join(' ') },
   biz.van.bringsOwnPower && { title: 'Brings its own power', text: 'No need to use your outlets.' },
   biz.promises.upfrontPricing && { title: 'Upfront pricing', text: biz.rate ? `${biz.rate}, depending on the job. I'll confirm your rate before the work starts.${biz.rateExample ? ' ' + biz.rateExample : ''}` : 'You get the price before the work starts.' },
   biz.promises.cleanUp && { title: 'Clean-up included', text: 'I clean up the work area before I leave.' },
@@ -29,7 +33,7 @@ const why = [
 const steps = [
   { title: 'Tell me what you need', text: sentence([biz.links.booking && 'book online', biz.phone && 'call or text', hasForm && 'answer a few quick questions'].filter(Boolean) as string[]) },
   { title: biz.promises.upfrontPricing ? (biz.rate ? 'Get your rate up front' : 'Get your price up front') : 'Get a time and a price', text: 'Photos help me give you a real number faster.' },
-  { title: 'I come to you', text: `The electric van pulls up quietly and I get to work.${biz.promises.cleanUp ? ' I clean up before I go.' : ''}` },
+  { title: 'I come to you', text: `I bring the van and the tools and get to work.${biz.promises.cleanUp ? ' I clean up before I go.' : ''}` },
 ];
 
 const faq = [
@@ -80,7 +84,7 @@ const faq = [
             <img src={biz.photos.van} alt={biz.photos.vanAlt} width="1200" height="900" fetchpriority="high" class="mt-5 w-full h-auto rounded-md" />
           </picture>
         ) : <div class="mt-5" set:html={vanArt} />}
-        <p class="mt-3 font-bold">{biz.subheading || '100% electric van. Quiet, no exhaust, no idling at your home.'}</p>
+        {biz.subheading && <p class="mt-3 font-bold">{biz.subheading}</p>}
       </div>
     </header>
     <div class="stripe"></div>
@@ -216,7 +220,7 @@ const faq = [
             {(biz.area.summary || biz.area.places.length > 0) && (
               <div>
                 <h2 class="sec-title">Service area</h2>
-                {biz.area.summary && <p class="font-bold text-lg">{biz.area.summary}</p>}
+                {biz.area.summary && <p class="font-bold text-lg">{biz.area.summary.replace(/^the /, 'The ')}</p>}
                 {biz.area.places.length > 0 && <p class="mt-1">{biz.area.places.join(' · ')}</p>}
                 {biz.area.note && <p class="mt-1">{biz.area.note}</p>}
               </div>

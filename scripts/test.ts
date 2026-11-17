@@ -216,14 +216,15 @@ try {
   ok(await page.locator('#services').getByText('$60-$100/hour').count() === business.trades.flatMap((t) => t.services).filter((s) => s.price.type === 'hourly').length, 'real: every hourly service shows the hourly rate');
   if (!business.faq.extras) ok(!/anything extra on top/i.test(await page.locator('#faq').evaluate((e) => e.textContent || '')), 'real: unanswered FAQ question stays hidden');
   if (!business.rating.score) ok(await page.locator('header').getByText('reviews').count() === 0, 'real: no rating until you have one');
-  ok(await page.getByText('3 hours of work comes to $180-$300').count() === 1, 'real: worked example shows');
+  ok(business.rateExample ? await page.getByText(business.rateExample).count() === 1 : !(await page.content()).includes('hours of work comes to'), 'real: worked example matches the config');
   if (todos().some((t) => t.blocker)) ok(await page.locator('meta[name=robots][content=noindex]').count() === 1, 'real: unfinished site stays out of Google');
   else ok(await page.locator('meta[name=robots][content=noindex]').count() === 0, 'real: finished site can be found on Google');
   ok(!/rangebolt|arc &(amp;)? haul/i.test(home), 'real: old names are gone');
   ok(await page.getByText('Locker Box').count() > 0, 'real: name shows');
   ok(!/handle your move myself|sampletown/i.test(home), 'real: removed wording stays gone');
-  ok(await page.locator('header').getByText('All-electric van', { exact: true }).count() === 1, 'real: all-electric line shows once at the top');
-  ok(await page.locator('#area').getByText('Central Texas').count() === 1 && (business.area.note ? await page.locator('#area').getByText(business.area.note).count() === 1 : true), 'real: service area shows');
+  ok(!business.subheading || await page.locator('header').getByText(business.subheading, { exact: true }).count() === 1, 'real: subheading shows once at the top, or not at all when blank');
+  ok(business.promises.cleanUp || !/clean up|clean-up/i.test(await page.locator('main').innerText()), 'real: no clean-up promise when it is off');
+  ok(await page.locator('#area').getByText(business.area.summary.replace(/^the /, 'The ')).count() === 1 && (business.area.note ? await page.locator('#area').getByText(business.area.note).count() === 1 : true), 'real: service area shows');
   // Whatever the config leaves blank must stay hidden.
   const ids = await page.locator('main section').evaluateAll((els) => els.map((x) => x.id));
   const shows = (id: string, should: boolean) => ok(ids.includes(id) === should, `real: section ${id} ${should ? 'shows' : 'stays hidden'}`);

@@ -62,7 +62,7 @@ export interface Business {
   links: { booking: string; deposit: string; googleReview: string };
   socials: { label: string; url: string }[];
   credentials: { licenses: { label: string; number: string }[]; insurance: string; warranty: string };
-  van: { bringsOwnPower: boolean };
+  van: { bringsOwnPower: boolean; cargoHeight?: string; cargoVolume?: string; cargoLength?: string };
   promises: { upfrontPricing: boolean; cleanUp: boolean };
   owner: { name: string; photo: string; note: string };
   photos: { van: string; vanWebp: string; vanAlt: string; gallery: WorkPhoto[]; videos: WorkVideo[] };

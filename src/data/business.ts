@@ -18,11 +18,11 @@ export const business: Business = {
   // Moving is off until the TxDMV household-goods number is issued (2026-11-16). Then restore
   // headline 'Moving anywhere in Texas', the Moving trade below, schemaType 'MovingCompany', area.note and the travel-fee line.
   headline: 'Welding, hauling and tear-downs',
-  subheading: 'All-electric van',
+  subheading: '', // Blank: no extra line under the van photo.
   whatIDo: 'Welding, material hauling, business freight, tear-downs and junk removal',
   rate: '$60-$100/hour',
   // Update this if the rate changes: 3 x $60 and 3 x $100.
-  rateExample: 'For example, 3 hours of work comes to $180-$300.',
+  rateExample: '',
 
   colors: { brand: '#0A1F44', brandDeep: '#001126', accent: '#C8102E', accentInk: '#FFFFFF' },
 
@@ -49,7 +49,7 @@ export const business: Business = {
     ] },
     { name: 'Business freight', services: [
       { name: 'Business freight runs', kind: 'materials',
-        description: 'Scheduled or same-day cargo van runs for businesses between Austin and San Antonio. Dock-to-dock, up to 3 pallets or 2,300 lb.',
+        description: 'Scheduled or same-day cargo van runs for businesses across the Texas Triangle. Dock-to-dock, up to 3 pallets or 2,300 lb.',
         price: { type: 'none' }, action: 'quote' },
     ] },
     { name: 'Building materials', services: [
@@ -76,9 +76,9 @@ export const business: Business = {
 
   // ---------- WHERE AND WHEN ----------
   area: {
-    summary: 'Central Texas',
-    note: '',
-    places: ['Leander', 'Austin', 'San Antonio'], // Also used for Google. Base: Leander (FMCSA record).
+    summary: 'the Texas Triangle', // Owner, 11-16. Reads "in the Texas Triangle" / "Serving the Texas Triangle".
+    note: 'Based in Leander.',
+    places: ['Austin', 'San Antonio', 'Houston', 'Dallas-Fort Worth'], // Also used for Google. Base: Leander (FMCSA record).
   },
   hours: [{ days: 'Every day', time: 'Open availability' }], // Owner said "open availability" (11-15)
   hoursNote: 'Call or text to schedule, including early starts.',
@@ -112,17 +112,22 @@ export const business: Business = {
   van: {
     // Turn this on once the van battery is installed.
     bringsOwnPower: false,
+    // 2025 Mercedes-Benz eSprinter 2500, 170" wheelbase, high roof (owner, 11-16).
+    // Height and volume: Mercedes/KBB published specs for this model. Length: measure the floor behind the seats.
+    cargoHeight: '79 inches', // KBB: 79.1" interior cargo height, eSprinter high roof
+    cargoVolume: '488 cubic feet', // mbvans.com/en/esprinter: 488.1 cu ft, 170" high roof
+    cargoLength: '', // TODO: measured floor length behind the seats, e.g. '14 feet (170 inches)'
   },
 
   // ---------- PROMISES ----------
   // You listed these as selling points. Set to false if they ever stop being true.
-  promises: { upfrontPricing: true, cleanUp: true },
+  promises: { upfrontPricing: true, cleanUp: false }, // Owner asked to drop clean-up (11-16).
 
   // ---------- PHOTOS (owner photo in public/photos/, job photos and videos in public/work/) ----------
   owner: {
     name: 'Kevin Kidd',
     photo: '', // TODO: e.g. '/photos/me.jpg'
-    note: "Hi, I'm Kevin Kidd, the owner of Locker Box. I'm a registered Texas carrier (USDOT 4727545) running a 2025 Mercedes eSprinter with an extended high roof: it fits 3 pallets or up to 2,300 lb. I build steel frames and metal buildings, weld on site, and haul materials and freight for businesses between Austin and San Antonio.",
+    note: "Hi, I'm Kevin Kidd, the owner of Locker Box. I'm a registered Texas carrier (USDOT 4727545). I build steel frames and metal buildings, weld on site, and haul materials and freight for businesses across the Texas Triangle.",
   },
   photos: {
     van: '/img/van-1200.jpg',
