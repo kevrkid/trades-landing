@@ -178,16 +178,17 @@ const faq = [
               <ul class="grid grid-cols-2 gap-2.5 mb-4 md:max-w-xl">
                 {biz.photos.videos.map((v) => (
                   <li>
-                    <video controls muted loop playsinline preload="none" data-poster={v.poster} width="540" height="960" class="w-full h-auto rounded-md bg-deep" aria-label={v.caption}>
+                    <video muted loop playsinline preload="none" data-poster={v.poster} width="540" height="960" class="w-full h-auto rounded-md bg-deep" aria-label={v.caption}>
                       <source src={v.src} type="video/mp4" />
                     </video>
+                    <noscript><img src={v.poster} alt={v.caption} width="540" height="960" loading="lazy" class="w-full h-auto rounded-md" /></noscript>
                   </li>
                 ))}
               </ul>
             )}
-            <ul class="grid grid-cols-2 gap-2.5 md:grid-cols-4">
-              {biz.photos.gallery.map((g) => (
-                <li>
+            <ul class="grid grid-cols-2 gap-2.5 md:grid-cols-3">
+              {biz.photos.gallery.map((g, i) => (
+                <li class={i === 0 && biz.photos.gallery.length % 2 === 1 ? 'col-span-2 md:col-span-1' : ''}>
                   <img src={g.src} alt={g.caption} width={g.width} height={g.height} loading="lazy" decoding="async" class="w-full aspect-[4/3] object-cover rounded-md" />
                 </li>
               ))}
@@ -282,25 +283,23 @@ const faq = [
 
   {biz.photos.videos.length > 0 && (
     <script is:inline>
-      // Videos loop silently while on screen, and only download once they're close to it.
-      // Without JavaScript, or for people who've asked for less motion, they keep their play button.
+      // Videos loop silently while on screen, with no player controls, and only download once close to it.
+      // Tap (or Enter/Space) pauses or plays a clip. If a phone blocks autoplay (e.g. Low Power Mode) or the
+      // visitor asked for less motion, the clip shows its still frame and starts on a tap.
       (function () {
         var vids = [].slice.call(document.querySelectorAll('video[data-poster]'));
         var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
         function cover(v) { if (!v.poster) v.poster = v.getAttribute('data-poster'); }
-        if (calm || !('IntersectionObserver' in window)) { vids.forEach(cover); return; }
-        // Tap (or Enter/Space) pauses and restarts a clip, so moving video can always be stopped.
         function toggle(v) {
-          if (v.controls) return;
-          if (v.paused) { v.removeAttribute('data-held'); v.play(); } else { v.pause(); v.setAttribute('data-held', ''); }
+          if (v.paused) { v.removeAttribute('data-held'); v.muted = true; v.play(); } else { v.pause(); v.setAttribute('data-held', ''); }
         }
         vids.forEach(function (v) {
-          v.removeAttribute('controls');
           v.setAttribute('tabindex', '0');
           v.setAttribute('aria-label', v.getAttribute('aria-label') + '. Tap to pause or play.');
           v.addEventListener('click', function () { toggle(v); });
           v.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(v); } });
         });
+        if (calm || !('IntersectionObserver' in window)) { vids.forEach(function (v) { cover(v); v.setAttribute('data-held', ''); }); return; }
         var near = new IntersectionObserver(function (es) {
           es.forEach(function (e) { if (e.isIntersecting) { cover(e.target); near.unobserve(e.target); } });
         }, { rootMargin: '400px' });
@@ -311,8 +310,8 @@ const faq = [
             if (v.hasAttribute('data-held')) return;
             v.muted = true;
             var p = v.play();
-            // Some phones refuse autoplay, such as in low power mode: give the play button back.
-            if (p && p.catch) p.catch(function () { v.setAttribute('controls', ''); });
+            // Autoplay blocked: keep the still frame; a tap plays it.
+            if (p && p.catch) p.catch(function () { cover(v); v.setAttribute('data-held', ''); });
           });
         }, { threshold: 0.25 });
         vids.forEach(function (v) { near.observe(v); seen.observe(v); });

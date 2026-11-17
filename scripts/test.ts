@@ -192,10 +192,15 @@ try {
   const calmCtx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 390, height: 800 } });
   const calmPage = await calmCtx.newPage();
   await calmPage.goto(R + '/');
-  ok(await calmPage.locator('#work video').first().evaluate((v: HTMLVideoElement) => v.controls && v.paused), 'real: reduced-motion visitors get a play button instead');
+  ok(await calmPage.locator('#work video').first().evaluate((v: HTMLVideoElement) => !v.controls && v.paused && !!v.poster), 'real: reduced-motion visitors see a still frame, no player controls');
+  await calmPage.locator('#work video').first().click();
+  await calmPage.waitForTimeout(600);
+  ok(await calmPage.locator('#work video').first().evaluate((v: HTMLVideoElement) => !v.paused && !v.controls), 'real: a tap plays the clip for reduced-motion visitors');
   await calmCtx.close();
   await page.goto(R + '/');
   ok(await page.locator('#work img').count() === business.photos.gallery.length, 'real: work photos show');
+  ok(await page.locator('#work video[controls]').count() === 0 && !(await page.content()).includes('<video controls'), 'real: videos never show player controls');
+  ok(!business.photos.gallery.some((g) => g.src.includes('building-in-progress')), 'real: the other building is not in the gallery');
   ok(await page.locator('#work video[preload=none]').count() === business.photos.videos.length, 'real: videos do not preload');
   for (const p of ['/work/welding-cut.mp4', '/work/welding-weld.mp4', '/work/steel-frame.webp']) ok((await fetch(R + p, { method: 'HEAD' })).status === 200, `real: ${p} loads`);
   const faqText = await page.locator('#faq').evaluate((e) => e.textContent || '');

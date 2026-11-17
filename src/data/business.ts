@@ -136,11 +136,11 @@ export const business: Business = {
     vanWebp: '/img/van-640.webp 640w, /img/van-960.webp 960w, /img/van-1200.webp 1200w',
     vanAlt: 'White all-electric Mercedes eSprinter van parked on a sunny street',
     // Real jobs. Add more by copying a line. Files live in public/work/.
+    // These three are the same building, in build order (owner, 11-16).
     gallery: [
       { src: '/work/steel-frame.webp', caption: 'Steel frame', width: 900, height: 675 },
-      { src: '/work/building-in-progress.webp', caption: 'Building in progress', width: 900, height: 675 },
       { src: '/work/metal-building.webp', caption: 'Finished metal building', width: 900, height: 675 },
-      { src: '/work/metal-building-inside.webp', caption: 'Inside a finished building', width: 900, height: 675 },
+      { src: '/work/metal-building-inside.webp', caption: 'Inside the finished building', width: 900, height: 675 },
     ],
     videos: [
       { src: '/work/welding-cut.mp4', poster: '/work/welding-cut.webp', caption: 'Cutting steel on site' },
