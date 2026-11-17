@@ -1,0 +1,58 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import LineIcon from '../components/site/LineIcon.astro';
+import Fact from '../components/site/Fact.astro';
+import TexasMap from '../components/site/TexasMap.astro';
+import CtaBand from '../components/site/CtaBand.astro';
+import { biz } from '../lib/derive.ts';
+import { delivery as d } from '../data/delivery.ts';
+import { cities, type Zone } from '../data/cities.ts';
+import { localBusinessLd, levelsShown } from '../lib/site.ts';
+const name = biz.name || 'Locker Box';
+const lead = (k: string) => levelsShown().find((l) => l.key === k)?.lead || '';
+const zones: { id: Zone; title: string; tag: string; text: string; places: string; lead: string }[] = [
+  { id: 'local', title: 'Local same-day', tag: 'Home base', text: 'The towns closest to Leander. This is where hot shot runs are fastest, because the van is usually already nearby.', places: 'Leander, Cedar Park, Round Rock, Georgetown, Hutto, Pflugerville, Taylor and Austin', lead: `Hot shot: ${lead('hotshot')}` },
+  { id: 'triangle', title: 'Same-day across the Texas Triangle', tag: 'I-35 · I-10 · US 290', text: 'Point-to-point runs between Central Texas and San Antonio, Houston or Dallas-Fort Worth, driven straight through with no transfers. Book early in the day for same-day delivery.', places: 'Austin, San Antonio, Houston and Dallas-Fort Worth, and the towns along the way', lead: `Same-day: ${lead('sameday')}` },
+  { id: 'west', title: 'West Texas, by arrangement', tag: 'Call ahead', text: 'Longer runs outside the Triangle. These are planned with you, not promised same-day: we agree on a pickup time that gets your load there when the site needs it.', places: 'Abilene, Midland and Amarillo', lead: 'By arrangement' },
+];
+---
+<SiteLayout title={`Service Area: Central Texas and the Texas Triangle | ${name}`}
+  description="Local same-day delivery around Leander, Round Rock, Georgetown, Taylor and Austin; same-day across the Texas Triangle; West Texas by arrangement."
+  path="/service-area" ld={[localBusinessLd('/service-area', ['Hutto', 'Pflugerville', 'Midland', 'Amarillo'])]}>
+  <section class="s-hero s-page-hero">
+    <div class="s-wrap">
+      <p class="s-crumbs"><a href="/delivery">Delivery</a> › Service area</p>
+      <h1>Service area</h1>
+      <p class="lead max-w-[62ch]">Based in {d.base}. Local same-day around Williamson and Travis counties, same-day across the Texas Triangle, and West Texas by arrangement.{d.intrastateOnly && ' Every run starts and ends in Texas.'}</p>
+    </div>
+  </section>
+  <section class="s-sec">
+    <div class="s-wrap grid gap-10 lg:grid-cols-[1.3fr_1fr] items-start">
+      <TexasMap />
+      <ul class="s-legend">
+        <li><span class="s-swatch" style="background:#0b1f3a"></span><span><strong>Local same-day</strong> around Leander</span></li>
+        <li><span class="s-swatch" style="background:rgb(242 106 27 / .35);border:2px solid #f26a1b"></span><span><strong>Texas Triangle</strong>: same-day</span></li>
+        <li><span class="s-swatch" style="background:#fff;border:2px dashed #6b7685"></span><span><strong>West Texas</strong>: by arrangement</span></li>
+      </ul>
+    </div>
+  </section>
+  {zones.map((z, n) => (
+    <section class={`s-sec ${n % 2 ? '' : 'bg-gray'}`} id={z.id}>
+      <div class="s-wrap">
+        <span class="s-pill">{z.tag}</span>
+        <h2 class="mt-3">{z.title}</h2>
+        <p class="lead mt-3">{z.text}</p>
+        <dl class="mt-6 grid gap-4 sm:grid-cols-2 max-w-[860px]">
+          <div><dt class="eyebrow">Covers</dt><dd class="mt-1">{z.places}</dd></div>
+          <div><dt class="eyebrow">Lead time</dt><dd class="mt-1"><Fact v={z.lead} /></dd></div>
+        </dl>
+        <ul class="s-grid s-grid-3 mt-8">
+          {cities.filter((c) => c.zone === z.id).map((c) => (
+            <li><a class="s-card h-full" href={`/delivery/${c.slug}`}><h3><LineIcon name="pin" class="w-5 h-5" />{c.name}</h3><p class="muted">{c.miles} from Leander · {c.drive}</p><span class="s-link">Deliveries in {c.short} <LineIcon name="arrow" /></span></a></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  ))}
+  <CtaBand />
+</SiteLayout>

@@ -4,6 +4,7 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { biz, siteUrl } from '../src/lib/derive.ts';
+import { deliveryPaths } from '../src/lib/site.ts';
 
 export function siteFiles() {
   return {
@@ -24,13 +25,14 @@ export function siteFiles() {
         write('_headers', [
           '/*', '  X-Content-Type-Options: nosniff', '  Referrer-Policy: strict-origin-when-cross-origin', '  X-Frame-Options: DENY',
           '/_astro/*', '  Cache-Control: public, max-age=31536000, immutable',
+          '/img/*', '  Cache-Control: public, max-age=604800',
           '/contact.vcf', '  Content-Type: text/vcard; charset=utf-8', '  Content-Disposition: attachment; filename="contact.vcf"',
         ].join('\n') + '\n');
 
         write('robots.txt', `User-agent: *\nAllow: /\n${url ? `Sitemap: ${url}/sitemap.xml\n` : ''}`);
 
         if (url) {
-          const locs = ['/', '/privacy'].map((p) => `  <url><loc>${url}${p === '/' ? '/' : p}</loc></url>`).join('\n');
+          const locs = ['/', ...deliveryPaths, '/privacy'].map((p) => `  <url><loc>${url}${p === '/' ? '/' : p}</loc></url>`).join('\n');
           write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${locs}\n</urlset>\n`);
         }
 

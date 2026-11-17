@@ -2,42 +2,19 @@
 import '../styles/global.css';
 import '@fontsource/barlow-condensed/latin-800.css';
 import fontUrl from '@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2?url';
-import { biz, isSample, siteUrl, pageTitle, metaDescription, todos } from '../lib/derive.ts';
+import Head from '../components/Head.astro';
+import { biz, isSample, pageTitle, metaDescription } from '../lib/derive.ts';
 
 interface Props { title?: string; description?: string; canonicalPath?: string; noindex?: boolean; ld?: Record<string, unknown> | null }
 const { title = pageTitle(), description = metaDescription(), canonicalPath, noindex = false, ld = null } = Astro.props;
-const url = siteUrl();
-const canonical = url && canonicalPath ? url + (canonicalPath === '/' ? '/' : canonicalPath) : '';
 const c = biz.colors;
 const vars = `:root{--brand:${c.brand};--brand-deep:${c.brandDeep};--accent:${c.accent};--accent-ink:${c.accentInk}}`;
 ---
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    {(noindex || isSample || todos().some((t) => t.blocker)) && <meta name="robots" content="noindex" />}
-    {canonical && <link rel="canonical" href={canonical} />}
-    <meta name="theme-color" content={c.brand} />
-    <link rel="icon" href="/favicon.png" type="image/png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    {biz.name && <meta property="og:site_name" content={biz.name} />}
-    {canonical && <meta property="og:url" content={canonical} />}
-    {url && <meta property="og:image" content={`${url}/og.png`} />}
-    {url && <meta property="og:image:width" content="1200" />}
-    {url && <meta property="og:image:height" content="630" />}
-    <meta name="twitter:card" content="summary_large_image" />
+    <Head {title} {description} {canonicalPath} {noindex} {ld} {fontUrl} themeColor={c.brand} />
     <style set:html={vars}></style>
-    {ld && <script type="application/ld+json" set:html={JSON.stringify(ld)}></script>}
-    {biz.cloudflareAnalyticsToken && !isSample && (
-      <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: biz.cloudflareAnalyticsToken })}></script>
-    )}
   </head>
   <body>
     {isSample && <div style="background:#ffe14d;color:#000;font-weight:700;text-align:center;padding:6px 10px;font-size:15px">SAMPLE PREVIEW: made-up details, for checking the layout</div>}

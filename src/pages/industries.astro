@@ -1,0 +1,49 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import LineIcon from '../components/site/LineIcon.astro';
+import CtaBand from '../components/site/CtaBand.astro';
+import { biz } from '../lib/derive.ts';
+import { industries } from '../data/industries.ts';
+import { cities } from '../data/cities.ts';
+import { localBusinessLd } from '../lib/site.ts';
+const name = biz.name || 'Locker Box';
+---
+<SiteLayout title={`Industries We Deliver For: Data Centers, Fabs, Contractors | ${name}`}
+  description="Time-critical cargo van delivery for Texas data centers, semiconductor fabs, contractors, supply houses, equipment rental and local businesses."
+  path="/industries" ld={[localBusinessLd('/industries')]}>
+  <section class="s-hero s-page-hero">
+    <div class="s-wrap">
+      <p class="s-crumbs"><a href="/delivery">Delivery</a> › Industries</p>
+      <h1>Industries I deliver for</h1>
+      <p class="lead max-w-[62ch]">The common thread: a part or material that has to be somewhere specific, by a specific time, and arrive intact. I run one exclusive load at a time, from pickup straight to your gate.</p>
+    </div>
+  </section>
+  <nav class="s-wrap py-6" aria-label="Industries on this page">
+    <ul class="flex flex-wrap gap-2">{industries.map((i) => <li><a class="s-pill" style="min-height:44px;padding-inline:14px" href={`#${i.id}`}>{i.name}</a></li>)}</ul>
+  </nav>
+  {industries.map((i, n) => (
+    <section class={`s-sec ${n % 2 ? '' : 'bg-gray'}`} id={i.id} style="scroll-margin-top:72px">
+      <div class="s-wrap grid gap-8 lg:grid-cols-[1fr_1fr] items-start">
+        <div>
+          <span class="s-icon-tile"><LineIcon name={i.icon} /></span>
+          <h2 class="mt-4">{i.name}</h2>
+          <p class="lead mt-3">{i.need}</p>
+        </div>
+        <div class="s-card">
+          <h3>Typical runs</h3>
+          <ul class="s-checks mt-2">{i.runs.map((r) => <li><LineIcon name="check" /><span>{r}</span></li>)}</ul>
+          <a class="s-btn s-btn-primary mt-4 self-start" href="/quote">Get a quote</a>
+        </div>
+      </div>
+    </section>
+  ))}
+  <section class="s-sec">
+    <div class="s-wrap">
+      <h2>Where these runs happen</h2>
+      <p class="lead mt-3">Construction and industrial activity near each area I serve, and what a run there looks like.</p>
+      <ul class="s-grid s-grid-4 mt-6">{cities.map((c) => <li><a class="s-card h-full" href={`/delivery/${c.slug}`}><h3>{c.short}</h3><p class="muted">{c.drive}</p><span class="s-link">See {c.short} <LineIcon name="arrow" /></span></a></li>)}</ul>
+      <p class="mt-6 text-[.9rem] muted">Company and project names are public and describe the work in each area. {name} is not affiliated with them and does not claim them as customers.</p>
+    </div>
+  </section>
+  <CtaBand />
+</SiteLayout>

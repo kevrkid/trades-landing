@@ -1,0 +1,41 @@
+---
+import Wordmark from './Wordmark.astro';
+import Fact from './Fact.astro';
+import { biz, telHref } from '../../lib/derive.ts';
+import { delivery } from '../../data/delivery.ts';
+import { cities } from '../../data/cities.ts';
+import { nav, phoneText } from '../../lib/site.ts';
+const year = new Date().getFullYear();
+---
+<footer class="s-footer">
+  <div class="s-wrap s-footer-grid">
+    <div>
+      <a class="s-brand" href="/delivery"><Wordmark /></a>
+      <p class="mt-3">Owner-operated cargo van carrier. Time-critical parts and materials across Texas, in an all-electric Mercedes-Benz eSprinter.</p>
+      <p class="mt-3">Based in {delivery.base}</p>
+    </div>
+    <div>
+      <h2>Contact</h2>
+      <ul>
+        <li>{telHref ? <a href={telHref}>{phoneText()}</a> : <Fact v={phoneText()} />}</li>
+        {biz.email && <li><a href={`mailto:${biz.email}`}>{biz.email}</a></li>}
+        <li class="mt-2">Dispatch: <Fact v={delivery.dispatchHours} /></li>
+        <li class="mt-2"><a href="/quote">Get a quote</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Company</h2>
+      <ul>{nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}<li><a href="/privacy">Privacy</a></li></ul>
+    </div>
+    <div>
+      <h2>Delivery areas</h2>
+      <ul>{cities.map((c) => <li><a href={`/delivery/${c.slug}`}>{c.short}</a></li>)}</ul>
+    </div>
+  </div>
+  <div class="s-wrap s-footer-legal">
+    <span>© {year} {biz.name}</span>
+    <span><a href={delivery.saferUrl} rel="noopener" target="_blank">USDOT {delivery.usdot}</a>{delivery.intrastateOnly && ' · Texas intrastate carrier'}</span>
+    {delivery.mc && <span>MC {delivery.mc}</span>}
+    <span><Fact v={delivery.legalEntity} /></span>
+  </div>
+</footer>

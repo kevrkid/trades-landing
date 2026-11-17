@@ -1,0 +1,89 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import LineIcon from '../../components/site/LineIcon.astro';
+import Fact from '../../components/site/Fact.astro';
+import TexasMap from '../../components/site/TexasMap.astro';
+import QuoteForm from '../../components/site/QuoteForm.astro';
+import CtaBand from '../../components/site/CtaBand.astro';
+import { biz } from '../../lib/derive.ts';
+import { cities, type City } from '../../data/cities.ts';
+import { industries } from '../../data/industries.ts';
+import { localBusinessLd } from '../../lib/site.ts';
+
+export function getStaticPaths() {
+  return cities.map((c) => ({ params: { city: c.slug }, props: { c } }));
+}
+const { c } = Astro.props as { c: City };
+const name = biz.name || 'Locker Box';
+const zoneText = { local: 'Local same-day zone', triangle: 'Same-day across the Texas Triangle', west: 'West Texas, by arrangement' }[c.zone];
+const others = cities.filter((x) => x.slug !== c.slug);
+const mapHi = c.slug === 'dallas-fort-worth' ? 'Dallas Fort Worth' : c.slug === 'round-rock-georgetown' ? 'Leander' : c.name;
+const areas = c.slug === 'dallas-fort-worth' ? ['Dallas', 'Fort Worth'] : c.slug === 'round-rock-georgetown' ? ['Round Rock', 'Georgetown'] : [c.name];
+---
+<SiteLayout title={`${c.title} | ${name}`} description={c.description} path={`/delivery/${c.slug}`} quoteHref="#quote"
+  ld={[localBusinessLd(`/delivery/${c.slug}`, [...areas, ...c.nearby])]}>
+  <section class="s-hero s-page-hero">
+    <div class="s-wrap">
+      <p class="s-crumbs"><a href="/delivery">Delivery</a> › <a href="/service-area">Service area</a> › {c.short}</p>
+      <span class="s-pill">{zoneText}</span>
+      <h1 class="mt-3">{c.title}</h1>
+      <p class="lead max-w-[64ch]">{c.intro}</p>
+      <div class="s-hero-actions">
+        <a class="s-btn s-btn-primary s-btn-lg" href="#quote">Get a quote</a>
+        <a class="s-btn s-btn-secondary s-btn-lg" href="/delivery#services">Service levels</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="s-sec">
+    <div class="s-wrap grid gap-10 lg:grid-cols-[1.2fr_1fr] items-start">
+      <div>
+        <p class="eyebrow">What’s happening around {c.short}</p>
+        <h2 class="mt-1.5">Construction and industry nearby</h2>
+        <div class="grid gap-5 mt-6">
+          {c.activity.map((a) => <div><h3>{a.title}</h3><p class="muted mt-1">{a.text}</p></div>)}
+        </div>
+        <p class="mt-6 text-[.88rem] muted">Company and project names are public and describe the area. {name} is not affiliated with them and does not claim them as customers.</p>
+      </div>
+      <aside class="s-card">
+        <h2 class="text-xl!">From Leander</h2>
+        <table class="s-spec"><tbody>
+          <tr><th scope="row">Distance</th><td>{c.miles}</td></tr>
+          <tr><th scope="row">Drive</th><td>{c.drive}</td></tr>
+          <tr><th scope="row">Service</th><td>{zoneText}</td></tr>
+          <tr><th scope="row">Lead time</th><td><Fact v={c.leadTime} /></td></tr>
+        </tbody></table>
+        <p class="text-[.9rem] muted">Nearby: {c.nearby.join(', ')}</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="s-sec bg-gray">
+    <div class="s-wrap grid gap-10 lg:grid-cols-[1.2fr_1fr] items-start">
+      <div>
+        <p class="eyebrow">Typical runs</p>
+        <h2 class="mt-1.5">What a {c.short} run looks like</h2>
+        <ul class="s-checks mt-6">{c.runs.map((r) => <li><LineIcon name="route" /><span>{r}</span></li>)}</ul>
+        <p class="mt-6">Every run: a photo of the load at pickup, a live tracking link by text, and photo, signature and timestamp at delivery.</p>
+      </div>
+      <TexasMap inset={false} highlight={mapHi} />
+    </div>
+  </section>
+
+  <section class="s-sec">
+    <div class="s-wrap">
+      <h2>Industries I deliver for</h2>
+      <ul class="flex flex-wrap gap-2 mt-5">{industries.map((i) => <li><a class="s-pill" style="min-height:44px;padding-inline:14px" href={`/industries#${i.id}`}>{i.name}</a></li>)}</ul>
+      <h2 class="mt-12">Other areas</h2>
+      <ul class="flex flex-wrap gap-2 mt-5">{others.map((o) => <li><a class="s-pill" style="min-height:44px;padding-inline:14px" href={`/delivery/${o.slug}`}>{o.short}</a></li>)}</ul>
+    </div>
+  </section>
+
+  <section class="s-sec bg-gray" id="quote">
+    <div class="s-wrap max-w-[860px]!">
+      <div class="s-sec-head"><p class="eyebrow">Get a quote</p><h2>Quote a {c.short} run</h2></div>
+      <QuoteForm source={`City page: ${c.short}`} />
+    </div>
+  </section>
+  <CtaBand quoteHref="#quote" />
+</SiteLayout>

@@ -1,0 +1,105 @@
+<script>
+// Shared by the quote form and the COI/W-9 form. Works without it: the forms are plain HTML
+// that post to Web3Forms (or open the visitor's email app when no key is set).
+document.querySelectorAll<HTMLFormElement>('form[data-lead]').forEach((f) => {
+  const steps = [...f.querySelectorAll<HTMLElement>('.lead-step')];
+  const done = document.getElementById(f.dataset.done || '') as HTMLElement | null;
+  const err = f.querySelector<HTMLElement>('.s-form-error');
+  const bar = f.querySelector<HTMLElement>('.s-progress-bar i');
+  const label = f.querySelector<HTMLElement>('.s-progress-label');
+  let cur = 0;
+
+  const date = f.querySelector<HTMLInputElement>('input[type=date]');
+  if (date) { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); date.min = d.toISOString().slice(0, 10); }
+
+  const fields = (el: Element) => [...el.querySelectorAll<HTMLInputElement>('input,select,textarea')].filter((x) => !x.disabled && x.type !== 'hidden' && !x.closest('.hp'));
+  const groupOk = (el: Element) => {
+    // At least one box in a [data-need-one] group must be ticked.
+    for (const g of el.querySelectorAll<HTMLElement>('[data-need-one]')) {
+      const boxes = [...g.querySelectorAll<HTMLInputElement>('input[type=checkbox]')];
+      boxes[0].setCustomValidity(boxes.some((b) => b.checked) ? '' : 'Pick at least one.');
+    }
+    return true;
+  };
+  const valid = (el: Element) => { groupOk(el); return fields(el).every((x) => x.reportValidity()); };
+
+  function show(i: number, focus = false) {
+    cur = i;
+    steps.forEach((s, n) => s.classList.toggle('is-current', n === i));
+    f.querySelectorAll<HTMLElement>('.lead-back').forEach((b) => (b.hidden = i === 0));
+    f.querySelectorAll<HTMLElement>('.lead-next').forEach((b) => (b.hidden = i === steps.length - 1));
+    f.querySelectorAll<HTMLElement>('.lead-submit').forEach((b) => (b.hidden = i !== steps.length - 1));
+    if (bar) bar.style.width = `${((i + 1) / steps.length) * 100}%`;
+    if (label) label.textContent = `Step ${i + 1} of ${steps.length}`;
+    if (focus) {
+      f.scrollIntoView({ block: 'start' });
+      fields(steps[i])[0]?.focus({ preventScroll: true });
+    }
+  }
+  if (steps.length > 1) { f.classList.add('js-lead'); show(0); }
+  f.querySelectorAll('.lead-next').forEach((b) => b.addEventListener('click', () => { if (valid(steps[cur])) show(cur + 1, true); }));
+  f.querySelectorAll('.lead-back').forEach((b) => b.addEventListener('click', () => show(cur - 1, true)));
+  f.addEventListener('change', () => groupOk(f));
+
+  function summary() {
+    const out: string[] = [];
+    const seen = new Set<string>();
+    for (const x of fields(f)) {
+      const name = x.name;
+      if (!name || seen.has(name) || x.type === 'file') continue;
+      const tag = x.dataset.label || name;
+      let v = '';
+      if (x.type === 'radio') { v = (f.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value) || ''; seen.add(name); }
+      else if (x.type === 'checkbox') { v = [...f.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`)].map((c) => c.value).join(', '); seen.add(name); }
+      else v = x.value.trim();
+      if (v) out.push(`${tag}: ${v}`);
+    }
+    const src = f.querySelector<HTMLInputElement>('input[name=source]');
+    if (src) out.push(`Came from: ${src.value}`);
+    return out.join('\n');
+  }
+
+  function finish(mode: 'sent' | 'mail', mailHref = '') {
+    if (!done) return;
+    done.querySelectorAll<HTMLElement>('[data-mode]').forEach((e) => (e.hidden = e.dataset.mode !== mode));
+    const a = done.querySelector<HTMLAnchorElement>('[data-mail]');
+    if (a && mailHref) a.href = mailHref;
+    f.hidden = true;
+    done.hidden = false;
+    done.scrollIntoView({ block: 'start' });
+    done.focus({ preventScroll: true });
+  }
+
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (err) err.hidden = true;
+    for (let i = 0; i < steps.length; i++) if (!valid(steps[i])) { if (i !== cur) { show(i); valid(steps[i]); } return; }
+    if (steps.length <= 1 && !valid(f)) return;
+    // Honeypot ticked: a bot. Look like it worked and send nothing.
+    if (f.querySelector<HTMLInputElement>('[name=botcheck]')?.checked) return finish('sent');
+
+    if (f.dataset.key) {
+      const btn = f.querySelector<HTMLButtonElement>('.lead-submit');
+      if (btn) { btn.disabled = true; btn.dataset.text = btn.textContent || ''; btn.textContent = 'Sending…'; }
+      try {
+        const body = new FormData(f);
+        body.delete('redirect');
+        body.set('message', summary());
+        const r = await fetch(f.action, { method: 'POST', body, headers: { Accept: 'application/json' } });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.success) throw new Error(j.message || String(r.status));
+        finish('sent');
+      } catch {
+        if (err) err.hidden = false;
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = btn.dataset.text || 'Send'; }
+      }
+      return;
+    }
+    const subject = encodeURIComponent(f.dataset.subject || 'Request');
+    finish('mail', `mailto:${f.dataset.email}?subject=${subject}&body=${encodeURIComponent(summary())}`);
+  });
+
+  done?.querySelector('[data-edit]')?.addEventListener('click', () => { done.hidden = true; f.hidden = false; show(0, true); });
+});
+</script>

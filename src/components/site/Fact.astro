@@ -1,0 +1,6 @@
+---
+// Prints text, showing any [[TODO: ...]] part as a yellow marker so unconfirmed facts can't be missed.
+const { v = '' } = Astro.props as { v?: string };
+const parts = String(v).split(/(\[\[TODO: .*?\]\])/).filter(Boolean);
+---
+{parts.map((p) => (p.startsWith('[[TODO') ? <mark class="todo">{p}</mark> : p))}

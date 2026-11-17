@@ -41,5 +41,18 @@ const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 await page.setContent(og);
 await page.evaluate(() => document.fonts.ready);
 await page.screenshot({ path: 'public/og.png' });
+
+// Link preview for the delivery pages: navy, wordmark, the van.
+const inter = readFileSync('node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2').toString('base64');
+const ogd = `<style>@font-face{font-family:I;src:url(data:font/woff2;base64,${inter});font-weight:100 900}*{margin:0;box-sizing:border-box}body{font-family:I,sans-serif}</style>
+<body style="width:1200px;height:630px;background:#0b1f3a;color:#fff;overflow:hidden;position:relative">
+<div style="position:absolute;left:64px;top:60px;display:flex;align-items:center;gap:14px"><div style="width:40px;height:40px;background:#f26a1b;border-radius:6px"></div><div style="font-size:38px;font-weight:800;letter-spacing:2px">${esc(b.name.toUpperCase())}</div></div>
+<div style="position:absolute;left:64px;top:170px;width:560px;font-size:60px;font-weight:800;line-height:1.05;letter-spacing:-2px">Parts and materials to Texas job sites, fast.</div>
+<div style="position:absolute;left:64px;bottom:70px;width:540px;font-size:26px;font-weight:600;color:#c9d6e8;line-height:1.35">Hot shot and same-day cargo van delivery<br>Based in Leander, TX</div>
+<div style="position:absolute;right:0;top:0;bottom:0;width:520px"><img src="data:image/jpeg;base64,${van}" style="width:100%;height:100%;object-fit:cover;object-position:right center;display:block"></div>
+<div style="position:absolute;left:0;bottom:0;width:680px;height:10px;background:#f26a1b"></div></body>`;
+await page.setContent(ogd);
+await page.evaluate(() => document.fonts.ready);
+await page.screenshot({ path: 'public/og-delivery.png' });
 await browser.close();
-console.log('Made the logo sizes, icons and public/og.png');
+console.log('Made the logo sizes, icons, public/og.png and public/og-delivery.png');

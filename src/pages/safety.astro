@@ -1,0 +1,95 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import LineIcon from '../components/site/LineIcon.astro';
+import Fact from '../components/site/Fact.astro';
+import DocsForm from '../components/site/DocsForm.astro';
+import CtaBand from '../components/site/CtaBand.astro';
+import { biz } from '../lib/derive.ts';
+import { delivery as d, TODO } from '../data/delivery.ts';
+import { localBusinessLd } from '../lib/site.ts';
+const name = biz.name || 'Locker Box';
+const ins = d.insurance;
+const jobSite = [d.jobSite.ppe, d.jobSite.osha10, d.jobSite.orientations].filter(Boolean);
+---
+<SiteLayout title={`Safety, Insurance and Registration | ${name}`}
+  description={`USDOT ${d.usdot} registered carrier. Insurance, cargo securement, job-site safety and who rides with the load.`}
+  path="/safety" ld={[localBusinessLd('/safety')]}>
+  <section class="s-hero s-page-hero">
+    <div class="s-wrap">
+      <p class="s-crumbs"><a href="/delivery">Delivery</a> › Safety</p>
+      <h1>Safety, insurance and registration</h1>
+      <p class="lead max-w-[62ch]">What you can check for yourself, and how your load is handled from pickup to the gate.</p>
+    </div>
+  </section>
+
+  <section class="s-sec">
+    <div class="s-wrap grid gap-6 lg:grid-cols-2">
+      <article class="s-card">
+        <span class="s-icon-tile"><LineIcon name="shield" /></span>
+        <h2 class="text-2xl!">Registration</h2>
+        <table class="s-spec"><tbody>
+          <tr><th scope="row">USDOT number</th><td>{d.usdot}</td></tr>
+          {d.mc && <tr><th scope="row">MC number</th><td>{d.mc}</td></tr>}
+          {d.intrastateOnly && <tr><th scope="row">Operating authority</th><td>Texas intrastate carrier (runs start and end in Texas)</td></tr>}
+          <tr><th scope="row">Business</th><td><Fact v={d.legalEntity} /></td></tr>
+          <tr><th scope="row">Based in</th><td>{d.base}</td></tr>
+        </tbody></table>
+        <a class="s-link" href={d.saferUrl} rel="noopener" target="_blank">Check my FMCSA SAFER company snapshot <LineIcon name="arrow" /></a>
+      </article>
+      <article class="s-card">
+        <span class="s-icon-tile"><LineIcon name="file" /></span>
+        <h2 class="text-2xl!">Insurance</h2>
+        {!ins.confirmed && <p><mark class="todo">[[TODO: confirm your commercial policy is active in your name and covers delivery work, then set insurance.confirmed: true]]</mark></p>}
+        <table class="s-spec"><tbody>
+          <tr><th scope="row">Commercial auto</th><td><Fact v={ins.auto} /></td></tr>
+          <tr><th scope="row">Cargo</th><td><Fact v={ins.cargo} /></td></tr>
+          <tr><th scope="row">General liability</th><td><Fact v={ins.liability} /></td></tr>
+        </tbody></table>
+        <p class="muted">A certificate of insurance (COI) is sent on request, with your company listed as certificate holder if needed.</p>
+        <a class="s-link" href="#documents">Request a COI <LineIcon name="arrow" /></a>
+      </article>
+    </div>
+  </section>
+
+  <section class="s-sec bg-gray">
+    <div class="s-wrap grid gap-12 lg:grid-cols-2">
+      <div>
+        <p class="eyebrow">Cargo securement</p>
+        <h2 class="mt-1.5">Loads that arrive the way they left</h2>
+        <ul class="s-checks mt-6">
+          <li><LineIcon name="camera" /><span>The load is checked against your paperwork and photographed at pickup.</span></li>
+          <li><LineIcon name="strap" /><span>Secured before the van moves. Equipment carried: <Fact v={d.equipment.join(', ')} /></span></li>
+          <li><LineIcon name="box" /><span>Weight stays within the van’s {d.van.payload.replace('Up to ', '')} payload. Overweight or over-length loads are turned down, not squeezed in.</span></li>
+          <li><LineIcon name="route" /><span>Hot shot loads ride alone: nothing else is loaded on top or beside them.</span></li>
+          <li><LineIcon name="pen" /><span>Photo, signature and timestamp at delivery, emailed to you.</span></li>
+        </ul>
+      </div>
+      <div>
+        <p class="eyebrow">Job-site safety</p>
+        <h2 class="mt-1.5">Ready for the site’s rules</h2>
+        <ul class="s-checks mt-6">
+          {jobSite.map((j) => <li><LineIcon name="hardhat" /><span><Fact v={j} /></span></li>)}
+          <li><LineIcon name="gate" /><span>I follow gate check-in, badging and each site’s rules.</span></li>
+          <li><LineIcon name="alert" /><span>No hazardous materials, and nothing that needs special permits.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="s-sec">
+    <div class="s-wrap max-w-[860px]!">
+      <p class="eyebrow">Who rides with your load</p>
+      <h2 class="mt-1.5">The person who answers the phone is the person who drives</h2>
+      <p class="lead mt-4">{name} is owner-operated. I drive every run myself.</p>
+      <p class="mt-4"><Fact v={d.vetting} /></p>
+    </div>
+  </section>
+
+  <section class="s-sec bg-gray" id="documents">
+    <div class="s-wrap max-w-[760px]!">
+      <div class="s-sec-head"><h2>Documents on request</h2><p class="lead">The COI and W-9 are emailed to you directly. They aren’t posted on this site.</p></div>
+      <DocsForm source="Safety page" />
+    </div>
+  </section>
+  <CtaBand />
+</SiteLayout>

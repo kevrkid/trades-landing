@@ -6,7 +6,8 @@ next steps, decisions log and latest code review. Keep its "Status and next step
 
 Quick rules:
 
-- All business content lives in `src/data/business.ts`. Never invent facts (reviews, credentials,
+- All business content lives in `src/data/business.ts`; delivery-page facts in `src/data/delivery.ts` and `cities.ts`
+  (unconfirmed = `TODO('...')`, shown as `[[TODO]]`, blocks deploy). Never invent facts (reviews, credentials,
   numbers, insurance). Blank = hidden on the site and listed by `npm run todo`.
 - Don't advertise moving until Kevin's own USDOT/TxDMV numbers are in `credentials.licenses`
   (the deploy and decal enforce this). The old DOT 9994372 is his mother's company's; never use it.

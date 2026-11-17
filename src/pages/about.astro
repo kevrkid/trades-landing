@@ -1,0 +1,52 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import LineIcon from '../components/site/LineIcon.astro';
+import Fact from '../components/site/Fact.astro';
+import PhotoSlot from '../components/site/PhotoSlot.astro';
+import CtaBand from '../components/site/CtaBand.astro';
+import { biz } from '../lib/derive.ts';
+import { delivery as d } from '../data/delivery.ts';
+import { localBusinessLd } from '../lib/site.ts';
+const name = biz.name || 'Locker Box';
+const owner = biz.owner.name || 'the owner';
+const first = owner.split(' ')[0];
+const why = d.ownerStory;
+---
+<SiteLayout title={`About ${name}: Owner-Operated Cargo Van Carrier in Leander, TX`}
+  description={`${name} is an owner-operated, USDOT-registered cargo van carrier based in Leander, Texas, running an all-electric Mercedes-Benz eSprinter.`}
+  path="/about" ld={[localBusinessLd('/about')]}>
+  <section class="s-hero s-page-hero">
+    <div class="s-wrap">
+      <p class="s-crumbs"><a href="/delivery">Delivery</a> › About</p>
+      <h1>One van. One driver. Your load.</h1>
+      <p class="lead max-w-[62ch]">{name} is owner-operated. When you call, you reach the person who will pick up your part and drive it to your site.</p>
+    </div>
+  </section>
+  <section class="s-sec">
+    <div class="s-wrap grid gap-10 lg:grid-cols-2 items-start">
+      <PhotoSlot shot={d.shots.owner} />
+      <div class="s-prose">
+        <h2 style="margin-top:0">Hi, I’m {first}</h2>
+        <p>I’m {owner}, the owner and driver at {name}, based in {d.base}. I run the business under USDOT {d.usdot}, in an all-electric Mercedes-Benz eSprinter with a 170-inch wheelbase and a high roof. It carries {d.van.payload.toLowerCase()} or {d.van.pallets.toLowerCase().replace('up to ', '')}.</p>
+        <p>I also build steel frames and metal buildings, weld on site, and haul materials and freight for businesses between Austin and San Antonio, so I know job sites from the inside.</p>
+        <p><Fact v={why} /></p>
+        <h2>How I work</h2>
+        <ul class="s-checks" style="list-style:none;padding:0">
+          <li><LineIcon name="phone" /><span>You talk to the driver, not a call center.</span></li>
+          <li><LineIcon name="route" /><span>Hot shot runs are exclusive: your load is the only load on board.</span></li>
+          <li><LineIcon name="camera" /><span>Photo proof at pickup and delivery, every time.</span></li>
+          <li><LineIcon name="bolt" /><span>An all-electric van: quiet on site, no exhaust at the dock, no idling while I wait at the gate.</span></li>
+        </ul>
+        <p><a class="s-link" href="/safety">Registration and insurance <LineIcon name="arrow" /></a></p>
+      </div>
+    </div>
+  </section>
+  <section class="s-sec bg-gray">
+    <div class="s-wrap">
+      <h2>Also from {name}</h2>
+      <p class="lead mt-3">The same van and the same owner also handle welding, building-material runs, tear-downs and junk removal around Central Texas.</p>
+      <p class="mt-4"><a class="s-link" href="/#services">See trade services <LineIcon name="arrow" /></a></p>
+    </div>
+  </section>
+  <CtaBand />
+</SiteLayout>

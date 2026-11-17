@@ -1,0 +1,26 @@
+---
+// Where Web3Forms sends people after a no-JavaScript submit. Not for Google.
+import SiteLayout from '../layouts/SiteLayout.astro';
+import LineIcon from '../components/site/LineIcon.astro';
+import Fact from '../components/site/Fact.astro';
+import { telHref } from '../lib/derive.ts';
+import { delivery as d } from '../data/delivery.ts';
+import { phoneText } from '../lib/site.ts';
+---
+<SiteLayout title="Request received" description="Your delivery request was sent. Here is what happens next: a confirmed price and pickup time, then a live tracking link by text." path="/quote-sent" noindex>
+  <section class="s-sec">
+    <div class="s-wrap max-w-[720px]!">
+      <div class="s-form s-done">
+        <h1 class="text-3xl! flex items-center gap-3"><LineIcon name="checkCircle" class="w-9 h-9 text-green-700" />Request received</h1>
+        <p class="mt-4 font-bold">What happens next</p>
+        <ol>
+          <li>I review your request and reply with a confirmed price and pickup time (<Fact v={d.responseTime} />).</li>
+          <li>At pickup I photograph the load, and you get a live tracking link by text.</li>
+          <li>At delivery you get a photo, signature and timestamp, emailed after the run.</li>
+        </ol>
+        <p>Need it moving right now? Call {telHref ? <a class="underline font-bold" href={telHref}>{phoneText()}</a> : <Fact v={phoneText()} />}.</p>
+        <p class="mt-4"><a class="s-link" href="/delivery">Back to delivery <LineIcon name="arrow" /></a></p>
+      </div>
+    </div>
+  </section>
+</SiteLayout>

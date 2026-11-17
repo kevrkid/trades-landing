@@ -1,0 +1,15 @@
+---
+import LineIcon from './LineIcon.astro';
+import Fact from './Fact.astro';
+import { delivery, TODO } from '../../data/delivery.ts';
+const ins = delivery.insurance.confirmed ? 'Commercially insured' : TODO('confirm your commercial insurance is active, then set insurance.confirmed');
+---
+<div class="s-trust">
+  <ul class="s-wrap">
+    <li><LineIcon name="shield" /><a href={delivery.saferUrl} rel="noopener" target="_blank">USDOT {delivery.usdot}</a></li>
+    <li><LineIcon name="file" /><Fact v={ins} /></li>
+    <li><LineIcon name="bolt" />All-electric van</li>
+    <li><LineIcon name="camera" />Live tracking link + photo proof of delivery</li>
+    <li><LineIcon name="clock" /><span>Dispatch: <Fact v={delivery.dispatchHours} /></span></li>
+  </ul>
+</div>

@@ -1,0 +1,43 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import LineIcon from '../components/site/LineIcon.astro';
+import Fact from '../components/site/Fact.astro';
+import QuoteForm from '../components/site/QuoteForm.astro';
+import { biz, telHref } from '../lib/derive.ts';
+import { delivery as d } from '../data/delivery.ts';
+import { localBusinessLd, phoneText } from '../lib/site.ts';
+const name = biz.name || 'Locker Box';
+---
+<SiteLayout title={`Get a Delivery Quote | ${name}`}
+  description="Request a quote for hot shot, same-day or scheduled cargo van delivery in Texas. Confirmed price and pickup time before anything moves."
+  path="/quote" quoteHref="#quote" ld={[localBusinessLd('/quote')]}>
+  <section class="s-hero s-page-hero">
+    <div class="s-wrap">
+      <p class="s-crumbs"><a href="/delivery">Delivery</a> › Get a quote</p>
+      <h1>Get a delivery quote</h1>
+      <p class="lead max-w-[62ch]">Two short steps. You’ll get a confirmed price and pickup time before anything moves.</p>
+    </div>
+  </section>
+  <section class="s-sec bg-gray" id="quote">
+    <div class="s-wrap grid gap-10 lg:grid-cols-[1.6fr_1fr] items-start">
+      <QuoteForm source="Quote page" />
+      <aside class="grid gap-4">
+        <div class="s-card">
+          <h2 class="text-xl!">Rather talk?</h2>
+          <p class="muted">For a hot shot that needs to move now, calling is fastest.</p>
+          {telHref ? <a class="s-btn s-btn-secondary" href={telHref}><LineIcon name="phone" />Call {phoneText()}</a> : <p><Fact v={phoneText()} /></p>}
+          <p class="text-[.95rem] muted">Dispatch: <Fact v={d.dispatchHours} /></p>
+        </div>
+        <div class="s-card">
+          <h2 class="text-xl!">Good to know</h2>
+          <ul class="s-checks text-[.95rem]">
+            <li><LineIcon name="box" /><span>{d.van.payload}, {d.van.pallets.toLowerCase()}</span></li>
+            <li><LineIcon name="pin" /><span>Texas only. Same-day across the Texas Triangle; West Texas by arrangement.</span></li>
+            <li><LineIcon name="alert" /><span>No hazardous materials or loads needing special permits.</span></li>
+            <li><LineIcon name="message" /><span>You’ll get a live tracking link by text at pickup.</span></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+</SiteLayout>

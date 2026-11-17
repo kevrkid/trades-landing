@@ -1,0 +1,32 @@
+---
+import Wordmark from './Wordmark.astro';
+import LineIcon from './LineIcon.astro';
+import Fact from './Fact.astro';
+import { telHref } from '../../lib/derive.ts';
+import { nav, phoneText } from '../../lib/site.ts';
+const { path = '', quoteHref = '/quote' } = Astro.props as { path?: string; quoteHref?: string };
+const cur = (href: string) => (href === path ? 'page' : undefined);
+---
+<header class="s-header">
+  <div class="s-wrap s-header-row">
+    <a class="s-brand" href="/delivery"><Wordmark /></a>
+    <nav class="s-nav" aria-label="Main">
+      {nav.map((n) => <a href={n.href} aria-current={cur(n.href)}>{n.label}</a>)}
+    </nav>
+    <div class="s-head-actions">
+      {telHref
+        ? <a class="s-btn s-btn-secondary s-head-call" href={telHref}><LineIcon name="phone" />{phoneText()}</a>
+        : <span class="s-btn s-btn-secondary s-head-call is-todo"><LineIcon name="phone" /><Fact v="[[TODO: phone]]" /></span>}
+      <a class="s-btn s-btn-primary s-head-quote" href={quoteHref}>Get a quote</a>
+      <details class="s-menu">
+        <summary aria-label="Menu"><LineIcon name="menu" /></summary>
+        <nav class="s-menu-panel" aria-label="Main">
+          {nav.map((n) => <a href={n.href} aria-current={cur(n.href)}>{n.label}</a>)}
+          <hr />
+          <a href="/quote">Get a quote</a>
+          {telHref && <a href={telHref}>Call {phoneText()}</a>}
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>

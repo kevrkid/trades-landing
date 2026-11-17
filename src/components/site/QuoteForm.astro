@@ -1,0 +1,97 @@
+---
+// Delivery quote form: two steps. With a Web3Forms key it sends straight to the business email
+// (instant email notification); without one, the visitor's own email app opens with the answers.
+import LineIcon from './LineIcon.astro';
+import Fact from './Fact.astro';
+import LeadScript from './LeadScript.astro';
+import { biz, siteUrl, telHref } from '../../lib/derive.ts';
+import { delivery } from '../../data/delivery.ts';
+import { levelsShown, phoneText } from '../../lib/site.ts';
+
+interface Props { source: string; preset?: string; id?: string }
+const { source, preset = '', id = 'quote-form' } = Astro.props;
+const key = biz.web3formsKey;
+const site = siteUrl();
+const native = key
+  ? { action: 'https://api.web3forms.com/submit', method: 'POST', enctype: delivery.formUploads ? 'multipart/form-data' : undefined }
+  : { action: `mailto:${biz.email}`, method: 'POST', enctype: 'text/plain' };
+const levels = levelsShown();
+const doneId = `${id}-done`;
+const heard = ['Saw the van', 'Google search', 'A referral', 'A delivery app or platform', 'Other'];
+---
+<form id={id} class="s-form" data-lead data-done={doneId} data-key={key ? '1' : ''} data-email={biz.email}
+  data-subject={`Delivery quote request${biz.name ? ` for ${biz.name}` : ''}`} {...native}>
+  {key && <input type="hidden" name="access_key" value={key} />}
+  {key && <input type="hidden" name="subject" value={`New delivery quote request${biz.name ? ` for ${biz.name}` : ''}`} />}
+  {key && <input type="hidden" name="from_name" value="Website delivery quote" />}
+  {key && site && <input type="hidden" name="redirect" value={`${site}/quote-sent`} />}
+  <input type="hidden" name="source" value={source} />
+  <div class="hp" aria-hidden="true"><label>Leave this empty<input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" /></label></div>
+
+  <div class="s-progress"><span class="s-progress-label">Step 1 of 2</span><span class="s-progress-bar"><i></i></span></div>
+
+  <fieldset class="lead-step is-current">
+    <legend>The run</legend>
+    <p class="muted text-[.95rem]">Fields marked <span class="req" aria-hidden="true" style="color:#b42318">*</span> are required.</p>
+    <div class="s-radio-cards" role="radiogroup" aria-label="Service level">
+      {levels.map((l) => (
+        <label class="s-radio"><input type="radio" name="service_level" value={l.name} data-label="Service level" required checked={preset === l.key} />
+          <span>{l.name}<small>{l.best}</small></span></label>
+      ))}
+      <label class="s-radio"><input type="radio" name="service_level" value="Not sure, help me choose" data-label="Service level" required />
+        <span>Not sure<small>Tell me the deadline and I’ll suggest the right option.</small></span></label>
+    </div>
+    <div class="s-fields">
+      <label class="s-field">Pickup address or ZIP <span class="req" aria-hidden="true">*</span><input name="pickup" data-label="Pickup" required autocomplete="off" /></label>
+      <label class="s-field">Delivery address or ZIP <span class="req" aria-hidden="true">*</span><input name="delivery" data-label="Delivery" required autocomplete="off" /></label>
+      <label class="s-field">Date needed <span class="req" aria-hidden="true">*</span><input name="date_needed" type="date" data-label="Date needed" required /></label>
+      <label class="s-field">Time needed <span class="req" aria-hidden="true">*</span><small>e.g. by 10 AM, or the site’s 1-3 PM window</small><input name="time_needed" data-label="Time needed" required /></label>
+      <label class="s-field">Your name <span class="req" aria-hidden="true">*</span><input name="name" data-label="Name" required autocomplete="name" /></label>
+      <label class="s-field">Company<input name="company" data-label="Company" autocomplete="organization" /></label>
+      <label class="s-field">Phone <span class="req" aria-hidden="true">*</span><input name="phone" type="tel" data-label="Phone" required autocomplete="tel" inputmode="tel" minlength="10" /></label>
+      <label class="s-field">Email <span class="req" aria-hidden="true">*</span><input name="email" type="email" data-label="Email" required autocomplete="email" /></label>
+    </div>
+  </fieldset>
+
+  <fieldset class="lead-step">
+    <legend>The load</legend>
+    <div class="s-fields">
+      <label class="s-field full">What’s being delivered? <span class="req" aria-hidden="true">*</span><small>Part names or materials, and anything fragile</small><textarea name="items" data-label="Items" required rows="3"></textarea></label>
+      <label class="s-field">Pieces or pallets <span class="req" aria-hidden="true">*</span><small>e.g. 3 boxes and 1 pallet</small><input name="pieces" data-label="Pieces / pallets" required /></label>
+      <label class="s-field">Approximate total weight <span class="req" aria-hidden="true">*</span><small>in pounds; the van carries up to 2,300 lb</small><input name="weight" data-label="Weight" required inputmode="numeric" /></label>
+      <label class="s-field">Largest piece <small>length × width × height, in inches</small><input name="dimensions" data-label="Largest piece" /></label>
+      <label class="s-field">How did you hear about us?
+        <select name="heard" data-label="Heard about us"><option value="">Choose one</option>{heard.map((h) => <option>{h}</option>)}</select>
+      </label>
+      <label class="s-field full">Site access notes <small>Gate, badge, dock, liftgate, delivery window, site contact</small><textarea name="access" data-label="Site access" rows="3"></textarea></label>
+      {delivery.formUploads
+        ? <label class="s-field full">Photos <small>optional, of the load or the delivery spot</small><input name="attachment" type="file" accept="image/*" multiple /></label>
+        : <p class="full text-[.95rem] muted">Have photos of the load or the delivery spot? {biz.email ? <>Email them to <a class="underline" href={`mailto:${biz.email}`}>{biz.email}</a> after you send this.</> : 'Send them after you submit this.'}</p>}
+    </div>
+  </fieldset>
+
+  <p class="s-form-error" role="alert" hidden>That didn’t go through. Please try again, or call {telHref ? <a class="underline" href={telHref}>{phoneText()}</a> : <Fact v={phoneText()} />}.</p>
+  <div class="s-form-nav">
+    <button type="button" class="s-btn s-btn-secondary lead-back" hidden>Back</button>
+    <button type="button" class="s-btn s-btn-primary lead-next" hidden>Next: the load <LineIcon name="arrow" /></button>
+    <button type="submit" class="s-btn s-btn-primary lead-submit">Request my quote</button>
+  </div>
+</form>
+
+<div id={doneId} class="s-form s-done" hidden tabindex="-1">
+  <h3 data-mode="sent"><LineIcon name="checkCircle" />Request received</h3>
+  <h3 data-mode="mail"><LineIcon name="mail" />One more step</h3>
+  <div data-mode="mail" class="mt-2">
+    <p>Your answers are filled in. Press <strong>send</strong> in the email app that opens. Nothing is sent until you do.</p>
+    <a class="s-btn s-btn-primary mt-4" data-mail href={`mailto:${biz.email}`}><LineIcon name="mail" />Send by email</a>
+  </div>
+  <p class="mt-4 font-bold">What happens next</p>
+  <ol>
+    <li>I review your request and reply with a confirmed price and pickup time (<Fact v={delivery.responseTime} />).</li>
+    <li>At pickup I photograph the load, and you get a live tracking link by text.</li>
+    <li>At delivery you get a photo, signature and timestamp, emailed after the run.</li>
+  </ol>
+  <p>Need it moving right now? Call {telHref ? <a class="underline font-bold" href={telHref}>{phoneText()}</a> : <Fact v={phoneText()} />}.</p>
+  <button type="button" class="s-link mt-2 bg-transparent cursor-pointer" data-edit>Change my answers</button>
+</div>
+<LeadScript />

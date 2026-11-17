@@ -17,6 +17,6 @@ const licenses = biz.credentials.licenses;
     {biz.area.summary && <p>Serving {biz.area.summary}</p>}
     {licenses.length > 0 && <p>{licenses.map((l) => `${l.label} #${l.number}`).join(' · ')}</p>}
     {biz.socials.length > 0 && <p class="flex flex-wrap gap-x-5">{biz.socials.map((s) => <a class="textlink" href={s.url} rel="noopener">{s.label}</a>)}</p>}
-    <p><a class="textlink" href="/privacy">Privacy</a></p>
+    <p class="flex flex-wrap gap-x-5"><a class="textlink" href="/delivery">Business delivery</a><a class="textlink" href="/privacy">Privacy</a></p>
   </div>
 </footer>

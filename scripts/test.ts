@@ -6,6 +6,8 @@ import { mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { chromium, type Page } from 'playwright';
 import { business } from '../src/data/business.ts';
 import { todos } from '../src/lib/derive.ts';
+import { deliveryPaths } from '../src/lib/site.ts';
+import { delivery } from '../src/data/delivery.ts';
 
 const SHOTS = process.env.SHOTS || 'test-shots';
 mkdirSync(SHOTS, { recursive: true });
@@ -231,6 +233,172 @@ try {
   shows('faq', Object.values(business.faq).some(Boolean) || !!business.links.deposit);
   if (!business.phone) ok(await page.locator('a[href^="tel:"], a[href^="sms:"]').count() === 0, 'real: no call or text links until a phone is set');
   if (!business.links.booking) ok((await fetch(R + '/book', { redirect: 'manual' })).headers.get('location')?.endsWith('/'), 'real: /book goes home until set');
+
+  // ---------- Delivery pages ----------
+  const dPages = [...deliveryPaths, '/quote-sent'];
+  for (const width of [375, 1280]) {
+    const ctx = await browser.newContext({ viewport: { width, height: 850 }, isMobile: width < 500, hasTouch: width < 500 });
+    const pg = await ctx.newPage();
+    const errs: string[] = [];
+    pg.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
+    pg.on('pageerror', (e) => errs.push(String(e)));
+    for (const [base, tag] of [[S, 'sample'], [R, 'real']] as const) {
+      for (const p of dPages) {
+        errs.length = 0;
+        const res = await pg.goto(base + p);
+        ok(res?.status() === 200, `${tag} ${width} ${p}: loads`);
+        ok(await pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${tag} ${width} ${p}: no sideways scroll`);
+        ok(!errs.length, `${tag} ${width} ${p}: no console errors ${errs.join(' | ')}`);
+        ok(await pg.locator('h1').count() === 1, `${tag} ${width} ${p}: one h1`);
+        ok(await pg.locator('.s-header a', { hasText: 'Get a quote' }).first().isVisible(), `${tag} ${width} ${p}: header Get a quote`);
+        if (tag === 'sample') {
+          const small = await pg.$$eval('a,button,select,input:not([type=hidden]):not([type=checkbox]):not([type=radio]),textarea,summary', (els) =>
+            els.filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.height < 44 && !e.closest('p') && !e.classList.contains('underline'); }).map((e) => e.outerHTML.slice(0, 80)));
+          ok(!small.length, `${tag} ${width} ${p}: tap targets 44px+ ${small.join(' | ')}`);
+          ok(await pg.locator(width < 768 ? '.s-bar a[href^="tel:"]' : '.s-header a[href^="tel:"]').first().isVisible(), `${tag} ${width} ${p}: click-to-call visible`);
+        }
+        ok(await pg.locator('.s-bar').isVisible() === (width < 768), `${tag} ${width} ${p}: bottom bar only on phones`);
+        const desc = await pg.locator('meta[name=description]').getAttribute('content');
+        ok(!!desc && desc.length > 50, `${tag} ${width} ${p}: has a meta description`);
+        if (p === '/delivery' || p === '/delivery/taylor' || p === '/quote') await pg.screenshot({ path: `${SHOTS}/${tag}-${width}${p.replace(/\//g, '-')}.png`, fullPage: true });
+      }
+    }
+    await ctx.close();
+  }
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const pg = await ctx.newPage();
+    // Titles are unique.
+    const titles = new Set<string>();
+    for (const p of deliveryPaths) { await pg.goto(S + p); titles.add(await pg.title()); }
+    ok(titles.size === deliveryPaths.length, 'delivery pages have unique titles');
+    // Structured data.
+    await pg.goto(S + '/delivery');
+    const lds = (await pg.locator('script[type="application/ld+json"]').allTextContents()).map((t) => JSON.parse(t));
+    const lb = lds.find((x) => x['@type'] === 'LocalBusiness');
+    ok(lb && lb.telephone === '+15125550100' && lb.areaServed.some((a: any) => a['@type'] === 'State' && a.name === 'Texas') && !lb.address.streetAddress, 'LocalBusiness JSON-LD: phone, Texas, no street address');
+    const fq = lds.find((x) => x['@type'] === 'FAQPage');
+    ok(fq && fq.mainEntity.length > 0 && !JSON.stringify(lds).includes('[[TODO'), 'FAQPage JSON-LD has only finished answers');
+    ok(await pg.locator('meta[property="og:image"]').getAttribute('content') === 'https://example.com/og-delivery.png', 'delivery OG image');
+    ok((await fetch(S + '/og-delivery.png')).status === 200, 'delivery OG image loads');
+    ok(readFileSync('dist-sample/sitemap.xml', 'utf8').includes('https://example.com/delivery/taylor') && !readFileSync('dist-sample/sitemap.xml', 'utf8').includes('quote-sent'), 'sitemap lists delivery and city pages, not quote-sent');
+    ok(await pg.locator('#services article').count() === delivery.levels.length + (delivery.twoPerson ? 1 : 0), 'service cards: two-person card only when confirmed');
+    ok(await pg.locator('#record').count() === (delivery.trackRecord || delivery.reviews.length ? 1 : 0), 'track record only with real numbers');
+    ok(!(await pg.content()).match(/24\/7|world-class|best-in-class|ISO 9001|SmartWay/i), 'no banned claims');
+    ok(await pg.locator('a[href*="safer.fmcsa.dot.gov"]').count() > 0, 'SAFER link');
+
+    // Quote form, Web3Forms mode, end to end (the network call is caught and answered here).
+    const posts: string[] = [];
+    await pg.route('https://api.web3forms.com/**', (r) => { posts.push(r.request().postData() || ''); r.fulfill({ status: 200, contentType: 'application/json', body: '{"success":true}' }); });
+    await pg.locator('#services a[data-level="sameday"]').click();
+    ok(await pg.locator('#quote-form input[value="Same-day"]').isChecked(), '"Quote this" picks the service level');
+    const f = pg.locator('#quote-form');
+    await f.locator('input[name=service_level]').first().uncheck().catch(() => {});
+    await pg.evaluate(() => document.querySelectorAll<HTMLInputElement>('#quote-form input[name=service_level]').forEach((x) => (x.checked = false)));
+    await f.locator('.lead-next').click();
+    ok(await f.locator('[name=items]').isHidden(), 'quote form will not leave step 1 with required fields empty');
+    await f.locator('label.s-radio', { hasText: 'Hot shot' }).click();
+    await f.locator('[name=pickup]').fill('78641');
+    await f.locator('[name=delivery]').fill('76574');
+    await f.locator('[name=date_needed]').fill('2030-01-15');
+    await f.locator('[name=time_needed]').fill('by 10 AM');
+    await f.locator('[name=name]').fill('Test Person');
+    await f.locator('[name=company]').fill('Test Electric');
+    await f.locator('[name=phone]').fill('5125550199');
+    await f.locator('[name=email]').fill('not-an-email');
+    await f.locator('.lead-next').click();
+    ok(await f.locator('[name=items]').isHidden(), 'quote form checks the email address');
+    await f.locator('[name=email]').fill('test@example.com');
+    await f.locator('.lead-next').click();
+    ok(await f.locator('[name=items]').isVisible(), 'quote form moves to step 2');
+    await f.locator('.lead-submit').click();
+    ok(posts.length === 0 && await f.isVisible(), 'quote form requires the load details');
+    await f.locator('[name=items]').fill('Two 200A breakers');
+    await f.locator('[name=pieces]').fill('2 boxes');
+    await f.locator('[name=weight]').fill('60');
+    await f.locator('[name=access]').fill('Gate 3, badge needed');
+    await pg.screenshot({ path: `${SHOTS}/quote-step2.png` });
+    await f.locator('.lead-submit').click();
+    await pg.locator('#quote-form-done').waitFor({ state: 'visible' });
+    ok(await pg.locator('#quote-form-done h3[data-mode=sent]').isVisible() && await pg.locator('#quote-form-done').getByText('What happens next').isVisible(), 'quote form shows the confirmation');
+    ok(await pg.locator('#quote-form-done a[href="tel:+15125550100"]').count() === 1, 'confirmation has the phone number');
+    const body = posts[0] || '';
+    ok(posts.length === 1 && body.includes('sample-key') && body.includes('Two 200A breakers') && body.includes('Gate 3') && body.includes('Hot shot') && body.includes('Delivery page') && !/name="redirect"/.test(body), 'quote reaches Web3Forms with every answer');
+    await pg.screenshot({ path: `${SHOTS}/quote-done.png` });
+    // Honeypot: a bot ticking the hidden box gets a fake success and nothing is sent.
+    await pg.goto(S + '/quote');
+    posts.length = 0;
+    await pg.route('https://api.web3forms.com/**', (r) => { posts.push(r.request().postData() || ''); r.fulfill({ status: 200, contentType: 'application/json', body: '{"success":true}' }); });
+    const q = pg.locator('#quote-form');
+    await q.locator('label.s-radio', { hasText: 'Not sure' }).click();
+    for (const [n, v] of [['pickup', '1'], ['delivery', '2'], ['date_needed', '2030-01-15'], ['time_needed', 'noon'], ['name', 'Bot'], ['phone', '5125550199'], ['email', 'b@example.com']]) await q.locator(`[name=${n}]`).fill(v);
+    await q.locator('.lead-next').click();
+    for (const [n, v] of [['items', 'x'], ['pieces', '1'], ['weight', '1']]) await q.locator(`[name=${n}]`).fill(v);
+    await pg.evaluate(() => { (document.querySelector('#quote-form [name=botcheck]') as HTMLInputElement).checked = true; });
+    await q.locator('.lead-submit').click();
+    await pg.waitForTimeout(300);
+    ok(posts.length === 0 && await pg.locator('#quote-form-done').isVisible(), 'honeypot: bot gets a fake success, nothing sent');
+    ok(await pg.locator('#quote-form [name=botcheck]').isHidden(), 'honeypot is hidden');
+    // Failure: the visitor is told and can call.
+    await pg.goto(S + '/safety');
+    await pg.route('https://api.web3forms.com/**', (r) => r.fulfill({ status: 500, body: '{}' }));
+    const dfm = pg.locator('#docs-form');
+    await dfm.locator('[name=name]').fill('A'); await dfm.locator('[name=company]').fill('B'); await dfm.locator('[name=email]').fill('a@example.com');
+    await dfm.locator('.lead-submit').click();
+    await pg.waitForTimeout(300);
+    ok(await dfm.locator('.s-form-error').isVisible() && await dfm.isVisible(), 'a failed send shows an error and keeps the answers');
+    await pg.route('https://api.web3forms.com/**', (r) => { posts.push(r.request().postData() || ''); r.fulfill({ status: 200, contentType: 'application/json', body: '{"success":true}' }); });
+    posts.length = 0;
+    await dfm.locator('input[value="Certificate of insurance (COI)"]').uncheck();
+    await dfm.locator('.lead-submit').click();
+    await pg.waitForTimeout(200);
+    ok(posts.length === 0, 'COI/W-9 form needs at least one document');
+    await dfm.locator('input[value="W-9"]').check();
+    await dfm.locator('.lead-submit').click();
+    await pg.locator('#docs-form-done').waitFor({ state: 'visible' });
+    ok(posts.length === 1 && posts[0].includes('COI / W-9 request') && posts[0].includes('W-9'), 'COI/W-9 request is sent');
+    ok(!existsSync('dist-sample/coi.pdf') && !existsSync('dist-sample/w9.pdf'), 'no documents posted as public files');
+    await ctx.close();
+
+    // No JavaScript: the whole form is one plain page that posts to Web3Forms and comes back to /quote-sent.
+    const nj = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 375, height: 800 } });
+    const np2 = await nj.newPage();
+    await np2.goto(S + '/quote');
+    ok(await np2.locator('#quote-form [name=pickup]').isVisible() && await np2.locator('#quote-form [name=items]').isVisible() && await np2.locator('#quote-form .lead-submit').isVisible(), 'no JS: both steps and the submit button show');
+    ok(await np2.locator('#quote-form').getAttribute('action') === 'https://api.web3forms.com/submit' && await np2.locator('#quote-form [name=redirect]').getAttribute('value') === 'https://example.com/quote-sent', 'no JS: posts to Web3Forms, returns to /quote-sent');
+    ok(await np2.locator('.s-menu summary').isVisible(), 'no JS: phone menu still opens (details/summary)');
+    await nj.close();
+    const qs = await (await fetch(S + '/quote-sent')).text();
+    ok(qs.includes('noindex') && qs.includes('What happens next'), '/quote-sent is a noindex confirmation page');
+  }
+  {
+    // Real config: mailto mode end to end, TODO markers visible, unfinished pages kept out of Google.
+    const ctx = await browser.newContext({ viewport: { width: 375, height: 800 }, isMobile: true, hasTouch: true });
+    const pg = await ctx.newPage();
+    await pg.goto(R + '/delivery');
+    if (business.web3formsKey === '') {
+      const f = pg.locator('#quote-form');
+      ok((await f.getAttribute('action')) === `mailto:${business.email}`, 'real: quote form falls back to email');
+      await f.locator('label.s-radio', { hasText: 'Scheduled' }).click();
+      for (const [n, v] of [['pickup', '78641'], ['delivery', '78201'], ['date_needed', '2030-02-01'], ['time_needed', '1-3 PM window'], ['name', 'Real Test'], ['phone', '5125550199'], ['email', 'r@example.com']]) await f.locator(`[name=${n}]`).fill(v);
+      await f.locator('.lead-next').click();
+      for (const [n, v] of [['items', 'Conduit fittings'], ['pieces', '1 pallet'], ['weight', '400']]) await f.locator(`[name=${n}]`).fill(v);
+      await f.locator('.lead-submit').click();
+      ok(await pg.locator('#quote-form-done h3[data-mode=mail]').isVisible(), 'real: send-by-email step shows');
+      const m = decodeURIComponent((await pg.locator('#quote-form-done [data-mail]').getAttribute('href'))!);
+      ok(m.startsWith('mailto:' + business.email) && m.includes('Service level: Scheduled / next-day') && m.includes('Weight: 400') && m.includes('Came from: Delivery page'), 'real: email has every answer');
+      await pg.screenshot({ path: `${SHOTS}/real-quote-mail.png` });
+      await pg.locator('#quote-form-done [data-edit]').click();
+      ok(await f.isVisible() && await f.locator('[name=pickup]').inputValue() === '78641', 'real: can go back and change answers');
+    }
+    const todoLeft = (await pg.locator('mark.todo').count()) > 0;
+    ok(todoLeft ? await pg.locator('meta[name=robots][content=noindex]').count() === 1 : true, 'real: pages with TODOs stay out of Google');
+    ok(!JSON.stringify(await pg.locator('script[type="application/ld+json"]').allTextContents()).includes('[[TODO'), 'real: no TODO in structured data');
+    ok(!(await pg.content()).includes('9994372'), 'real: old DOT number not used');
+    await pg.goto(R + '/');
+    ok(await pg.locator('a[href="/delivery"]').count() > 0, 'real: home links to the delivery pages');
+    await ctx.close();
+  }
 } finally {
   await browser.close();
   for (const s of servers) try { process.kill(-s.pid!); } catch {}

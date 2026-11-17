@@ -1,0 +1,45 @@
+---
+// "Request our COI and W-9": documents are sent on request, never posted as public files.
+import LineIcon from './LineIcon.astro';
+import LeadScript from './LeadScript.astro';
+import { biz, siteUrl } from '../../lib/derive.ts';
+const key = biz.web3formsKey;
+const site = siteUrl();
+const native = key
+  ? { action: 'https://api.web3forms.com/submit', method: 'POST' }
+  : { action: `mailto:${biz.email}`, method: 'POST', enctype: 'text/plain' };
+const { source = 'Delivery page' } = Astro.props as { source?: string };
+---
+<form id="docs-form" class="s-form" data-lead data-done="docs-form-done" data-key={key ? '1' : ''} data-email={biz.email} data-subject="COI / W-9 request" {...native}>
+  {key && <input type="hidden" name="access_key" value={key} />}
+  {key && <input type="hidden" name="subject" value="COI / W-9 request" />}
+  {key && <input type="hidden" name="from_name" value="Website documents request" />}
+  {key && site && <input type="hidden" name="redirect" value={`${site}/quote-sent`} />}
+  <input type="hidden" name="source" value={`${source} (documents)`} />
+  <div class="hp" aria-hidden="true"><label>Leave this empty<input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" /></label></div>
+  <fieldset class="lead-step is-current">
+    <legend>Request our COI and W-9</legend>
+    <div class="s-fields">
+      <fieldset class="full" data-need-one>
+        <legend class="s-field" style="font-size:.95rem;font-weight:600;margin:0">Documents needed <span class="req" aria-hidden="true">*</span></legend>
+        <label class="s-checkrow"><input type="checkbox" name="documents" value="Certificate of insurance (COI)" data-label="Documents" checked />Certificate of insurance (COI)</label>
+        <label class="s-checkrow"><input type="checkbox" name="documents" value="W-9" data-label="Documents" />W-9</label>
+      </fieldset>
+      <label class="s-field">Your name <span class="req" aria-hidden="true">*</span><input name="name" data-label="Name" required autocomplete="name" /></label>
+      <label class="s-field">Company <span class="req" aria-hidden="true">*</span><input name="company" data-label="Company" required autocomplete="organization" /></label>
+      <label class="s-field">Email <span class="req" aria-hidden="true">*</span><input name="email" type="email" data-label="Email" required autocomplete="email" /></label>
+      <label class="s-field">Phone<input name="phone" type="tel" data-label="Phone" autocomplete="tel" /></label>
+      <label class="s-field full">Certificate holder <small>Name and address to list on the COI, if needed</small><textarea name="holder" data-label="Certificate holder" rows="2"></textarea></label>
+    </div>
+  </fieldset>
+  <p class="s-form-error" role="alert" hidden>That didn’t go through. Please try again{biz.email && <>, or email <a class="underline" href={`mailto:${biz.email}`}>{biz.email}</a></>}.</p>
+  <div class="s-form-nav"><button type="submit" class="s-btn s-btn-primary lead-submit"><LineIcon name="file" />Request documents</button></div>
+</form>
+<div id="docs-form-done" class="s-form s-done" hidden tabindex="-1">
+  <h3 data-mode="sent"><LineIcon name="checkCircle" />Request received</h3>
+  <h3 data-mode="mail"><LineIcon name="mail" />One more step</h3>
+  <div data-mode="mail"><p class="mt-2">Press <strong>send</strong> in the email app that opens.</p><a class="s-btn s-btn-primary mt-4" data-mail href={`mailto:${biz.email}`}><LineIcon name="mail" />Send by email</a></div>
+  <p class="mt-4">I’ll email the documents to the address you gave.</p>
+  <button type="button" class="s-link mt-2 bg-transparent cursor-pointer" data-edit>Change my answers</button>
+</div>
+<LeadScript />

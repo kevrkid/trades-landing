@@ -1,0 +1,11 @@
+---
+// SVG text wordmark of the business name (the picture logo stays on the trade-services home page).
+import { biz } from '../../lib/derive.ts';
+const name = (biz.name || 'Locker Box').toUpperCase();
+const w = Math.round(name.length * 15.4 + 34);
+---
+<svg viewBox={`0 0 ${w} 28`} role="img" aria-label={biz.name || 'Locker Box'}>
+  <rect x="0" y="4" width="20" height="20" rx="3" fill="#f26a1b" />
+  <path d="M5 9h4v10h6" fill="none" stroke="#0b1f3a" stroke-width="2.6" stroke-linecap="square" />
+  <text x="30" y="21.5" fill="currentColor" font-family="'Inter Variable', Inter, system-ui, sans-serif" font-size="20" font-weight="800" letter-spacing="1.2">{name}</text>
+</svg>

@@ -1,0 +1,7 @@
+---
+import Fact from './Fact.astro';
+const { items } = Astro.props as { items: { q: string; a: string }[] };
+---
+<div class="s-faq">
+  {items.map((i) => <details><summary>{i.q}</summary><div><p><Fact v={i.a} /></p></div></details>)}
+</div>

@@ -1,0 +1,305 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import LineIcon from '../components/site/LineIcon.astro';
+import Fact from '../components/site/Fact.astro';
+import PhotoSlot from '../components/site/PhotoSlot.astro';
+import TrustStrip from '../components/site/TrustStrip.astro';
+import TexasMap from '../components/site/TexasMap.astro';
+import QuoteForm from '../components/site/QuoteForm.astro';
+import DocsForm from '../components/site/DocsForm.astro';
+import Faq from '../components/site/Faq.astro';
+import CtaBand from '../components/site/CtaBand.astro';
+import { biz, telHref } from '../lib/derive.ts';
+import { delivery as d, TODO, isTodo } from '../data/delivery.ts';
+import { industries } from '../data/industries.ts';
+import { cities } from '../data/cities.ts';
+import { levelsShown, localBusinessLd, faqLd, phoneText } from '../lib/site.ts';
+
+const name = biz.name || 'Locker Box';
+const levels = levelsShown();
+const lead = (k: string) => levels.find((l) => l.key === k)?.lead || '';
+const insured = d.insurance.confirmed;
+
+const useCases = [
+  { icon: 'hardhat', title: 'A missing part is holding up a crew', text: 'The fitting, breaker or bracket that didn’t make it onto the truck. I pick it up and bring it to the crew so nobody leaves the site.' },
+  { icon: 'wrench', title: 'A replacement part to stop downtime', text: 'A failed part at a plant, data center or rental unit. Every hour it’s down costs more than the run.' },
+  { icon: 'warehouse', title: 'Will-call pickups from supply houses', text: 'Your order is ready at the counter. I collect it, check it against the slip, photograph it and deliver it.' },
+  { icon: 'calendar', title: 'Deliveries timed to site windows', text: 'Gate times, dock slots, crane picks and inspections. I schedule the run to land in your window.' },
+  { icon: 'route', title: 'Returns and swaps', text: 'The wrong part back to the supplier and the right one out to the site, in a single run.' },
+];
+
+const spec: [string, string][] = [
+  ['Van', `${d.van.model}, ${d.van.power.toLowerCase()}`],
+  ['Wheelbase and roof', `${d.van.wheelbase}, ${d.van.roof.toLowerCase()}`],
+  ['Max payload', d.van.payload],
+  ['Pallets', d.van.pallets],
+  ['Cargo space (L × W × H)', d.van.cargo],
+  ['Width between wheel wells', d.van.widthBetweenWheelWells],
+  ['Rear door opening', d.van.rearDoor],
+  ['Side door opening', d.van.sideDoor],
+  ['Equipment', d.equipment.join(', ')],
+];
+
+const steps = [
+  { title: 'Request a quote', text: 'Pickup, drop-off, deadline and what the load is. The form takes about two minutes.' },
+  { title: 'Confirmed price and pickup time', text: 'You get a firm price and a pickup time before anything moves.' },
+  { title: 'Pickup, with a photo of the load', text: 'I check the load against your paperwork and photograph it before it leaves.' },
+  { title: 'Live tracking link by text', text: 'You’ll get a live tracking link by text at pickup, so you can see where the van is.' },
+  { title: 'Delivery with photo, signature and timestamp', text: 'Proof of delivery is emailed to you after every run.' },
+];
+
+const jobSite = [d.jobSite.ppe, d.jobSite.osha10, d.jobSite.orientations, 'I follow gate check-in procedures and the site’s rules.'].filter(Boolean);
+
+const faq = [
+  { q: 'Where do you deliver?', a: `Local same-day around Leander, Cedar Park, Round Rock, Georgetown, Taylor and Austin; same-day across the Texas Triangle (Austin, San Antonio, Houston and Dallas-Fort Worth); and West Texas (Abilene, Midland, Amarillo) by arrangement.${d.intrastateOnly ? ' I’m registered as a Texas intrastate carrier, so every run starts and ends in Texas.' : ''}` },
+  { q: 'How fast can you get a part to my site?', a: `Hot shot: ${lead('hotshot')} Same-day: ${lead('sameday')} Scheduled: ${lead('scheduled')}` },
+  { q: 'What fits in the van?', a: `${d.van.payload} and ${d.van.pallets.toLowerCase()}. Cargo space: ${d.van.cargo}. I can’t take loads over the van’s payload or length, hazardous materials, or anything that needs special permits.` },
+  { q: 'How is pricing worked out?', a: `${d.pricing} ${d.pricingDetail}` },
+  { q: 'How do I track my delivery?', a: 'You’ll get a live tracking link by text at pickup. At delivery you get a photo, signature and timestamp, emailed after the run.' },
+  { q: 'Are you insured?', a: insured ? `Yes. Commercial auto ${d.insurance.auto}, cargo ${d.insurance.cargo} and general liability ${d.insurance.liability}. A certificate of insurance (COI) is available on request.` : TODO('insurance answer: confirm your policy, then list commercial auto, cargo and general liability limits; COI on request') },
+  { q: 'How can we pay?', a: `${d.payment} ${d.cardAtBooking} ${d.netTerms}` },
+  { q: 'Do you run after hours or on weekends?', a: d.afterHours },
+];
+const ld = [localBusinessLd('/delivery'), faqLd(faq)];
+---
+<SiteLayout
+  title={`Expedited Cargo Van Delivery Across Texas | ${name}`}
+  description="Hot shot and same-day cargo van delivery of parts and materials to Texas data center, chip fab and construction sites. Owner-operated, USDOT-registered, based in Leander."
+  path="/delivery" quoteHref="#quote" {ld}>
+
+  <!-- 1. Hero -->
+  <section class="s-hero">
+    <div class="s-wrap s-hero-grid">
+      <div>
+        <p class="eyebrow on-dark" style="color:#a9bedb">Owner-operated carrier · Leander, TX</p>
+        <h1 class="mt-3">Parts and materials to Texas job sites, fast.</h1>
+        <p class="lead">Hot shot and same-day cargo van delivery for data centers, chip fabs, contractors and supply houses. Your load is the only load on board, with photo proof at both ends.</p>
+        <div class="s-hero-actions">
+          <a class="s-btn s-btn-primary s-btn-lg" href="#quote">Get a quote</a>
+          {telHref ? <a class="s-btn s-btn-secondary s-btn-lg" href={telHref}><LineIcon name="phone" />Call {phoneText()}</a>
+            : <span class="s-btn s-btn-secondary s-btn-lg is-todo"><LineIcon name="phone" /><Fact v={phoneText()} /></span>}
+        </div>
+        <p class="mt-5 text-[.95rem]" style="color:#c9d6e8">Same-day across the Texas Triangle. West Texas by arrangement.</p>
+      </div>
+      <PhotoSlot shot={d.shots.hero} eager class="s-hero-img" />
+    </div>
+  </section>
+
+  <!-- 2. Trust strip -->
+  <TrustStrip />
+
+  <!-- 3. Service levels -->
+  <section class="s-sec" id="services">
+    <div class="s-wrap">
+      <div class="s-sec-head">
+        <p class="eyebrow">Service levels</p>
+        <h2>Pick the speed the job needs</h2>
+        <p class="lead">One driver, one van, one load at a time on hot shot runs. The person who answers the phone is the person who drives.</p>
+      </div>
+      <div class={`s-grid ${levels.length > 3 ? 's-grid-4' : 's-grid-3'}`}>
+        {levels.map((l) => (
+          <article class="s-card">
+            <h3>{l.name}</h3>
+            {l.offered === 'confirm' && <p><mark class="todo">[[TODO: confirm you offer this service, or remove it in delivery.ts]]</mark></p>}
+            <p class="muted">{l.what}</p>
+            <dl>
+              <div><dt>Typical lead time</dt><dd><Fact v={l.lead} /></dd></div>
+              <div><dt>Best for</dt><dd>{l.best}</dd></div>
+            </dl>
+            <a class="s-link" href="#quote" data-level={l.key}>Quote this <LineIcon name="arrow" /></a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Use cases -->
+  <section class="s-sec bg-gray">
+    <div class="s-wrap">
+      <div class="s-sec-head">
+        <p class="eyebrow">When to call</p>
+        <h2>One late part can hold up a whole crew</h2>
+        <p class="lead">These are the runs I’m built for.</p>
+      </div>
+      <div class="s-grid s-grid-3">
+        {useCases.map((u) => (
+          <article class="s-card"><span class="s-icon-tile"><LineIcon name={u.icon} /></span><h3>{u.title}</h3><p class="muted">{u.text}</p></article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Industries -->
+  <section class="s-sec">
+    <div class="s-wrap">
+      <div class="s-sec-head">
+        <p class="eyebrow">Industries</p>
+        <h2>Who I deliver for</h2>
+      </div>
+      <div class="s-grid s-grid-3">
+        {industries.map((i) => (
+          <a class="s-card" href={`/industries#${i.id}`}>
+            <span class="s-icon-tile"><LineIcon name={i.icon} /></span>
+            <h3>{i.name}</h3>
+            <p class="muted">{i.short}</p>
+          </a>
+        ))}
+      </div>
+      <p class="mt-6"><a class="s-link" href="/industries">More about each industry <LineIcon name="arrow" /></a></p>
+    </div>
+  </section>
+
+  <!-- 6. Service area -->
+  <section class="s-sec bg-gray" id="area">
+    <div class="s-wrap grid gap-10 lg:grid-cols-[1.1fr_1fr] items-start">
+      <div>
+        <p class="eyebrow">Service area</p>
+        <h2 class="mt-1.5">Based in Leander. Running across Texas.</h2>
+        <ul class="s-legend mt-6">
+          <li><span class="s-swatch" style="background:#0b1f3a"></span><span><strong>Local same-day</strong>: Leander, Cedar Park, Round Rock, Georgetown, Taylor and Austin.</span></li>
+          <li><span class="s-swatch" style="background:rgb(242 106 27 / .35);border:2px solid #f26a1b"></span><span><strong>Same-day across the Texas Triangle</strong>: Austin, San Antonio, Houston and Dallas-Fort Worth.</span></li>
+          <li><span class="s-swatch" style="background:#fff;border:2px dashed #6b7685"></span><span><strong>West Texas by arrangement</strong>: Abilene, Midland and Amarillo.</span></li>
+        </ul>
+        <p class="mt-6 muted">City pages: {cities.map((c, i) => <>{i > 0 && ' · '}<a class="underline" href={`/delivery/${c.slug}`}>{c.short}</a></>)}</p>
+        <p class="mt-4"><a class="s-link" href="/service-area">Full service area <LineIcon name="arrow" /></a></p>
+      </div>
+      <TexasMap inset={false} />
+    </div>
+  </section>
+
+  <!-- 7. The van -->
+  <section class="s-sec" id="van">
+    <div class="s-wrap">
+      <div class="s-sec-head">
+        <p class="eyebrow">The van</p>
+        <h2>All-electric Mercedes-Benz eSprinter</h2>
+        <p class="lead">A 170-inch-wheelbase, high-roof cargo van. Quiet at the gate, no exhaust on the dock, and no idling while I wait for check-in.</p>
+      </div>
+      <div class="grid gap-8 lg:grid-cols-2 items-start">
+        <div class="grid gap-4 grid-cols-2">
+          <PhotoSlot shot={d.shots.vanFront} class="col-span-2" />
+          <PhotoSlot shot={d.shots.cargo} ratio="1 / 1" />
+          <PhotoSlot shot={d.shots.loaded} ratio="1 / 1" />
+        </div>
+        <div>
+          <table class="s-spec">
+            <caption class="sr-only">Van specifications</caption>
+            <tbody>{spec.map(([k, v]) => <tr><th scope="row">{k}</th><td><Fact v={v} /></td></tr>)}</tbody>
+          </table>
+          <div class="s-note warn mt-6">
+            <p class="font-bold flex items-center gap-2"><LineIcon name="alert" class="w-5 h-5" />What I can’t take</p>
+            <p class="mt-1 muted">Loads over the van’s payload or length, hazardous materials, or anything that needs special permits. Not sure? Send the details and I’ll tell you straight.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. How it works -->
+  <section class="s-sec on-dark" id="how">
+    <div class="s-wrap">
+      <div class="s-sec-head">
+        <p class="eyebrow">How it works</p>
+        <h2>From request to proof of delivery</h2>
+      </div>
+      <ol class="s-steps">
+        {steps.map((s, i) => (
+          <li><span class="s-step-num" aria-hidden="true">{i + 1}</span><div><h3>{s.title}</h3><p class="muted">{s.text}</p></div></li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- 9 + 10. Chain of custody, job-site ready -->
+  <section class="s-sec">
+    <div class="s-wrap grid gap-12 lg:grid-cols-2">
+      <div>
+        <p class="eyebrow">Chain of custody</p>
+        <h2 class="mt-1.5">Your load, start to finish</h2>
+        <ul class="s-checks mt-6">
+          <li><LineIcon name="camera" /><span>Photos at pickup and at delivery.</span></li>
+          <li><LineIcon name="strap" /><span>Strapped and blanketed loads. <Fact v={isTodo(d.equipment.join()) ? TODO('confirm you carry straps and moving blankets (see equipment)') : ''} /></span></li>
+          <li><LineIcon name="route" /><span>Direct runs on hot shot jobs: no transfers, no hubs, no other freight on board.</span></li>
+          <li><LineIcon name="mail" /><span>Proof of delivery emailed after every run.</span></li>
+        </ul>
+        <PhotoSlot shot={d.shots.pickup} ratio="16 / 9" class="mt-6" />
+      </div>
+      <div>
+        <p class="eyebrow">Job-site ready</p>
+        <h2 class="mt-1.5">Ready for the gate</h2>
+        <ul class="s-checks mt-6">
+          {jobSite.map((j) => <li><LineIcon name="hardhat" /><span><Fact v={j} /></span></li>)}
+        </ul>
+        <PhotoSlot shot={d.shots.gate} ratio="16 / 9" class="mt-6" />
+        <p class="mt-4"><a class="s-link" href="/safety">Safety, insurance and securement <LineIcon name="arrow" /></a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. Track record (only with real numbers) -->
+  {(d.trackRecord || d.reviews.length > 0) && (
+    <section class="s-sec bg-gray" id="record">
+      <div class="s-wrap">
+        <div class="s-sec-head"><p class="eyebrow">Track record</p><h2>Proof, not promises</h2></div>
+        {d.trackRecord && (
+          <dl class="s-grid s-grid-3">
+            {d.trackRecord.deliveries && <div class="s-card"><dt class="muted">Deliveries</dt><dd class="text-3xl font-extrabold">{d.trackRecord.deliveries}</dd></div>}
+            {d.trackRecord.rating && <div class="s-card"><dt class="muted">Rating</dt><dd class="text-3xl font-extrabold">{d.trackRecord.rating}</dd></div>}
+            {d.trackRecord.onTime && <div class="s-card"><dt class="muted">On time</dt><dd class="text-3xl font-extrabold">{d.trackRecord.onTime}</dd></div>}
+          </dl>
+        )}
+        {d.trackRecord && <p class="mt-3 muted text-[.9rem]">Source: {d.trackRecord.source}</p>}
+        {d.reviews.length > 0 && (
+          <div class="s-grid s-grid-3 mt-8">
+            {d.reviews.map((r) => <figure class="s-card"><blockquote>“{r.text}”</blockquote><figcaption class="font-bold mt-2">{r.name}{r.company && `, ${r.company}`}</figcaption></figure>)}
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- 12. Business accounts -->
+  <section class="s-sec bg-gray" id="accounts">
+    <div class="s-wrap grid gap-10 lg:grid-cols-2 items-start">
+      <div>
+        <p class="eyebrow">Business accounts</p>
+        <h2 class="mt-1.5">Set up once, call anytime</h2>
+        <p class="lead mt-4">Regular customers get a simple account so runs can be booked with one call.</p>
+        <ul class="s-checks mt-6">
+          <li><LineIcon name="dollar" /><span><Fact v={d.netTerms} /></span></li>
+          <li><LineIcon name="file" /><span>Certificate of insurance and W-9 sent on request, straight to your inbox.</span></li>
+          <li><LineIcon name="pen" /><span>Proof of delivery with photo, signature and timestamp on every run, ready for your records.</span></li>
+        </ul>
+      </div>
+      <DocsForm />
+    </div>
+  </section>
+
+  <!-- 13. FAQ -->
+  <section class="s-sec" id="faq">
+    <div class="s-wrap max-w-[860px]!">
+      <div class="s-sec-head"><p class="eyebrow">FAQ</p><h2>Common questions</h2></div>
+      <Faq items={faq} />
+    </div>
+  </section>
+
+  <!-- Quote form -->
+  <section class="s-sec bg-gray" id="quote">
+    <div class="s-wrap max-w-[860px]!">
+      <div class="s-sec-head"><p class="eyebrow">Get a quote</p><h2>Tell me about the run</h2><p class="lead">Two short steps. You’ll get a confirmed price and pickup time before anything moves.</p></div>
+      <QuoteForm source="Delivery page" />
+    </div>
+  </section>
+
+  <!-- 14. Closing band -->
+  <CtaBand quoteHref="#quote" />
+
+  <script>
+    // "Quote this" on a service card picks that service level in the form.
+    document.querySelectorAll<HTMLAnchorElement>('a[data-level]').forEach((a) => a.addEventListener('click', () => {
+      const r = document.querySelectorAll<HTMLInputElement>('#quote-form input[name=service_level]');
+      const card = a.closest('article')?.querySelector('h3')?.textContent;
+      r.forEach((x) => { if (x.value === card) x.checked = true; });
+    }));
+  </script>
+</SiteLayout>

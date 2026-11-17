@@ -1,0 +1,40 @@
+---
+// One outline icon set for the delivery pages (24px grid, 1.75 stroke, round joins).
+interface Props { name: string; class?: string }
+const { name, class: cls } = Astro.props;
+const c = (x: number, y: number, r: number) => `M${x - r} ${y}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0`;
+const P: Record<string, string> = {
+  phone: 'M5 4h3.5l1.8 4.6-2.3 1.4a11 11 0 0 0 6 6l1.4-2.3L20 15.5V19a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z',
+  clock: c(12, 12, 9) + 'M12 7v5l3.2 2',
+  shield: 'M12 3l8 3v6c0 4.8-3.4 8-8 9-4.6-1-8-4.2-8-9V6l8-3Z M8.8 12l2.2 2.2 4.2-4.4',
+  bolt: 'M13 2.5L4.5 13.5H11l-1 8 8.5-11H12l1-8Z',
+  pin: 'M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z' + c(12, 9.5, 2.5),
+  camera: 'M4 7.5h3.2L9 5h6l1.8 2.5H20a1 1 0 0 1 1 1V19a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8.5a1 1 0 0 1 1-1Z' + c(12, 13.5, 3.5),
+  van: 'M2.5 17V7a1 1 0 0 1 1-1H14l4.5 5H20.5a1 1 0 0 1 1 1v5h-2 M14 6v5h4.5 M9 17h6' + c(6.8, 17.5, 2) + c(17.2, 17.5, 2),
+  box: 'M3.5 7.5L12 3.5l8.5 4-8.5 4-8.5-4Z M3.5 7.5v9l8.5 4 8.5-4v-9 M12 11.5v9',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+  checkCircle: c(12, 12, 9) + 'M8 12.3l2.8 2.7L16 9.6',
+  file: 'M6.5 3h8l4 4v14h-12V3Z M14.5 3v4h4 M9.5 12.5h5 M9.5 16.5h5',
+  server: 'M4.5 3.5h15a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1Z M4.5 13.5h15a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1Z M7.5 7h.01 M7.5 17h.01 M11 7h6 M11 17h6',
+  chip: 'M7.5 6.5h9a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Z M10 10h4v4h-4z M9.5 3v3.5 M14.5 3v3.5 M9.5 17.5V21 M14.5 17.5V21 M3 9.5h3.5 M3 14.5h3.5 M17.5 9.5H21 M17.5 14.5H21',
+  hardhat: 'M2.5 18.5h19 M4.5 18.5V16a7.5 7.5 0 0 1 15 0v2.5 M10 9V5.5h4V9 M10 9a7.5 7.5 0 0 0-3 2 M14 9a7.5 7.5 0 0 1 3 2',
+  warehouse: 'M3 20.5V9l9-5 9 5v11.5 M7 20.5v-8h10v8 M7 16.5h10',
+  wrench: 'M14.7 6.3a4 4 0 0 0-5.3 5L3.5 17.2a1.8 1.8 0 0 0 2.6 2.6l5.9-5.9a4 4 0 0 0 5-5.3l-2.6 2.6-2.2-.4-.4-2.2 2.6-2.6Z',
+  store: 'M4.5 10.5v10h15v-10 M3 7l2-3.5h14L21 7v1.5a2.7 2.7 0 0 1-5.4 0 2.7 2.7 0 0 1-5.4 0 2.7 2.7 0 0 1-5.4 0V7Z M10 20.5v-5h4v5',
+  route: c(6, 18, 2) + c(18, 6, 2) + 'M8 18h7.5a3 3 0 0 0 0-6h-7a3 3 0 0 1 0-6H16',
+  pen: 'M4 20h4L19 9l-4-4L4 16v4Z M13.5 6.5l4 4',
+  users: c(9, 8, 3.5) + 'M2.5 20v-.5a6.5 6.5 0 0 1 13 0v.5 M16 4.8a3.5 3.5 0 0 1 0 6.4 M21.5 20v-.5a6.5 6.5 0 0 0-3.8-5.9',
+  menu: 'M4 7h16 M4 12h16 M4 17h16',
+  arrow: 'M5 12h14 M13 6l6 6-6 6',
+  calendar: 'M4.5 5h15a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z M3.5 10h17 M8 3v4 M16 3v4',
+  message: 'M4.5 4h15a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-4.5 4V5a1 1 0 0 1 0-1Z',
+  alert: 'M12 3.5l9.5 16.5h-19L12 3.5Z M12 10v4 M12 17h.01',
+  strap: 'M3 7h18 M3 17h18 M7 7v10 M17 7v10 M10 11h4v2h-4z',
+  gate: 'M3 21V5 M21 21V5 M3 8h18 M3 13h18 M7.5 8v13 M12 8v13 M16.5 8v13',
+  mail: 'M3.5 6h17v12h-17z M4 6.5l8 6 8-6',
+  dollar: 'M12 3v18 M16.5 7.5c0-1.7-2-3-4.5-3s-4.5 1.3-4.5 3 1.5 2.7 4.5 3.3 4.5 1.7 4.5 3.5-2 3.2-4.5 3.2-4.5-1.4-4.5-3.2',
+  star: 'M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8L12 3.5Z',
+};
+const d = P[name] || P.box;
+---
+<svg class={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d={d} /></svg>

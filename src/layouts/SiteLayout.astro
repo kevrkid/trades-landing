@@ -1,0 +1,41 @@
+---
+// Layout for the delivery pages: sticky header, footer, phone call/quote bar.
+import '../styles/global.css';
+import '../styles/site.css';
+import '@fontsource-variable/inter/wght.css';
+import fontUrl from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import Head from '../components/Head.astro';
+import Header from '../components/site/Header.astro';
+import Footer from '../components/site/Footer.astro';
+import LineIcon from '../components/site/LineIcon.astro';
+import { biz, isSample, telHref } from '../lib/derive.ts';
+import { siteTodos } from '../lib/site.ts';
+
+interface Props {
+  title: string; description: string; path: string; noindex?: boolean;
+  ld?: (Record<string, unknown> | null)[]; quoteHref?: string;
+}
+const { title, description, path, noindex = false, ld = [], quoteHref = '/quote' } = Astro.props;
+const lds = ld.filter(Boolean) as Record<string, unknown>[];
+// Unfinished facts keep the page out of Google until they're filled in.
+const hide = noindex || siteTodos().length > 0;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <Head {title} {description} canonicalPath={path} noindex={hide} ld={lds} {fontUrl} ogImage="/og-delivery.png" themeColor="#0b1f3a" />
+  </head>
+  <body class="site s-has-bar">
+    <a href="#main" class="s-skip">Skip to content</a>
+    {isSample && <div style="background:#ffe14d;color:#000;font-weight:700;text-align:center;padding:6px 10px;font-size:15px">SAMPLE PREVIEW: made-up details, for checking the layout</div>}
+    <Header {path} {quoteHref} />
+    <main id="main"><slot /></main>
+    <Footer />
+    <nav class="s-bar" aria-label="Call or get a quote">
+      {telHref
+        ? <a class="s-btn s-btn-secondary" href={telHref}><LineIcon name="phone" />Call</a>
+        : <span class="s-btn s-btn-secondary is-todo"><mark class="todo">[[TODO: phone]]</mark></span>}
+      <a class="s-btn s-btn-primary" href={quoteHref}>Get a quote</a>
+    </nav>
+  </body>
+</html>

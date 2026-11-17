@@ -1,0 +1,21 @@
+---
+// A real photo, or a labeled placeholder describing the shot that's needed.
+import LineIcon from './LineIcon.astro';
+interface Shot { src: string; alt: string; label: string; webp?: string }
+interface Props { shot: Shot; ratio?: string; eager?: boolean; sizes?: string; class?: string }
+const { shot, ratio = '4 / 3', eager = false, sizes = '(min-width: 1024px) 560px, calc(100vw - 32px)', class: cls = '' } = Astro.props;
+---
+{shot.src ? (
+  <div class={`s-photo ${cls}`} style={`aspect-ratio:${ratio}`}>
+    <picture>
+      {shot.webp && <source type="image/webp" srcset={shot.webp} {sizes} />}
+      <img src={shot.src} alt={shot.alt} width="1200" height="900" loading={eager ? 'eager' : 'lazy'} decoding="async" fetchpriority={eager ? 'high' : undefined} />
+    </picture>
+  </div>
+) : (
+  <div class={`s-photo s-photo-slot ${cls}`} style={`aspect-ratio:${ratio}`} role="img" aria-label={`Photo coming soon: ${shot.label}`}>
+    <LineIcon name="camera" />
+    <strong>Photo needed</strong>
+    <span>{shot.label}</span>
+  </div>
+)}

@@ -5,6 +5,11 @@ A one-page, phone-first website for **Locker Box**, Kevin's one-person mobile bu
 by scanning the QR code on the van, so it loads fast and puts **Call, Text, Book and Get a quote** within
 a thumb's reach.
 
+> **Delivery pages (2026-11-16, branch `delivery-pages`):** `/delivery`, `/industries`, `/service-area`, `/safety`,
+> `/quote`, `/about` and seven city pages for the B2B parts-delivery side. Their facts live in `src/data/delivery.ts`
+> and `src/data/cities.ts`; anything unconfirmed shows as a yellow `[[TODO: ...]]`, keeps the pages `noindex`, and
+> `npm run deploy` refuses to publish while any is left (`npm run todo` lists them). See [Delivery pages](#delivery-pages).
+>
 > **Status (2026-11-15): built and tested, not published.** Nothing is online yet. Two things block
 > publishing: a phone number, and either your own USDOT/TxDMV numbers or taking moving off the page.
 > See [Status and next steps](#7-status-and-next-steps).
@@ -178,6 +183,29 @@ The page supports these; the income comes from doing them every time:
 4. **Get customers to save your number** ("Save my number" in the footer and on the thank-you page).
 5. **Watch `/van` in analytics** and "Van QR code" on quote requests to see what the van brings in.
 
+### Delivery pages
+
+A separate, multi-page section for time-critical parts and materials delivery to Texas data center, fab and
+construction sites. It has its own look (navy, safety orange for calls to action only, Inter), defined once in
+`src/styles/site.css`, and its own layout (`src/layouts/SiteLayout.astro`: sticky header with nav, click-to-call and
+Get a quote; phone bottom bar; footer). Home and `/van` keep the trade-services design and link to `/delivery`.
+
+| To... | Change |
+|---|---|
+| Fill in a fact (hours, insurance limits, van dimensions, lead times...) | Replace the `TODO('...')` in `src/data/delivery.ts` with the real value, or `''` to drop that line |
+| Say you're insured | Fill the three limits and set `insurance.confirmed: true` |
+| Offer two-person handling | `twoPerson: true` (adds the card and the form choice) |
+| Drop the dedicated-routes card | Remove it from `levels`, or set `offered: true` once confirmed |
+| Add track record or reviews | `trackRecord` / `reviews` (real numbers and exact words only); the section appears by itself |
+| Replace a photo placeholder | Put a photo of your van in `public/img/` and set that shot's `src` and `alt` in `shots` |
+| Change a city page | `src/data/cities.ts` (each page must stay genuinely local; project names are public facts, never customers) |
+| Allow photo uploads in the quote form | `formUploads: true`, only on a Web3Forms plan that accepts attachments |
+
+Forms: the quote form (2 steps) and the COI/W-9 request use the same handling as the home survey: with
+`web3formsKey` set they send straight to `email` (instant email) and show a confirmation in place (no-JS visitors land on
+`/quote-sent`); without a key the visitor's email app opens with the answers filled in. Honeypot `botcheck` on both.
+The COI and W-9 are emailed on request and never posted as files.
+
 ---
 
 ## 2. Reference manual
@@ -229,7 +257,7 @@ every page also carries `noindex` so Google doesn't list an unfinished site.
 | `npm run build` | Static build into `dist/` (or `OUT_DIR`) |
 | `npm run preview` | Serve the last build |
 | `npm run todo` | List blanks; blockers first |
-| `npm run images` | Logo sizes, favicon, apple-touch-icon and `public/og.png` from `brand-source/` + config (needs Playwright's Chromium) |
+| `npm run images` | Logo sizes, favicon, apple-touch-icon, `public/og.png` and `public/og-delivery.png` from `brand-source/` + config (needs Playwright's Chromium) |
 | `npm run qr` | `qr/van-qr.svg` + `.png` for `https://<domain>/van`; refuses without a domain |
 | `npm run decal` | `qr/van-decal.pdf/.png`, or the PREVIEW png until ready |
 | `npm test` | Builds sample and real versions, serves both with Cloudflare's local server, runs the checks |
@@ -256,9 +284,13 @@ every page also carries `noindex` so Google doesn't list an unfinished site.
 | `/thanks` | `src/pages/thanks.astro` | Web3Forms return page, `noindex` |
 | `/privacy` | `src/pages/privacy.astro` | Sections appear only for services actually in use |
 | `/404` | `src/pages/404.astro` | Call/Text buttons, `noindex` |
+| `/delivery` | `src/pages/delivery.astro` | Main delivery page: hero, trust strip, service levels, use cases, industries, map, van specs, how it works, chain of custody, job-site, accounts + COI/W-9 form, FAQ, quote form. LocalBusiness + FAQPage JSON-LD (answers with a TODO are left out) |
+| `/industries`, `/service-area`, `/safety`, `/quote`, `/about` | `src/pages/*.astro` | Delivery section pages; static SVG Texas map in `src/components/site/TexasMap.astro` |
+| `/delivery/<city>` | `src/pages/delivery/[city].astro` + `src/data/cities.ts` | austin, taylor, round-rock-georgetown, dallas-fort-worth, houston, san-antonio, abilene |
+| `/quote-sent` | `src/pages/quote-sent.astro` | No-JS Web3Forms return page, `noindex` |
 | `_redirects` | `scripts/site-files.ts` | `/book`, `/pay`, `/review` → 302 |
 | `_headers` | same | nosniff, referrer policy, `X-Frame-Options: DENY`, year-long cache on `/_astro/*`, vCard type |
-| `robots.txt`, `sitemap.xml` | same | Sitemap lists `/` and `/privacy` (needs a site URL) |
+| `robots.txt`, `sitemap.xml` | same | Sitemap lists `/`, the delivery and city pages, and `/privacy` (needs a site URL) |
 | `contact.vcf` | same | Only when a phone is set |
 
 ---
@@ -380,7 +412,7 @@ Also made in this session for another project: `~/claude/sidequest/qr/sidequest-
 
 ## 6. Testing and quality
 
-`npm test` (104 checks, last run 2026-11-15, all passing) builds:
+`npm test` (588 checks, last run 2026-11-16, all passing; the delivery pages add checks at 375 and 1280 px, the quote and COI/W-9 forms end to end with Web3Forms answered locally, honeypot, failed send, no-JS, JSON-LD, sitemap, unique titles) builds:
 
 - **sample** (`SAMPLE_DATA=1`, everything filled with marked fake data) to check every section, at 360, 390
   and 430 px: no sideways scroll, tap targets ≥ 48 px, no console errors, sticky bar, hero buttons above the
@@ -456,6 +488,11 @@ the live Cloudflare deploy, print output of the decal.
 | 11-15 | Tap/Enter pauses a video | Accessibility: moving content needs a way to stop it |
 | 11-15 | `BRAND_PROMPT.md` deleted | The ChatGPT brand brief was scrapped and contained facts that are no longer true |
 | 11-15 | Added owner's USDOT 4727545 (SAFER: Kevin Kidd, Intrastate Only, Active), a "Business freight runs" service (quoted per run), owner bio, service places Leander/Austin/San Antonio, open-availability hours | Owner supplied details for his B2B Sprinter freight work |
+| 11-16 | Delivery section built as separate pages with its own design system; home and `/van` keep their look | Restyling the QR landing page (tested, live-ready) was a bigger change than asked; proposed as a follow-up |
+| 11-16 | Unconfirmed delivery facts show as visible `[[TODO]]` and block deploy | Owner asked for visible placeholders; the deploy check keeps them off the live site |
+| 11-16 | No photo upload in the delivery quote form by default (`formUploads` flag); visitors are asked to email photos | Web3Forms' free plan has no attachments |
+| 11-16 | Insurance shown only after `insurance.confirmed: true` | The earlier decision to hold the insurance claim until the policy is confirmed still stands |
+| 11-16 | No MC number shown | SAFER lists USDOT 4727545 as Intrastate Only; Texas-only runs don't need one |
 | 11-15 | Moving gate now requires a TxDMV number, not just any license | Texas requires a TxDMV certificate for household-goods moves at any weight; USDOT alone isn't enough |
 
 ---

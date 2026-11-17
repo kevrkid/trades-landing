@@ -1,0 +1,94 @@
+---
+// Static SVG map of Texas with the three service zones. Drawn at build time from rough
+// longitude/latitude points: no map API, no tiles, no script.
+interface Props { inset?: boolean; highlight?: string }
+const { inset = true, highlight = '' } = Astro.props;
+
+const K = 50, COS = Math.cos((31 * Math.PI) / 180), W0 = -106.75, N0 = 36.6, PAD = 14;
+const px = (lon: number, lat: number) => [PAD + (lon - W0) * COS * K, PAD + (N0 - lat) * K];
+const pt = (lon: number, lat: number) => px(lon, lat).map((v) => v.toFixed(1)).join(',');
+
+// Simplified Texas border, clockwise from the northwest corner of the Panhandle.
+const border: [number, number][] = [
+  [-103.04, 36.5], [-100.0, 36.5], [-100.0, 34.56], [-99.6, 34.38], [-99.2, 34.35], [-98.6, 34.15], [-98.1, 34.13],
+  [-97.95, 33.9], [-97.45, 33.82], [-97.2, 33.85], [-96.6, 33.85], [-96.2, 33.75], [-95.8, 33.86], [-95.2, 33.95],
+  [-94.48, 33.64], [-94.04, 33.55], [-94.04, 33.02], [-94.04, 31.99], [-93.8, 31.6], [-93.55, 31.05], [-93.6, 30.4],
+  [-93.72, 30.05], [-93.84, 29.72], [-94.4, 29.55], [-94.9, 29.3], [-95.3, 28.95], [-96.0, 28.6], [-96.6, 28.3],
+  [-97.0, 28.0], [-97.2, 27.6], [-97.35, 27.2], [-97.4, 26.8], [-97.2, 26.0], [-97.15, 25.95], [-97.5, 25.88],
+  [-98.2, 26.07], [-98.6, 26.25], [-99.1, 26.45], [-99.2, 26.9], [-99.5, 27.5], [-99.9, 27.8], [-100.3, 28.3],
+  [-100.7, 29.1], [-101.0, 29.4], [-101.4, 29.77], [-102.0, 29.8], [-102.4, 29.77], [-102.7, 29.6], [-103.0, 29.0],
+  [-103.3, 28.98], [-103.8, 29.27], [-104.4, 29.6], [-104.7, 30.0], [-105.0, 30.7], [-105.6, 31.1], [-106.2, 31.5],
+  [-106.62, 31.8], [-106.62, 32.0], [-103.06, 32.0], [-103.04, 36.5],
+];
+const outline = 'M' + border.map(([a, b]) => pt(a, b)).join('L') + 'Z';
+
+const C: Record<string, [number, number]> = {
+  Leander: [-97.85, 30.58], Austin: [-97.74, 30.27], Dallas: [-96.8, 32.78], 'Fort Worth': [-97.33, 32.75],
+  Houston: [-95.37, 29.76], 'San Antonio': [-98.49, 29.42], Abilene: [-99.73, 32.45], Midland: [-102.08, 32.0],
+  Amarillo: [-101.83, 35.22], Taylor: [-97.41, 30.57],
+};
+const P = (n: string) => px(...C[n]);
+const tri = 'M' + [pt(-97.07, 32.95), pt(-95.2, 29.65), pt(-98.62, 29.3)].join('L') + 'Z';
+const [lx, ly] = P('Leander');
+const localR = 0.55 * K;
+const [x1] = px(-93.5, 25.8); const [, y1] = px(-106.75, 25.6);
+const W = Math.ceil(x1 + PAD), H = Math.ceil(y1 + PAD);
+
+const labels: { n: string; dx: number; dy: number; anchor?: string; bold?: boolean }[] = [
+  { n: 'Leander', dx: -30, dy: -4, anchor: 'end', bold: true },
+  { n: 'Austin', dx: -12, dy: 22, anchor: 'end' },
+  { n: 'Dallas', dx: 8, dy: -6 }, { n: 'Fort Worth', dx: -8, dy: -6, anchor: 'end' },
+  { n: 'Houston', dx: 8, dy: 4 }, { n: 'San Antonio', dx: -8, dy: 14, anchor: 'end' },
+  { n: 'Abilene', dx: -8, dy: 5, anchor: 'end' }, { n: 'Midland', dx: 0, dy: -10, anchor: 'middle' },
+  { n: 'Amarillo', dx: 0, dy: -10, anchor: 'middle' },
+];
+const west = ['Abilene', 'Midland', 'Amarillo'];
+
+// Local inset: the towns around Leander.
+const L: Record<string, [number, number]> = {
+  Leander: [-97.85, 30.58], 'Cedar Park': [-97.82, 30.505], 'Round Rock': [-97.68, 30.51], Georgetown: [-97.68, 30.635],
+  Taylor: [-97.41, 30.57], Austin: [-97.74, 30.27], Pflugerville: [-97.62, 30.44], Hutto: [-97.55, 30.54],
+};
+const IK = 380, IW = 320, IH = 250, IL = -98.02, IN = 30.75;
+const ip = (lon: number, lat: number) => [20 + (lon - IL) * COS * IK, 20 + (IN - lat) * IK];
+const insetLabels: Record<string, [number, number, string]> = {
+  Leander: [-8, -6, 'end'], 'Cedar Park': [-8, 14, 'end'], 'Round Rock': [-8, 16, 'end'], Georgetown: [8, -4, 'start'],
+  Taylor: [0, -10, 'middle'], Austin: [8, 5, 'start'], Pflugerville: [8, 5, 'start'], Hutto: [8, 5, 'start'],
+};
+---
+<div class="s-map">
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="txmap-t txmap-d">
+    <title id="txmap-t">Service area map of Texas</title>
+    <desc id="txmap-d">Local same-day zone around Leander, Cedar Park, Round Rock, Georgetown, Taylor and Austin. Same-day across the Texas Triangle: Austin, San Antonio, Houston and Dallas-Fort Worth. West Texas (Abilene, Midland, Amarillo) by arrangement.</desc>
+    <path d={outline} fill="#eef1f4" stroke="#1d3a63" stroke-width="2" stroke-linejoin="round" />
+    <path d={tri} fill="#f26a1b" fill-opacity=".18" stroke="#f26a1b" stroke-width="2" stroke-linejoin="round" />
+    {west.map((n) => { const [x, y] = P(n); return <line x1={lx} y1={ly} x2={x} y2={y} stroke="#6b7685" stroke-width="1.5" stroke-dasharray="5 5" />; })}
+    <circle cx={lx} cy={ly} r={localR} fill="#0b1f3a" fill-opacity=".85" />
+    {labels.map((l) => {
+      const [x, y] = P(l.n);
+      const on = highlight && highlight.includes(l.n);
+      return (
+        <g>
+          {l.n !== 'Leander' && <circle cx={x} cy={y} r={on ? 6 : 4.5} fill={west.includes(l.n) ? '#fff' : '#0b1f3a'} stroke="#0b1f3a" stroke-width="2" />}
+          <text x={x + l.dx} y={y + l.dy} text-anchor={l.anchor || 'start'} font-size={on || l.bold ? 17 : 15} font-weight={on || l.bold ? 800 : 600} fill="#0b1f3a" font-family="Inter Variable, Inter, system-ui, sans-serif" paint-order="stroke" stroke="#fff" stroke-width="4" stroke-linejoin="round">{l.n}{l.bold ? ' (base)' : ''}</text>
+        </g>
+      );
+    })}
+    <circle cx={lx} cy={ly} r="5" fill="#f26a1b" stroke="#fff" stroke-width="2" />
+  </svg>
+  {inset && (
+    <svg viewBox={`0 0 ${IW} ${IH}`} role="img" aria-label="Close-up of the local zone: Leander, Cedar Park, Round Rock, Georgetown, Hutto, Pflugerville, Taylor and Austin" class="mt-4" style="max-width:420px">
+      <rect x="1" y="1" width={IW - 2} height={IH - 2} rx="10" fill="#0b1f3a" />
+      <text x="16" y={IH - 14} font-size="12" font-weight="700" fill="#a9bedb" letter-spacing="1.5" font-family="Inter Variable, Inter, system-ui, sans-serif">LOCAL ZONE</text>
+      {Object.entries(L).map(([n, [lon, lat]]) => {
+        const [x, y] = ip(lon, lat); const [dx, dy, a] = insetLabels[n]; const base = n === 'Leander';
+        return (
+          <g>
+            <circle cx={x} cy={y} r={base ? 6 : 4.5} fill={base ? '#f26a1b' : '#fff'} />
+            <text x={x + dx} y={y + dy} text-anchor={a} font-size={base ? 15 : 13} font-weight={base ? 800 : 600} fill="#fff" font-family="Inter Variable, Inter, system-ui, sans-serif">{n}</text>
+          </g>
+        );
+      })}
+    </svg>
+  )}
+</div>

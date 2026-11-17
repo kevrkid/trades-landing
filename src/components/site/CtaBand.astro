@@ -1,0 +1,17 @@
+---
+import LineIcon from './LineIcon.astro';
+import Fact from './Fact.astro';
+import { telHref } from '../../lib/derive.ts';
+import { phoneText } from '../../lib/site.ts';
+const { title = 'Got a part that can’t wait?', text = 'Send the pickup, the drop-off and the deadline. You’ll get a confirmed price before anything moves.', quoteHref = '/quote' } = Astro.props as { title?: string; text?: string; quoteHref?: string };
+---
+<section class="s-cta-band on-dark">
+  <div class="s-wrap">
+    <div><h2>{title}</h2><p class="muted mt-2">{text}</p></div>
+    <div class="actions">
+      <a class="s-btn s-btn-primary s-btn-lg" href={quoteHref}>Get a quote</a>
+      {telHref ? <a class="s-btn s-btn-secondary s-btn-lg" href={telHref}><LineIcon name="phone" />Call {phoneText()}</a>
+        : <span class="s-btn s-btn-secondary s-btn-lg is-todo"><LineIcon name="phone" /><Fact v={phoneText()} /></span>}
+    </div>
+  </div>
+</section>
