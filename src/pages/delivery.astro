@@ -29,7 +29,7 @@ const useCases = [
 ];
 
 const spec: [string, string][] = [
-  ['Van', `${d.van.model}, ${d.van.power.toLowerCase()}`],
+  ['Van', `${d.van.year} ${d.van.model} ${d.van.variant}, ${d.van.power.toLowerCase()}`],
   ['Wheelbase and roof', `${d.van.wheelbase}, ${d.van.roof.toLowerCase()}`],
   ['Max payload', d.van.payload],
   ['Pallets', d.van.pallets],
@@ -172,7 +172,7 @@ const ld = [localBusinessLd('/delivery'), faqLd(faq)];
     <div class="s-wrap">
       <div class="s-sec-head">
         <p class="eyebrow">The van</p>
-        <h2>All-electric Mercedes-Benz eSprinter</h2>
+        <h2>All-electric {d.van.year} Mercedes-Benz eSprinter</h2>
         <p class="lead">A 170-inch-wheelbase, high-roof cargo van. Quiet at the gate, no exhaust on the dock, and no idling while I wait for check-in.</p>
       </div>
       <div class="grid gap-8 lg:grid-cols-2 items-start">

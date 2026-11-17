@@ -27,7 +27,7 @@ const why = d.ownerStory;
       <PhotoSlot shot={d.shots.owner} />
       <div class="s-prose">
         <h2 style="margin-top:0">Hi, I’m {first}</h2>
-        <p>I’m {owner}, the owner and driver at {name}, based in {d.base}. I run the business under USDOT {d.usdot}, in an all-electric Mercedes-Benz eSprinter with a 170-inch wheelbase and a high roof. It carries {d.van.payload.toLowerCase()} or {d.van.pallets.toLowerCase().replace('up to ', '')}.</p>
+        <p>I’m {owner}, the owner and driver at {name}, based in {d.base}. I run the business under USDOT {d.usdot}, in an all-electric {d.van.year} Mercedes-Benz eSprinter with a 170-inch wheelbase and a high roof. It carries {d.van.payload.toLowerCase()} or {d.van.pallets.toLowerCase().replace('up to ', '')}.</p>
         <p>I also build steel frames and metal buildings, weld on site, and haul materials and freight for businesses between Austin and San Antonio, so I know job sites from the inside.</p>
         <p><Fact v={why} /></p>
         <h2>How I work</h2>

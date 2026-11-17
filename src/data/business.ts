@@ -124,7 +124,7 @@ export const business: Business = {
   owner: {
     name: 'Kevin Kidd',
     photo: '', // TODO: e.g. '/photos/me.jpg'
-    note: "Hi, I'm Kevin Kidd, the owner of Locker Box. I'm a registered Texas carrier (USDOT 4727545) running a Mercedes eSprinter with an extended high roof: it fits 3 pallets or up to 2,300 lb. I build steel frames and metal buildings, weld on site, and haul materials and freight for businesses between Austin and San Antonio.",
+    note: "Hi, I'm Kevin Kidd, the owner of Locker Box. I'm a registered Texas carrier (USDOT 4727545) running a 2025 Mercedes eSprinter with an extended high roof: it fits 3 pallets or up to 2,300 lb. I build steel frames and metal buildings, weld on site, and haul materials and freight for businesses between Austin and San Antonio.",
   },
   photos: {
     van: '/img/van-1200.jpg',

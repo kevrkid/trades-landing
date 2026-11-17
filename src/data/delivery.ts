@@ -47,7 +47,9 @@ export const delivery = {
 
   // ---------- THE VAN ----------
   van: {
+    year: '2025', // From the owner, 11-16.
     model: 'Mercedes-Benz eSprinter',
+    variant: '2500', // From the owner, 11-16: "eSprinter 170 high roof 2500".
     wheelbase: '170-inch wheelbase',
     roof: 'High roof',
     power: 'All-electric',
