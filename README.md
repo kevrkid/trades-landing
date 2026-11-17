@@ -5,12 +5,10 @@ A one-page, phone-first website for **Locker Box**, Kevin's one-person mobile bu
 by scanning the QR code on the van, so it loads fast and puts **Call, Text, Book and Get a quote** within
 a thumb's reach.
 
-> **Branch `chalkline-split` (11-16, waiting for approval):** two-brand rebuild, Locker Box at `/` + `/van` and Chalkline Freight at `/freight`. Not merged or deployed to production.
->
-> **Status (2026-11-16): LIVE at https://trades-landing-321.pages.dev** (Cloudflare Pages project `trades-landing`,
-> deployed from `main`). Moving is off the page until the TxDMV number is issued (restore steps are in the comment by
-> `headline` in business.ts). The B2B delivery pages are on branch `delivery-pages`, held back until their facts are
-> filled in. Deploy note: wrangler 4.15x tries to turn Pages projects into Workers and rewrites astro.config,
+> **Status (2026-11-17): LIVE at https://trades-landing-321.pages.dev** (Cloudflare Pages project `trades-landing`,
+> deployed from `main`). Two brands: Locker Box trade services at `/` and `/van` (the QR code), Chalkline Freight at
+> `/freight` (until it has its own domain; name only in `src/data/freight.ts`). Moving is off the page until the TxDMV number is issued (restore steps are in the comment by
+> `headline` in business.ts). The old `delivery-pages` branch is superseded by `/freight`. Deploy note: wrangler 4.15x tries to turn Pages projects into Workers and rewrites astro.config,
 > package.json and wrangler.jsonc; the project was created on classic Pages, so `npm run deploy` now works as is.
 > If those files ever change during a deploy, revert them.
 > See [Status and next steps](#7-status-and-next-steps).
@@ -467,7 +465,7 @@ the live Cloudflare deploy, print output of the decal.
 | 11-16 | Per-service prices replace the single $60-$100 rate: welding $95-$125/hr, material delivery $85-$120/hr, tear-down $60-$100/hr, junk from $150, freight from $95 (Triangle runs ~$2.50-$3/mi) | Austin-area research 11-16: mobile welding $85-$150/hr, cargo van service $90-$150/hr, haulers ~$300 minimum; owner wants to match or slightly beat competitors |
 | 11-16 | Dump fees and landfill per-item fees charged at cost with the receipt | 2026 TDS rates: Georgetown $33 pickup minimum, Creedmoor $66 minimum + $12/yd; a full van load is ~$270-$325 to dump, so it can't be built into a flat price |
 | 11-16 | Service area: the Texas Triangle, based in Leander | Owner's request |
-| 11-16 | Brand split (branch `chalkline-split`, not merged): Locker Box trade services at `/` and `/van` (navy + gold #FFC72C), Chalkline Freight job-site delivery at `/freight` (navy + orange #F26A1B), from `reference/*-reference.html` | Owner's brief. Freight name lives only in `src/data/freight.ts` (trademark search pending); shared look in `src/styles/brand.css` + `src/layouts/Brand.astro` |
+| 11-16 | Brand split (merged and live 11-17): Locker Box trade services at `/` and `/van` (navy + gold #FFC72C), Chalkline Freight job-site delivery at `/freight` (navy + orange #F26A1B), from `reference/*-reference.html` | Owner's brief. Freight name lives only in `src/data/freight.ts` (trademark search pending); shared look in `src/styles/brand.css` + `src/layouts/Brand.astro` |
 | 11-16 | Kept the 11-16 email (lockerbox.us) and per-service prices instead of the brief's lockerbox.tx / flat $60-$100 | Both were changed earlier the same day; the brief predates them. Owner said "continue with the plan" after being told |
 | 11-16 | Locker Box keeps its multi-step quote survey (restyled) instead of the reference's shorter form | Brief: never drop a field the current form sends. Freight form keeps every old freight field plus date, pieces, weight, company, email |
 | 11-16 | "Photo proof of delivery" and "text updates" on /freight behind `showPhotoProof` / `showTextUpdates` in freight.ts | Owner must confirm before deploy |
