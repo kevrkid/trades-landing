@@ -24,8 +24,8 @@ const url = siteUrl();
 const C = F.cargo;
 /** 174 -> "14 ft 6 in". */
 const ft = (i: number) => `${Math.floor(i / 12)} ft${i % 12 ? ` ${i % 12} in` : ''}`;
-// Logo: the front of the van (Sprinter-style roof, windshield, hood slits, swept headlights, grille) with an
-// orange circuit trace from headlight to headlight through a charge node. Source: src/assets/elektrx-mark.svg.
+// Logo: a simple van front (outline, windshield, mirrors, swept headlights) with an
+// orange line between the headlights. Source: src/assets/elektrx-mark.svg.
 const mark = (size: number) => markSvg.replace('<svg ', `<svg width="${size}" height="${size}" aria-hidden="true" `);
 const description = `Hot shot, same-day, scheduled and dedicated-route cargo van delivery of parts and materials to job sites across the Texas Triangle. Based in Leander, Texas.${usdot() ? ` USDOT ${usdot()}.` : ''}`;
 const ld = {
