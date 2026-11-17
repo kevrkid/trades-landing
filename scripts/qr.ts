@@ -5,9 +5,10 @@ import { join } from 'node:path';
 import QRCode from 'qrcode';
 import { biz } from '../src/lib/derive.ts';
 
-const domain = process.env.QR_DOMAIN || biz.domain;
+// The pages.dev address keeps working even after a custom domain is added, so it is safe to print.
+const domain = process.env.QR_DOMAIN || biz.domain || biz.temporaryUrl.replace(/^https?:\/\//, '').replace(/\/+$/, '');
 if (!domain) {
-  console.error('No domain yet. Add it to src/data/business.ts first, then run this again.\nDo not print a QR code before then: a van wrap is expensive to redo.');
+  console.error('No domain or temporaryUrl yet. Add one to src/data/business.ts first, then run this again.\nDo not print a QR code before then: a van wrap is expensive to redo.');
   process.exit(1);
 }
 const dir = process.env.QR_DIR || 'qr';
