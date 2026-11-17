@@ -5,12 +5,14 @@ import { chromium } from 'playwright';
 import QRCode from 'qrcode';
 import { business as b } from '../src/data/business.ts';
 
-const WORDS = ['Moving', 'Welding', 'Hauling', 'Tear-downs', 'Junk removal'];
+// "Moving" goes on the sign only while moving is a listed service.
+const listsMoving = b.trades.some((t) => t.services.some((s) => s.kind === 'moving'));
+const WORDS = [...(listsMoving ? ['Moving'] : []), 'Welding', 'Hauling', 'Tear-downs', 'Junk removal'];
 // DECAL_PHONE, DECAL_DOMAIN and DECAL_BASE are only for testing the layout.
 const bizPhone = process.env.DECAL_PHONE || b.phone;
 const bizDomain = process.env.DECAL_DOMAIN || b.domain;
 // Moving is on the sign, so it stays a preview until your own USDOT/TxDMV numbers are in the config.
-const movingHeld = b.trades.some((t) => t.services.some((s) => s.kind === 'moving')) && !b.credentials.licenses.some((l) => /txdmv/i.test(l.label) && l.number) && !process.env.DECAL_PHONE;
+const movingHeld = listsMoving && !b.credentials.licenses.some((l) => /txdmv/i.test(l.label) && l.number) && !process.env.DECAL_PHONE;
 const ready = !!(bizPhone && bizDomain) && !movingHeld;
 const m = bizPhone.match(/^\+1(\d{3})(\d{3})(\d{4})$/);
 const phone = m ? `${m[1]}-${m[2]}-${m[3]}` : bizPhone;

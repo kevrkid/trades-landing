@@ -13,7 +13,7 @@ const photosHref = smsHref(`${hello}Here are photos for a quote.\nMy name:\nAddr
 const canQuote = hasForm;
 const quoteHref = hasForm ? '#quote' : textHref;
 
-const sentence = (bits: string[]) => { const t = bits.join(', '); return t ? t[0].toUpperCase() + t.slice(1) + '.' : ''; };
+const sentence = (bits: string[]) => { const t = bits.length > 1 ? bits.slice(0, -1).join(', ') + ', or ' + bits.at(-1) : bits.join(''); return t ? t[0].toUpperCase() + t.slice(1) + '.' : ''; };
 const what = [biz.whatIDo, biz.area.summary].filter(Boolean).join(' in ');
 const quoteFor = (name: string) => hasForm ? '#quote' : smsHref(`${hello}I'd like a quote for: ${name}`);
 

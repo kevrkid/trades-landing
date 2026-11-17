@@ -415,7 +415,7 @@ the live Cloudflare deploy, print output of the decal.
 
 ### Needed from Kevin
 
-1. **Phone number** (last data blocker).
+1. ~~Phone number~~ done 2026-11-16: (512) 791-3853.
 2. **Moving decision:** USDOT 4727545 is now on the page, but moving stays blocked until a TxDMV household-goods
    number is added, or moving comes off the page (then the headline should change too). The old DOT 9994372 belongs to Investment Services
    Group, LLC and was removed.

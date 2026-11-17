@@ -12,6 +12,8 @@ const site = siteUrl();
 const native = key
   ? { action: 'https://api.web3forms.com/submit', method: 'POST' }
   : biz.email ? { action: `mailto:${biz.email}`, method: 'POST', enctype: 'text/plain' } : {};
+// Only ask the questions for kinds of job you actually list.
+const kinds = new Set(choices.map((c) => c.kind));
 const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevator'];
 ---
 <form id="quote-form" class="survey" {...native} data-key={key ? '1' : ''} data-email={biz.email} data-sms={smsHref('X').replace(/X$/, '')} data-source={scan ? 'Van QR code' : 'Website'}>
@@ -36,6 +38,7 @@ const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevat
 
   <div class="survey-step" data-step="2">
     <p class="step-title">A few details</p>
+    {kinds.has('moving') && (
     <fieldset class="kind-block" data-kind="moving">
       <label class="field">Moving from <small>(address or ZIP)</small><input name="moving_from" autocomplete="off" /></label>
       <label class="field">Moving to <small>(address or ZIP)</small><input name="moving_to" autocomplete="off" /></label>
@@ -46,17 +49,23 @@ const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevat
         <select name="moving_stairs"><option value="">Choose one</option>{stairs.map((o) => <option>{o}</option>)}</select>
       </label>
     </fieldset>
+    )}
+    {kinds.has('welding') && (
     <fieldset class="kind-block" data-kind="welding">
       <label class="field">What needs welding?<input name="welding_job" /></label>
       <label class="field">What's it made of?
         <select name="welding_material"><option value="">Choose one</option><option>Steel</option><option>Aluminum</option><option>Stainless</option><option>Not sure</option></select>
       </label>
     </fieldset>
+    )}
+    {kinds.has('materials') && (
     <fieldset class="kind-block" data-kind="materials">
       <label class="field">What materials?<input name="materials_what" /></label>
       <label class="field">Pick up from <small>(store or address)</small><input name="materials_pickup" autocomplete="off" /></label>
       <label class="field">Deliver to <small>(address or ZIP)</small><input name="materials_deliver" autocomplete="off" /></label>
     </fieldset>
+    )}
+    {kinds.has('teardown') && (
     <fieldset class="kind-block" data-kind="teardown">
       <label class="field">What's coming down? <small>(shed, carport, fence...)</small><input name="teardown_what" /></label>
       <label class="field">About how big?<input name="teardown_size" /></label>
@@ -64,6 +73,8 @@ const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevat
         <select name="teardown_utilities"><option value="">Choose one</option><option>Yes</option><option>No</option><option>Not sure</option><option>Doesn't have any</option></select>
       </label>
     </fieldset>
+    )}
+    {kinds.has('junk') && (
     <fieldset class="kind-block" data-kind="junk">
       <label class="field">What's going?<input name="junk_what" /></label>
       <label class="field">About how much?
@@ -73,6 +84,7 @@ const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevat
         <select name="junk_stairs"><option value="">Choose one</option>{stairs.map((o) => <option>{o}</option>)}</select>
       </label>
     </fieldset>
+    )}
     <label class="field mt-4">Anything else I should know? <small>(optional)</small><textarea name="details" rows="3"></textarea></label>
   </div>
 

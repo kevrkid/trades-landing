@@ -15,17 +15,19 @@ export const business: Business = {
   // Made from brand-source/locker-box-logo.png by `npm run images`.
   logo: '/brand/locker-box-logo.webp',
   logoOnLight: '/brand/locker-box-logo.png',
-  headline: 'Moving anywhere in Texas',
+  // Moving is off until the TxDMV household-goods number is issued (2026-11-16). Then restore
+  // headline 'Moving anywhere in Texas', the Moving trade below, schemaType 'MovingCompany', area.note and the travel-fee line.
+  headline: 'Welding, hauling and tear-downs',
   subheading: 'All-electric van',
-  whatIDo: 'Moving, welding, material hauling, tear-downs and junk removal',
+  whatIDo: 'Welding, material hauling, business freight, tear-downs and junk removal',
   rate: '$60-$100/hour',
   // Update this if the rate changes: 3 x $60 and 3 x $100.
   rateExample: 'For example, 3 hours of work comes to $180-$300.',
 
   colors: { brand: '#0A1F44', brandDeep: '#001126', accent: '#C8102E', accentInk: '#FFFFFF' },
 
-  // The most specific type for Google. Moving is your top priority, so this says MovingCompany.
-  schemaType: 'MovingCompany',
+  // The type Google sees. Back to 'MovingCompany' once moving returns.
+  schemaType: 'LocalBusiness',
 
   // ---------- SERVICES ----------
   // TODO: your services, grouped by trade. Copy this shape:
@@ -41,10 +43,6 @@ export const business: Business = {
   // price type: 'hourly' (min, max) | 'flat' | 'from' (both need amount) | 'estimate' | 'none'
   // In your priority order.
   trades: [
-    { name: 'Moving', services: [
-      { name: 'Moving in Texas', kind: 'moving', description: 'I handle moves anywhere in Texas.',
-        price: HOURLY, action: 'quote' },
-    ] },
     { name: 'Welding', services: [
       { name: 'Small welding jobs', kind: 'welding', description: 'I take on small welding jobs.',
         price: HOURLY, action: 'quote' },
@@ -79,14 +77,14 @@ export const business: Business = {
   // ---------- WHERE AND WHEN ----------
   area: {
     summary: 'Central Texas',
-    note: 'Moves anywhere in Texas.',
+    note: '',
     places: ['Leander', 'Austin', 'San Antonio'], // Also used for Google. Base: Leander (FMCSA record).
   },
   hours: [{ days: 'Every day', time: 'Open availability' }], // Owner said "open availability" (11-15)
   hoursNote: 'Call or text to schedule, including early starts.',
 
   // ---------- CONTACT ----------
-  phone: '', // TODO: with country code, e.g. '+15125550100'. Used for both call and text.
+  phone: '+15127913853', // Used for both call and text.
   email: 'lockerbox.tx@gmail.com',
 
   // ---------- WEB ADDRESS ----------
@@ -124,7 +122,7 @@ export const business: Business = {
   owner: {
     name: 'Kevin Kidd',
     photo: '', // TODO: e.g. '/photos/me.jpg'
-    note: "Hi, I'm Kevin Kidd, the owner of Locker Box. I'm a registered Texas carrier (USDOT 4727545) running a Mercedes eSprinter with an extended high roof: it fits 3 pallets or up to 2,300 lb. I build steel frames and metal buildings, weld on site, and haul materials and freight for businesses between Austin and San Antonio.",
+    note: "Hi, I'm Kevin Kidd, the owner of Locker Box. I'm a registered Texas carrier (USDOT 4727545) running a 2025 Mercedes eSprinter with an extended high roof: it fits 3 pallets or up to 2,300 lb. I build steel frames and metal buildings, weld on site, and haul materials and freight for businesses between Austin and San Antonio.",
   },
   photos: {
     van: '/img/van-1200.jpg',
@@ -161,7 +159,7 @@ export const business: Business = {
     deposits: '', // TODO: When is a deposit needed, and is it refundable?
     cancellations: '', // TODO: Your cancellation policy
     warranty: '', // Left off the page on purpose for now.
-    travelFee: "Travel is free within 30 miles. Farther than that, there's a $75 trip fee, and I'll confirm it before booking. Long moves across Texas are quoted by the trip, including drive time.",
+    travelFee: "Travel is free within 30 miles. Farther than that, there's a $75 trip fee, and I'll confirm it before booking. Long runs across Texas are quoted by the trip, including drive time.",
     minimum: "Yes, there's a 2-hour minimum.",
     extras: '', // TODO: Anything on top of the hourly rate? e.g. dump fees, materials, stairs
   },

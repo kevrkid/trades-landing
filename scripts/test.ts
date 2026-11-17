@@ -103,7 +103,7 @@ try {
   await page.goto(S + '/');
   ok(await page.getByText('Thanks for scanning').count() === 0, 'home has no van banner');
   const ld = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent())!);
-  ok(ld['@type'] === 'MovingCompany' && ld.areaServed?.length === 3 && !ld.address, 'JSON-LD: type, areaServed, no street address');
+  ok(ld['@type'] === business.schemaType && ld.areaServed?.length === 3 && !ld.address, 'JSON-LD: type, areaServed, no street address');
   ok(await page.locator('meta[property="og:image"]').getAttribute('content') === 'https://example.com/og.png', 'OG image');
 
   // Redirects on Cloudflare's server.
@@ -127,12 +127,11 @@ try {
   ok(await survey.isVisible(), 'real: survey shows');
   await page.locator('#quote-next').click();
   ok(await page.locator('[data-step="1"]').isVisible(), 'survey will not move on until a service is picked');
-  await page.locator('label.choice', { hasText: 'Moving in Texas' }).click();
+  await page.locator('label.choice', { hasText: 'Junk removal' }).click();
   await page.locator('#quote-next').click();
-  await page.locator('[name=moving_from]').fill('78641');
-  await page.locator('[name=moving_to]').fill('76504');
-  await page.locator('[name=moving_size]').selectOption('2 bedrooms');
-  ok(!(await page.locator('[name=junk_what]').isVisible()), 'survey hides other jobs');
+  await page.locator('[name=junk_what]').fill('Old couch and a fridge');
+  await page.locator('[name=junk_amount]').selectOption('A few items');
+  ok(!(await page.locator('[name=teardown_what]').isVisible()), 'survey hides other jobs');
   await page.locator('#quote-next').click();
   await page.locator('label.choice', { hasText: 'This week' }).click();
   await page.locator('#quote-next').click();
@@ -145,18 +144,21 @@ try {
   await page.locator('#quote-submit').click();
   ok(await page.locator('#quote-send').isVisible(), 'survey reaches the send step');
   const mailto = decodeURIComponent((await page.locator('#quote-email').getAttribute('href'))!);
-  ok(mailto.startsWith('mailto:' + business.email) && mailto.includes('Service: Moving in Texas') && mailto.includes('Moving to: 76504') && mailto.includes('When: This week') && mailto.includes('Name: Test Person') && !mailto.includes('Junk'), 'email has the answers');
+  ok(mailto.startsWith('mailto:' + business.email) && mailto.includes('Service: Junk removal') && mailto.includes('Old couch and a fridge') && mailto.includes('A few items') && mailto.includes('When: This week') && mailto.includes('Name: Test Person') && !mailto.includes('Tear-down'), 'email has the answers');
   await page.screenshot({ path: `${SHOTS}/survey-send.png` });
   await page.locator('#quote-edit').click();
-  ok(await survey.isVisible() && await page.locator('[name=moving_to]').inputValue() === '76504', 'can go back and change answers');
+  ok(await survey.isVisible() && await page.locator('[name=junk_what]').inputValue() === 'Old couch and a fridge', 'can go back and change answers');
   const nojsF = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 800 } });
   const nf2 = await nojsF.newPage();
   await nf2.goto(R + '/');
-  ok(await nf2.locator('[name=moving_from]').isVisible() && await nf2.locator('[name=name]').isVisible(), 'no JS: the whole form still shows');
+  ok(await nf2.locator('[name=junk_what]').isVisible() && await nf2.locator('[name=name]').isVisible(), 'no JS: the whole form still shows');
   await nojsF.close();
+  // Moving needs a TxDMV number before it can be advertised.
+  if (!business.credentials.licenses.some((l) => /txdmv/i.test(l.label) && l.number)) ok(!/moving|moves\b/i.test(readFileSync('dist/index.html', 'utf8').replace(/<script[\s\S]*?<\/script>/g, '')), 'real: no moving on the page without a TxDMV number');
   // Real work.
   await page.goto(R + '/');
-  ok((await page.locator('#how').innerText()).includes('Answer a few quick questions.'), 'real: how-it-works sentence starts with a capital');
+  const howStep = (await page.locator('#how li').first().locator('p').innerText()).trim();
+  ok(/^[A-Z]/.test(howStep) && /(^|, or )(A|a)nswer a few quick questions\.$/.test(howStep) && (!business.phone || howStep.startsWith('Call or text, or ')), 'real: how-it-works sentence starts with a capital and reads right: ' + howStep);
   ok(await page.locator('#why strong', { hasText: 'Kevin' }).count() === 0, 'real: name is not repeated');
   ok(await page.locator('#work video').first().getAttribute('poster') === null, 'real: video covers wait until scrolled to');
   ok(await page.evaluate(() => [...document.querySelectorAll('#work video')].every((v) => (v as HTMLVideoElement).paused && (v as HTMLVideoElement).readyState === 0)), 'real: videos do not download before they are scrolled to');
@@ -216,11 +218,12 @@ try {
   if (!business.rating.score) ok(await page.locator('header').getByText('reviews').count() === 0, 'real: no rating until you have one');
   ok(await page.getByText('3 hours of work comes to $180-$300').count() === 1, 'real: worked example shows');
   if (todos().some((t) => t.blocker)) ok(await page.locator('meta[name=robots][content=noindex]').count() === 1, 'real: unfinished site stays out of Google');
+  else ok(await page.locator('meta[name=robots][content=noindex]').count() === 0, 'real: finished site can be found on Google');
   ok(!/rangebolt|arc &(amp;)? haul/i.test(home), 'real: old names are gone');
   ok(await page.getByText('Locker Box').count() > 0, 'real: name shows');
   ok(!/handle your move myself|sampletown/i.test(home), 'real: removed wording stays gone');
   ok(await page.locator('header').getByText('All-electric van', { exact: true }).count() === 1, 'real: all-electric line shows once at the top');
-  ok(await page.locator('#area').getByText('Central Texas').count() === 1 && await page.locator('#area').getByText('Moves anywhere in Texas.').count() === 1, 'real: service area shows');
+  ok(await page.locator('#area').getByText('Central Texas').count() === 1 && (business.area.note ? await page.locator('#area').getByText(business.area.note).count() === 1 : true), 'real: service area shows');
   // Whatever the config leaves blank must stay hidden.
   const ids = await page.locator('main section').evaluateAll((els) => els.map((x) => x.id));
   const shows = (id: string, should: boolean) => ok(ids.includes(id) === should, `real: section ${id} ${should ? 'shows' : 'stays hidden'}`);
@@ -230,6 +233,7 @@ try {
   shows('reviews', business.reviews.length > 0);
   shows('faq', Object.values(business.faq).some(Boolean) || !!business.links.deposit);
   if (!business.phone) ok(await page.locator('a[href^="tel:"], a[href^="sms:"]').count() === 0, 'real: no call or text links until a phone is set');
+  else ok(await page.locator(`a[href="tel:${business.phone}"]`).count() > 0 && await page.locator(`a[href^="sms:${business.phone}"]`).count() > 0, 'real: call and text links use the business phone');
   if (!business.links.booking) ok((await fetch(R + '/book', { redirect: 'manual' })).headers.get('location')?.endsWith('/'), 'real: /book goes home until set');
 } finally {
   await browser.close();
