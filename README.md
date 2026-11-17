@@ -5,8 +5,9 @@ A one-page, phone-first website for **Locker Box**, Kevin's one-person mobile bu
 by scanning the QR code on the van, so it loads fast and puts **Call, Text, Book and Get a quote** within
 a thumb's reach.
 
-> **Status (2026-11-15): built and tested, not published.** Nothing is online yet. Two things block
-> publishing: a phone number, and either your own USDOT/TxDMV numbers or taking moving off the page.
+> **Status (2026-11-16): ready to publish from `main`.** Phone (512) 791-3853 is in. Moving is off the page
+> until the TxDMV number is issued (restore steps are in the comment by `headline` in business.ts). Waiting on
+> `wrangler login`. The B2B delivery pages are on branch `delivery-pages`, held back until their facts are filled in.
 > See [Status and next steps](#7-status-and-next-steps).
 
 Contents
@@ -416,8 +417,8 @@ the live Cloudflare deploy, print output of the decal.
 ### Needed from Kevin
 
 1. ~~Phone number~~ done 2026-11-16: (512) 791-3853.
-2. **Moving decision:** USDOT 4727545 is now on the page, but moving stays blocked until a TxDMV household-goods
-   number is added, or moving comes off the page (then the headline should change too). The old DOT 9994372 belongs to Investment Services
+2. **Moving:** taken off the page 2026-11-16 to go live (headline now "Welding, hauling and tear-downs"). To bring it
+   back, add the TxDMV household-goods number and restore the lines named in the comment by `headline` in business.ts. The old DOT 9994372 belongs to Investment Services
    Group, LLC and was removed.
 3. **Cloudflare sign-in** at dash.cloudflare.com, then `npx wrangler login`.
 4. **Domain:** buy `lockerboxtx.com` → `npm run qr`, `npm run decal`, custom domain in Cloudflare.
