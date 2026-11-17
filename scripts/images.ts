@@ -31,8 +31,8 @@ const van = readFileSync('public' + b.photos.van).toString('base64');
 const og = `<style>@font-face{font-family:B;src:url(data:font/woff2;base64,${font})}*{margin:0;box-sizing:border-box}body{font-family:B,sans-serif}</style>
 <body style="width:1200px;height:630px;background:#fff;color:${b.colors.brandDeep};overflow:hidden;position:relative">
 <img src="data:image/png;base64,${logo}" style="position:absolute;left:60px;top:26px;height:330px;width:auto">
-<div style="position:absolute;left:60px;top:372px;width:510px;font-size:58px;line-height:1;text-transform:uppercase">${esc(b.headline || b.name)}</div>
-<div style="position:absolute;left:60px;bottom:48px;font-size:34px;color:${b.colors.accent}">${b.rate ? esc(b.rate) + ' · ' : ''}100% electric van</div>
+<div id="h" style="position:absolute;left:60px;top:372px;width:510px;font-size:58px;line-height:1;text-transform:uppercase">${esc(b.headline || b.name)}</div>
+<div id="t" style="position:absolute;left:60px;bottom:48px;font-size:34px;color:${b.colors.accent}">${b.rate ? esc(b.rate) + ' · ' : ''}100% electric van</div>
 <div style="position:absolute;right:0;top:0;bottom:18px;width:600px"><img src="data:image/jpeg;base64,${van}" style="width:100%;height:100%;object-fit:cover;object-position:right center;display:block"></div>
 <div style="position:absolute;left:0;right:0;bottom:0;height:18px;background:repeating-linear-gradient(135deg,${b.colors.accent} 0 28px,${b.colors.brandDeep} 28px 56px)"></div></body>`;
 
@@ -40,6 +40,12 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 await page.setContent(og);
 await page.evaluate(() => document.fonts.ready);
+// Shrink a long headline until it clears the tagline under it.
+await page.evaluate(() => {
+  const h = document.getElementById('h')!, t = document.getElementById('t')!;
+  let size = 58;
+  while (size > 30 && h.getBoundingClientRect().bottom > t.getBoundingClientRect().top - 14) h.style.fontSize = (size -= 2) + 'px';
+});
 await page.screenshot({ path: 'public/og.png' });
 await browser.close();
 console.log('Made the logo sizes, icons and public/og.png');
