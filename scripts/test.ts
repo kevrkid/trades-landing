@@ -158,7 +158,8 @@ try {
   await nojsF.close();
   // Real work.
   await page.goto(R + '/');
-  ok((await page.locator('#how').innerText()).includes('Answer a few quick questions.'), 'real: how-it-works sentence starts with a capital');
+  const howStep = (await page.locator('#how li').first().locator('p').innerText()).trim();
+  ok(/^[A-Z]/.test(howStep) && /(^|, or )(A|a)nswer a few quick questions\.$/.test(howStep) && (!business.phone || howStep.startsWith('Call or text, or ')), 'real: how-it-works sentence starts with a capital and reads right: ' + howStep);
   ok(await page.locator('#why strong', { hasText: 'Kevin' }).count() === 0, 'real: name is not repeated');
   ok(await page.locator('#work video').first().getAttribute('poster') === null, 'real: video covers wait until scrolled to');
   ok(await page.evaluate(() => [...document.querySelectorAll('#work video')].every((v) => (v as HTMLVideoElement).paused && (v as HTMLVideoElement).readyState === 0)), 'real: videos do not download before they are scrolled to');

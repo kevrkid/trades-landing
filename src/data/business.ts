@@ -86,7 +86,7 @@ export const business: Business = {
   hoursNote: 'Call or text to schedule, including early starts.',
 
   // ---------- CONTACT ----------
-  phone: '', // TODO: with country code, e.g. '+15125550100'. Used for both call and text.
+  phone: '+15127913853', // Used for both call and text.
   email: 'lockerbox.tx@gmail.com',
 
   // ---------- WEB ADDRESS ----------

@@ -10,8 +10,8 @@ a thumb's reach.
 > and `src/data/cities.ts`; anything unconfirmed shows as a yellow `[[TODO: ...]]`, keeps the pages `noindex`, and
 > `npm run deploy` refuses to publish while any is left (`npm run todo` lists them). See [Delivery pages](#delivery-pages).
 >
-> **Status (2026-11-15): built and tested, not published.** Nothing is online yet. Two things block
-> publishing: a phone number, and either your own USDOT/TxDMV numbers or taking moving off the page.
+> **Status (2026-11-16): built and tested, not published.** Nothing is online yet. Phone (512) 791-3853 is in.
+> Still blocking: a TxDMV number or taking moving off the page, and the delivery-page facts (`npm run todo`).
 > See [Status and next steps](#7-status-and-next-steps).
 
 Contents
@@ -412,7 +412,7 @@ Also made in this session for another project: `~/claude/sidequest/qr/sidequest-
 
 ## 6. Testing and quality
 
-`npm test` (588 checks, last run 2026-11-16, all passing; the delivery pages add checks at 375 and 1280 px, the quote and COI/W-9 forms end to end with Web3Forms answered locally, honeypot, failed send, no-JS, JSON-LD, sitemap, unique titles) builds:
+`npm test` (587 checks, last run 2026-11-16, all passing, with the phone set; the delivery pages add checks at 375 and 1280 px, the quote and COI/W-9 forms end to end with Web3Forms answered locally, honeypot, failed send, no-JS, JSON-LD, sitemap, unique titles) builds:
 
 - **sample** (`SAMPLE_DATA=1`, everything filled with marked fake data) to check every section, at 360, 390
   and 430 px: no sideways scroll, tap targets ≥ 48 px, no console errors, sticky bar, hero buttons above the
@@ -447,7 +447,7 @@ the live Cloudflare deploy, print output of the decal.
 
 ### Needed from Kevin
 
-1. **Phone number** (last data blocker).
+1. ~~Phone number~~ done 2026-11-16: (512) 791-3853.
 2. **Moving decision:** USDOT 4727545 is now on the page, but moving stays blocked until a TxDMV household-goods
    number is added, or moving comes off the page (then the headline should change too). The old DOT 9994372 belongs to Investment Services
    Group, LLC and was removed.
