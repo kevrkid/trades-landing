@@ -5,8 +5,10 @@
 // Never put made-up info here. `npm run todo` lists everything still blank.
 import type { Business } from './types.ts';
 
-// Your hourly rate, used on every service below. Change it here to change them all.
-const HOURLY = { type: 'hourly', min: 60, max: 100 } as const;
+// Prices per service, set 11-16 from Austin-area competitor rates (README decisions log).
+const WELDING = { type: 'hourly', min: 95, max: 125 } as const;
+const DELIVERY = { type: 'hourly', min: 85, max: 120 } as const;
+const TEARDOWN = { type: 'hourly', min: 60, max: 100 } as const;
 
 export const business: Business = {
   // ---------- WHO ----------
@@ -20,7 +22,7 @@ export const business: Business = {
   headline: 'Welding, hauling and tear-downs',
   subheading: '', // Blank: no extra line under the van photo.
   whatIDo: 'Welding, material hauling, business freight, tear-downs and junk removal',
-  rate: '$60-$100/hour',
+  rate: '', // Blank: prices differ by service, so each service card shows its own.
   // Update this if the rate changes: 3 x $60 and 3 x $100.
   rateExample: '',
 
@@ -44,23 +46,23 @@ export const business: Business = {
   // In your priority order.
   trades: [
     { name: 'Welding', services: [
-      { name: 'Small welding jobs', kind: 'welding', description: 'I take on small welding jobs.',
-        price: HOURLY, action: 'quote' },
+      { name: 'Small welding jobs', kind: 'welding', description: 'Repairs and small fabrication on site. Travel within 30 miles is free.',
+        price: WELDING, action: 'quote' },
     ] },
     { name: 'Business freight', services: [
       { name: 'Business freight runs', kind: 'materials',
-        description: 'Scheduled or same-day cargo van runs for businesses across the Texas Triangle. Dock-to-dock, up to 3 pallets or 2,300 lb.',
-        price: { type: 'none' }, action: 'quote' },
+        description: 'Scheduled or same-day cargo van runs for businesses across the Texas Triangle. Dock-to-dock, up to 3 pallets or 2,300 lb. Longer Triangle runs are about $2.50-$3 per mile; every run is quoted before pickup.',
+        price: { type: 'from', amount: 95 }, action: 'quote' },
     ] },
     { name: 'Building materials', services: [
       { name: 'Building material delivery', kind: 'materials', description: 'I pick up and deliver building materials.',
-        price: HOURLY, action: 'quote' },
+        price: DELIVERY, action: 'quote' },
     ] },
     { name: 'Tear-down and junk', services: [
-      { name: 'Building tear-down', kind: 'teardown', description: 'I take down buildings.',
-        price: HOURLY, action: 'quote' },
-      { name: 'Junk removal', kind: 'junk', description: 'I pick up and haul away junk.',
-        price: HOURLY, action: 'quote' },
+      { name: 'Building tear-down', kind: 'teardown', description: 'Sheds, carports, fences and small buildings, taken down and hauled off. Dump fees are charged at cost.',
+        price: TEARDOWN, action: 'quote' },
+      { name: 'Junk removal', kind: 'junk', description: 'I load it and haul it away. Dump fees, and the landfill\'s fees for mattresses, couches and appliances, are charged at cost with the receipt.',
+        price: { type: 'from', amount: 150 }, action: 'quote' },
     ] },
   ],
 
@@ -85,7 +87,7 @@ export const business: Business = {
 
   // ---------- CONTACT ----------
   phone: '+15127913853', // Used for both call and text.
-  email: 'lockerbox.tx@gmail.com',
+  email: 'lockerbox.us@gmail.com', // Owner, 11-16.
 
   // ---------- WEB ADDRESS ----------
   domain: '', // TODO: e.g. 'example.com' (no https://). Then run: npm run qr
@@ -165,8 +167,8 @@ export const business: Business = {
     cancellations: '', // TODO: Your cancellation policy
     warranty: '', // Left off the page on purpose for now.
     travelFee: "Travel is free within 30 miles. Farther than that, there's a $75 trip fee, and I'll confirm it before booking. Long runs across Texas are quoted by the trip, including drive time.",
-    minimum: "Yes, there's a 2-hour minimum.",
-    extras: '', // TODO: Anything on top of the hourly rate? e.g. dump fees, materials, stairs
+    minimum: "Hourly jobs have a 2-hour minimum. Junk removal starts at $150, and freight runs start at $95.",
+    extras: "Dump fees, plus the landfill's fees for mattresses, couches and appliances, are charged at cost, with the receipt.",
   },
 
   // ---------- ACCOUNTS ----------

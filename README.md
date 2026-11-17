@@ -205,7 +205,7 @@ Types are in `src/data/types.ts`. Current values as of 2026-11-15 are shown.
 | `area` | `{ summary, places[], note? }`; `places` also feed Google's `areaServed` | Central Texas; "Moves anywhere in Texas." |
 | `hours[]` / `hoursNote` | `{ days, time, schema? }` (schema like `Mo-Fr 08:00-18:00`) | empty |
 | `phone` | `+1` and 10 digits; used for call, text, vCard, decal | **empty (blocker)** |
-| `email` | Quote answers and footer | `lockerbox.tx@gmail.com` |
+| `email` | Quote answers and footer | `lockerbox.us@gmail.com` |
 | `domain` / `temporaryUrl` | Real address (no `https://`) / the `pages.dev` address until then | empty |
 | `links` | `booking`, `deposit`, `googleReview` | empty |
 | `socials[]` | `{ label, url }` | empty |
@@ -461,6 +461,10 @@ the live Cloudflare deploy, print output of the decal.
 | 11-15 | `BRAND_PROMPT.md` deleted | The ChatGPT brand brief was scrapped and contained facts that are no longer true |
 | 11-15 | Added owner's USDOT 4727545 (SAFER: Kevin Kidd, Intrastate Only, Active), a "Business freight runs" service (quoted per run), owner bio, service places Leander/Austin/San Antonio, open-availability hours | Owner supplied details for his B2B Sprinter freight work |
 | 11-15 | Moving gate now requires a TxDMV number, not just any license | Texas requires a TxDMV certificate for household-goods moves at any weight; USDOT alone isn't enough |
+| 11-16 | Moving taken off the live page until the TxDMV number is issued; headline now "Welding, hauling and tear-downs" | Go live now without advertising a service that needs a permit not yet held |
+| 11-16 | Per-service prices replace the single $60-$100 rate: welding $95-$125/hr, material delivery $85-$120/hr, tear-down $60-$100/hr, junk from $150, freight from $95 (Triangle runs ~$2.50-$3/mi) | Austin-area research 11-16: mobile welding $85-$150/hr, cargo van service $90-$150/hr, haulers ~$300 minimum; owner wants to match or slightly beat competitors |
+| 11-16 | Dump fees and landfill per-item fees charged at cost with the receipt | 2026 TDS rates: Georgetown $33 pickup minimum, Creedmoor $66 minimum + $12/yd; a full van load is ~$270-$325 to dump, so it can't be built into a flat price |
+| 11-16 | Service area: the Texas Triangle, based in Leander | Owner's request |
 
 ---
 

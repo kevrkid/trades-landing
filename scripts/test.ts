@@ -212,9 +212,13 @@ try {
   ok(await page.locator('h1').isVisible(), 'real: page renders');
   ok(await page.getByText('eSprinter').count() > 0, 'real: eSprinter featured');
   ok(await page.getByText('Brings its own power').count() === 0, 'real: own-power toggle is off by default');
-  ok((await page.locator('header').innerText()).includes('/HOUR') || (await page.locator('header').innerText()).includes('/hour'), 'real: rate shows near the top');
-  ok(await page.locator('#services').getByText('$60-$100/hour').count() === business.trades.flatMap((t) => t.services).filter((s) => s.price.type === 'hourly').length, 'real: every hourly service shows the hourly rate');
+  ok(business.rate ? (await page.locator('header').innerText()).toLowerCase().includes(business.rate.toLowerCase()) : !/\/hour/i.test(await page.locator('header').innerText()), 'real: header shows the one rate, or none when prices differ by service');
+  const priceOf = (p: { type: string; amount?: number; min?: number; max?: number }) => p.type === 'from' ? `From $${p.amount}` : p.type === 'hourly' ? `$${p.min}-$${p.max}/hour` : p.type === 'flat' ? `$${p.amount}` : '';
+  for (const sv of business.trades.flatMap((t) => t.services).filter((x) => priceOf(x.price))) {
+    ok(await page.locator('#services li', { hasText: sv.name }).getByText(priceOf(sv.price), { exact: true }).count() === 1, `real: ${sv.name} shows ${priceOf(sv.price)}`);
+  }
   if (!business.faq.extras) ok(!/anything extra on top/i.test(await page.locator('#faq').evaluate((e) => e.textContent || '')), 'real: unanswered FAQ question stays hidden');
+  else ok((await page.locator('#faq').evaluate((e) => e.textContent || '')).includes('charged at cost'), 'real: dump-fee answer shows in the FAQ');
   if (!business.rating.score) ok(await page.locator('header').getByText('reviews').count() === 0, 'real: no rating until you have one');
   ok(business.rateExample ? await page.getByText(business.rateExample).count() === 1 : !(await page.content()).includes('hours of work comes to'), 'real: worked example matches the config');
   if (todos().some((t) => t.blocker)) ok(await page.locator('meta[name=robots][content=noindex]').count() === 1, 'real: unfinished site stays out of Google');

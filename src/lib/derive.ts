@@ -65,7 +65,15 @@ export function pageTitle(): string {
 export function metaDescription(): string {
   const lead = [biz.whatIDo, biz.area.summary].filter(Boolean).join(' in ');
   const van = 'I come to you in an all-electric van: quiet, no exhaust, no idling at your home.';
-  return `${lead ? lead + '. ' : ''}${biz.rate ? biz.rate + '. ' : ''}${van}${biz.phone ? ' Call, text or book online.' : ''}`;
+  return `${lead ? lead + '. ' : ''}${biz.rate ? biz.rate + '. ' : ''}${van}${contactLine()}`;
+}
+
+/** Only the ways to reach you that actually exist. */
+function contactLine(): string {
+  const ways = [biz.phone && 'call', biz.phone && 'text', biz.links.booking && 'book online'].filter(Boolean) as string[];
+  if (!ways.length) return '';
+  const t = ways.length > 1 ? ways.slice(0, -1).join(', ') + ' or ' + ways.at(-1) : ways[0];
+  return ' ' + t[0].toUpperCase() + t.slice(1) + '.';
 }
 
 export function jsonLd(): Record<string, unknown> | null {
