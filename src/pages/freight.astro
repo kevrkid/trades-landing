@@ -34,6 +34,9 @@ const ld = {
   ...(biz.phone ? { telephone: biz.phone } : {}), ...(biz.email ? { email: biz.email } : {}),
   areaServed: F.sameDay.map((name) => ({ '@type': 'City', name })),
   parentOrganization: { '@type': 'Organization', name: lb, ...(url ? { url: url + '/' } : {}) },
+  ...(url ? { image: url + '/og-freight.png', logo: url + '/brand/elektrx-touch.png' } : {}),
+  address: { '@type': 'PostalAddress', addressLocality: 'Leander', addressRegion: 'TX', addressCountry: 'US' },
+  hasOfferCatalog: { '@type': 'OfferCatalog', name: 'Delivery services', itemListElement: F.services.map((s) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: `${s.name} delivery`, description: s.what } })) },
 };
 const faq = [
   ['How far do you go?', `Same-day across the Texas Triangle: ${listText(F.sameDay.filter((c) => c !== 'Leander' && c !== 'Cedar Park' && c !== 'Hutto'))}. ${listText(F.byArrangement)} by arrangement.`],
@@ -259,6 +262,18 @@ const faq = [
             <figcaption style="margin:12px 0 0;font-size:16px;line-height:1.5;color:#3A4A63">Inside: {ft(C.width)} wide, {ft(C.height)} tall. Rear doors open about {ft(C.rearDoor[0])} × {ft(C.rearDoor[1])}; side door about {ft(C.sideDoor[0])} × {ft(C.sideDoor[1])}.</figcaption>
           </figure>
         </div>
+        <form id="fit" class="card" data-l={C.length} data-w={C.width} data-ww={C.wheelWells} data-h={C.height} data-dw={C.rearDoor[0]} data-dh={C.rearDoor[1]} data-lb="2300" novalidate>
+          <h3 style="font-size:20px;margin-bottom:4px">Will it fit?</h3>
+          <p style="font-size:15px;color:#3A4A63;margin-bottom:14px">Type the size of your biggest piece, like <b>14 ft</b>, <b>8' 6"</b> or <b>96</b> (plain numbers are inches).</p>
+          <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))">
+            <label class="field">Length<input name="l" inputmode="text" autocomplete="off" placeholder="e.g. 12 ft" /></label>
+            <label class="field">Width<input name="w" inputmode="text" autocomplete="off" placeholder="e.g. 4 ft" /></label>
+            <label class="field">Height<input name="h" inputmode="text" autocomplete="off" placeholder="e.g. 2 ft" /></label>
+            <label class="field">Weight, lb<input name="lb" inputmode="numeric" autocomplete="off" placeholder="optional" /></label>
+          </div>
+          <p id="fit-out" role="status" aria-live="polite" style="font-size:17px;font-weight:600;min-height:1.5em;margin:0"></p>
+          <a id="fit-ask" class="b b-cta" href="#quote" hidden style="margin-top:12px">Get a quote for this load</a>
+        </form>
         <p style="font-size:15px;color:#3A4A63">Sizes are for a bare cargo floor. Text a photo or the measurements of anything close and you’ll get a straight answer before pickup.</p>
       </div>
     </section>
@@ -353,4 +368,46 @@ const faq = [
     {biz.phone && <a class="b b-line" href={smsHref('Hi! I need a freight quote.\n')}><Icon name="text" />Text</a>}
     <a class="b b-cta" href="#quote"><Icon name="quote" />Quote</a>
   </nav>
+<script is:inline>
+(function () {
+  var f = document.getElementById('fit');
+  if (!f) return;
+  var D = {}; ['l', 'w', 'ww', 'h', 'dw', 'dh', 'lb'].forEach(function (k) { D[k] = +f.getAttribute('data-' + k); });
+  var out = document.getElementById('fit-out'), ask = document.getElementById('fit-ask');
+  // "14 ft", "8' 6\"", "8 ft 6 in", "96" (inches), "2.5 ft" -> inches; blank -> 0; nonsense -> NaN.
+  function inches(v) {
+    v = String(v || '').toLowerCase().replace(/feet|foot/g, 'ft').replace(/inches|inch/g, 'in').trim();
+    if (!v) return 0;
+    var m = v.match(/^(\d+(?:\.\d+)?)\s*(?:ft|')\s*(?:(\d+(?:\.\d+)?)\s*(?:in|"|'')?)?$/);
+    if (m) return Math.round(parseFloat(m[1]) * 12 + (m[2] ? parseFloat(m[2]) : 0));
+    m = v.match(/^(\d+(?:\.\d+)?)\s*(?:in|"|'')?$/);
+    return m ? Math.round(parseFloat(m[1])) : NaN;
+  }
+  function fmt(i) { var ft = Math.floor(i / 12), r = i % 12; return ft ? ft + ' ft' + (r ? ' ' + r + ' in' : '') : r + ' in'; }
+  function check() {
+    var x = [inches(f.l.value), inches(f.w.value), inches(f.h.value)], lb = +(f.lb.value || '').replace(/[^\d.]/g, '') || 0;
+    ask.hidden = true; out.style.color = '#0A1F44';
+    if (x.some(isNaN)) { out.textContent = 'Use feet and inches, like 8 ft 6 in, or just inches.'; return; }
+    if (!x[0] || !x[1] || !x[2]) { out.textContent = ''; return; }
+    var s = x.slice().sort(function (a, b) { return a - b; }); // small, middle, long
+    var why = [];
+    if (s[2] > D.l) why.push('longer than the ' + fmt(D.l) + ' floor');
+    if (s[0] > D.dw || s[1] > D.dh) why.push('bigger than the ' + fmt(D.dw) + ' × ' + fmt(D.dh) + ' door opening');
+    if (s[1] > D.w) why.push('wider than the ' + fmt(D.w) + ' cargo area');
+    if (lb > D.lb) why.push('over the ' + D.lb.toLocaleString() + ' lb limit');
+    if (why.length) { out.style.color = '#B3261E'; out.textContent = 'Too big: ' + why.join(', ') + '. Text a photo and it can be split or sent another way.'; return; }
+    var close = s[2] > D.l - 3 || s[0] > D.dw - 3 || s[1] > D.dh - 3 || s[1] > D.w - 3 || lb > D.lb * 0.9;
+    var wells = s[0] > D.ww && s[1] > D.ww ? ' Wider than ' + fmt(D.ww) + ', so it rides on edge or above the wheel wells.' : '';
+    out.style.color = close ? '#8A4B00' : '#1B6E3A';
+    out.textContent = (close ? 'Tight fit: it should go, but text a photo first.' : 'It fits.') + wells;
+    ask.hidden = false;
+  }
+  f.addEventListener('input', check);
+  f.addEventListener('submit', function (e) { e.preventDefault(); check(); });
+  ask.addEventListener('click', function () {
+    var w = document.querySelector('#freight-form [name=materials_what]');
+    if (w && !w.value) w.value = 'Biggest piece: ' + fmt(inches(f.l.value)) + ' × ' + fmt(inches(f.w.value)) + ' × ' + fmt(inches(f.h.value)) + (f.lb.value ? ', about ' + f.lb.value + ' lb total' : '') + '. ';
+  });
+})();
+</script>
 </Brand>

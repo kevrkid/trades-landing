@@ -312,6 +312,19 @@ try {
   ok(((await page.locator('meta[property="og:image"]').getAttribute('content')) || '').endsWith('/og-freight.png') && (await fetch(R + '/og-freight.png')).status === 200, 'freight: its own link-preview image');
   await page.goto(R + freight.path);
   ok((await page.locator('#van').innerText()).includes('14 ft 6 in (174 in)') && await page.locator('#fits svg').count() === 3, 'freight: cargo measurements in feet and inches, with 3 what-fits diagrams');
+  const fit = page.locator('#fit'), fitOut = page.locator('#fit-out');
+  await fit.locator('[name=l]').fill('12 ft'); await fit.locator('[name=w]').fill('4 ft'); await fit.locator('[name=h]').fill('2 ft');
+  ok((await fitOut.innerText()).startsWith('It fits') && await page.locator('#fit-ask').isVisible(), 'will it fit: a 12 x 4 x 2 ft load fits');
+  await fit.locator('[name=l]').fill('15 ft');
+  ok((await fitOut.innerText()).startsWith('Too big') && (await fitOut.innerText()).includes('14 ft 6 in floor') && !(await page.locator('#fit-ask').isVisible()), 'will it fit: 15 ft is longer than the floor');
+  await fit.locator('[name=l]').fill(`8' 6"`); await fit.locator('[name=w]').fill('62'); await fit.locator('[name=h]').fill('62');
+  ok((await fitOut.innerText()).includes('door opening'), 'will it fit: reads feet-and-inches and checks the door');
+  await fit.locator('[name=w]').fill('48'); await fit.locator('[name=h]').fill('6'); await fit.locator('[name=lb]').fill('2500');
+  ok((await fitOut.innerText()).includes('2,300 lb'), 'will it fit: checks the weight limit');
+  await fit.locator('[name=lb]').fill('400'); await page.locator('#fit-ask').click();
+  ok((await page.locator('#freight-form [name=materials_what]').inputValue()).startsWith('Biggest piece: 8 ft 6 in × 4 ft × 6 in, about 400 lb'), 'will it fit: quote button fills in the load');
+  const fld = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent()) || '{}');
+  ok(fld.hasOfferCatalog?.itemListElement?.length === freight.services.length && fld.address?.addressLocality === 'Leander', 'freight: search data lists the services and home base');
   ok(((await page.locator('animateMotion').first().getAttribute('path')) || '').split('L').length > 8, 'freight: the map token tours the whole map');
   { const mc = await browser.newContext({ viewport: { width: 360, height: 800 } }); const mp = await mc.newPage(); await mp.goto(R + freight.path);
     const r = await mp.locator('svg[aria-label^="Route map"]').boundingBox(); ok(r && r.x >= 0 && r.x + r.width <= 360, 'freight: the map fits a phone screen without cutting off'); await mc.close(); }
