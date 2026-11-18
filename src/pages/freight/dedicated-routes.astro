@@ -1,0 +1,133 @@
+---
+// Standing daily or weekly runs for supply houses and contractors: the recurring side of the freight business.
+// Rates come from freight.estimate and driving miles from src/data/routes.ts; nothing here is a contract term.
+import Brand from '../../layouts/Brand.astro';
+import FreightForm from '../../components/FreightForm.astro';
+import FreightChrome from '../../components/FreightChrome.astro';
+import { biz, telHref, smsHref, phoneDisplay, siteUrl, usdot } from '../../lib/derive.ts';
+import { freight as F } from '../../data/freight.ts';
+import { cities, miles, routePrice, between } from '../../data/routes.ts';
+
+const path = `${F.path}/dedicated-routes`;
+const url = siteUrl();
+const C = F.cargo;
+const ft = (i: number) => `${Math.floor(i / 12)} ft${i % 12 ? ` ${i % 12} in` : ''}`;
+const description = `Standing daily or weekly cargo van runs between your branch and your job sites across the Texas Triangle: same van, set times, the rate agreed up front. From ${F.name}, based in Leander, Texas.${usdot() ? ` USDOT ${usdot()}.` : ''}`;
+const ld = {
+  '@context': 'https://schema.org', '@type': 'Service', name: 'Dedicated route delivery', serviceType: 'Scheduled freight delivery', description,
+  ...(url ? { url: url + path } : {}),
+  areaServed: F.sameDay.map((name) => ({ '@type': 'City', name })),
+  provider: { '@type': 'LocalBusiness', name: F.name, ...(url ? { url: url + F.path } : {}), ...(biz.phone ? { telephone: biz.phone } : {}) },
+};
+const example = between('Round Rock', 'Taylor');
+const who = [
+  ['Supply houses', 'Daily runs from your counter or warehouse to the contractors who buy from you, so your customers stop waiting on will-call.'],
+  ['Electrical and mechanical contractors', 'A morning drop at each site with the day’s parts, so crews don’t leave the job for the supply house.'],
+  ['Multi-branch businesses', 'Transfers between branches on a set schedule: stock where it’s needed by opening time.'],
+];
+const how = [
+  ['Tell us the route', 'Where it starts, the stops, which days and what time it needs to be there.'],
+  ['Get one rate per run', 'You get a per-run rate before the first run, so you know the cost ahead of time.'],
+  ['The van shows up', 'Same van, same driver, same time. Changes and extra stops by text.'],
+];
+---
+<Brand theme="cf" siteName={F.name} canonicalPath={path} ld={ld} ogImage="/og-freight.png"
+  icon="/brand/elektrx-favicon.png" touchIcon="/brand/elektrx-touch.png"
+  title={`Dedicated delivery routes for supply houses and contractors | ${F.name}`} description={description}>
+  <FreightChrome part="header" base={F.path} />
+  <main>
+    <section id="top" class="navy">
+      <div class="hero"><div class="w" style="align-items:center">
+        <div class="copy">
+          <p style="font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#F26A1B;margin:0"><a href={F.path} style="color:inherit;text-decoration:none">{F.name}</a></p>
+          <h1>Your own delivery route, on schedule</h1>
+          <p>Standing daily or weekly runs between your branch and your job sites anywhere in the Texas Triangle. Same all-electric van, set times, one rate per run agreed up front. No calling around for a driver every morning.</p>
+          <div class="btns">
+            <a class="b b-cta" href="#quote">Set up a route</a>
+            {biz.phone && <a class="b b-ghost" href={telHref}>Call {phoneDisplay()}</a>}
+          </div>
+        </div>
+        <form id="wk" class="card" style="color:#0A1F44" data-m={JSON.stringify(miles)} data-e={JSON.stringify(F.estimate)} novalidate>
+          <h2 style="font-size:20px;font-weight:700;margin-bottom:12px">Weekly route estimate</h2>
+          <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr))">
+            <label class="field">From<select name="from">{cities.map((c) => <option selected={c === 'Round Rock'}>{c}</option>)}</select></label>
+            <label class="field">To<select name="to">{cities.map((c) => <option selected={c === 'Taylor'}>{c}</option>)}</select></label>
+            <label class="field">Runs a week<select name="n">{[1, 2, 3, 4, 5, 6, 7, 10].map((n) => <option selected={n === 5}>{n}</option>)}</select></label>
+          </div>
+          <p id="wk-run" style="margin:0;font-size:15px;color:#3A4A63">{example.miles} miles · {routePrice(example.miles)} a run</p>
+          <p id="wk-total" role="status" aria-live="polite" style="margin:4px 0 0;font-size:clamp(28px,4vw,38px);font-weight:800;line-height:1.1;color:#0A1F44"></p>
+          <p style="margin:6px 0 0;font-size:14px;color:#3A4A63">Estimate at the standard per-run rate. Multi-stop routes and regular schedules are priced with you, and your rate is set before the first run.</p>
+          <a id="wk-ask" class="b b-cta" href="#quote" style="margin-top:14px">Quote this route</a>
+        </form>
+      </div></div>
+    </section>
+
+    <section class="band">
+      <div class="w">
+        <h2 class="h2" style="margin-bottom:20px">Who it’s for</h2>
+        <div class="cols" style="--min:260px">
+          {who.map(([h, p]) => <div><h3 style="font-size:20px;font-weight:700;margin-bottom:6px">{h}</h3><p class="lede" style="font-size:16px">{p}</p></div>)}
+        </div>
+      </div>
+    </section>
+
+    <section class="band gray">
+      <div class="w">
+        <h2 class="h2" style="margin-bottom:20px">How it works</h2>
+        <ol class="cols" style="--min:240px;list-style:none;padding:0;margin:0">
+          {how.map(([h, p], i) => <li><p style="font-size:15px;font-weight:700;color:#F26A1B;margin:0 0 4px">Step {i + 1}</p><h3 style="font-size:20px;font-weight:700;margin-bottom:6px">{h}</h3><p class="lede" style="font-size:16px">{p}</p></li>)}
+        </ol>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="w cols" style="--min:260px">
+        <div><h2 class="h2" style="font-size:24px;margin-bottom:8px">The van</h2>
+          <p class="lede" style="font-size:16px">All-electric high-roof cargo van. Up to 3 pallets or 2,300 lb, cargo floor {ft(C.length)} long, {ft(C.width)} wide, {ft(C.height)} tall. <a href={`${F.path}#fits`}>See what fits</a>.</p></div>
+        <div><h2 class="h2" style="font-size:24px;margin-bottom:8px">Where</h2>
+          <p class="lede" style="font-size:16px">Same-day across {F.sameDay.slice(0, -1).join(', ')} and {F.sameDay.at(-1)}. Longer routes by arrangement.</p></div>
+        <div><h2 class="h2" style="font-size:24px;margin-bottom:8px">Proof on every run</h2>
+          <p class="lede" style="font-size:16px">{F.showPhotoProof ? 'A photo at every drop, sent to you right away, so your office knows it landed.' : 'A text at every drop, so your office knows it landed.'}{usdot() ? ` USDOT ${usdot()}. ` : ' '}{F.insurance}.</p></div>
+      </div>
+    </section>
+
+    <section id="quote" class="band gray">
+      <div class="w cols" style="--min:380px;align-items:start">
+        <div><h2 style="font-size:clamp(30px,3.6vw,46px);line-height:1.06">Set up a route</h2>
+          <p class="lede" style="margin-top:12px">Send where it starts, the stops, the days and the times. You’ll get a per-run rate and a start date.</p>
+          {biz.phone && <p style="margin-top:12px"><a class="b b-line" href={smsHref('Hi! I’d like to set up a standing delivery route.\nFrom:\nStops:\nDays and times:\n')}>Text the route instead</a></p>}</div>
+        <FreightForm />
+      </div>
+    </section>
+  </main>
+  <FreightChrome part="footer" base={F.path} />
+</Brand>
+
+<script is:inline>
+(function () {
+  var f = document.getElementById('wk');
+  if (!f) return;
+  var M = JSON.parse(f.getAttribute('data-m')), E = JSON.parse(f.getAttribute('data-e'));
+  var names = [].map.call(f.from.options, function (o) { return o.value; });
+  function five(n) { return Math.round(n / 5) * 5; }
+  function money(n) { return '$' + n.toLocaleString('en-US'); }
+  function update() {
+    var i = names.indexOf(f.from.value), j = names.indexOf(f.to.value), n = +f.n.value, m = i === j ? 0 : M[i][j];
+    var a = Math.max(E.from, five(m * E.perMileLow)), b = Math.max(E.from, five(m * E.perMileHigh));
+    document.getElementById('wk-run').textContent = (m ? m + ' miles · ' : 'Same town · ') + (a === b ? money(a) : money(a) + '–' + money(b)) + ' a run';
+    document.getElementById('wk-total').textContent = (a === b ? money(a * n) : money(a * n) + '–' + money(b * n)) + ' a week';
+  }
+  update();
+  f.addEventListener('change', update);
+  f.addEventListener('submit', function (e) { e.preventDefault(); });
+  var q = document.getElementById('freight-form');
+  if (q) q.querySelector('[name=service]').value = 'Dedicated route';
+  document.getElementById('wk-ask').addEventListener('click', function () {
+    if (!q) return;
+    var p = q.querySelector('[name=materials_pickup]'), d = q.querySelector('[name=address]'), w = q.querySelector('[name=details]');
+    if (p && !p.value) p.value = f.from.value + ', TX';
+    if (d && !d.value) d.value = f.to.value + ', TX';
+    if (w && !w.value) w.value = f.n.value + (f.n.value === '1' ? ' run' : ' runs') + ' a week. Estimate shown: ' + document.getElementById('wk-total').textContent + '. Days and times: ';
+  });
+})();
+</script>

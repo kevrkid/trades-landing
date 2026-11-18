@@ -324,6 +324,13 @@ try {
   const rld = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent()) || '{}');
   ok(rld['@type'] === 'Service' && rld.offers?.priceSpecification?.minPrice > 0 && (await page.locator('link[rel=canonical]').getAttribute('href') || '').endsWith('/freight/austin-to-houston'), 'route page: search data and canonical');
   ok(readFileSync('dist-real/sitemap.xml', 'utf8').includes('/freight/austin-to-dallas'), 'route pages: in the sitemap');
+  await page.goto(R + freight.path + '/dedicated-routes');
+  ok(/^\$[\d,]+(–\$[\d,]+)? a week$/.test(await page.locator('#wk-total').innerText()) && await page.locator('#freight-form [name=service]').inputValue() === 'Dedicated route', 'dedicated routes: weekly estimate shows and the form is set to Dedicated route');
+  await page.locator('#wk [name=n]').selectOption('1'); await page.locator('#wk [name=to]').selectOption('Round Rock');
+  ok(await page.locator('#wk-total').innerText() === '$' + freight.estimate.from + ' a week', 'dedicated routes: one same-town run a week is the minimum');
+  await page.locator('#wk-ask').click();
+  ok((await page.locator('#freight-form [name=details]').inputValue()).startsWith('1 run a week'), 'dedicated routes: Quote this route fills the form');
+  ok(readFileSync('dist-real/sitemap.xml', 'utf8').includes('/freight/dedicated-routes'), 'dedicated routes: in the sitemap');
   await page.goto(R + freight.path);
   const fit = page.locator('#fit'), fitOut = page.locator('#fit-out');
   await fit.locator('[name=l]').fill('12 ft'); await fit.locator('[name=w]').fill('4 ft'); await fit.locator('[name=h]').fill('2 ft');
