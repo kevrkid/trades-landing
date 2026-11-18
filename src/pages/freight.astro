@@ -4,6 +4,9 @@
 import Brand from '../layouts/Brand.astro';
 import Icon from '../components/Icon.astro';
 import FreightForm from '../components/FreightForm.astro';
+import FreightChrome from '../components/FreightChrome.astro';
+import PriceEstimate from '../components/PriceEstimate.astro';
+import { routePages, slug, between, routePrice } from '../data/routes.ts';
 import { biz, telHref, smsHref, phoneDisplay, priceText, siteUrl, saferUrl, usdot } from '../lib/derive.ts';
 import { freight as F } from '../data/freight.ts';
 import markSvg from '../assets/elektrx-mark.svg?raw';
@@ -50,21 +53,7 @@ const faq = [
 <Brand theme="cf" siteName={F.name} canonicalPath={F.path} ld={ld} ogImage="/og-freight.png"
   icon="/brand/elektrx-favicon.png" touchIcon="/brand/elektrx-touch.png"
   title={`${F.name} | Same-day job-site delivery across the Texas Triangle`} description={description}>
-  <header class="top">
-    <div class="w">
-      <a class="brand" href="#top">
-        <Fragment set:html={mark(56)} />
-        <span>{F.name}</span>
-      </a>
-      <nav class="nav" aria-label="Main">
-        <a href="#services">Services</a><a href="#carry">What we carry</a><a href="#van">The van</a><a href="#about">About</a><a href="/">Trade services</a>
-      </nav>
-      <div class="top-cta">
-        {biz.phone && <a class="tel hide-sm" href={telHref}>{phoneDisplay()}</a>}
-        <a class="b b-cta b-sm" href="#quote">Get a quote</a>
-      </div>
-    </div>
-  </header>
+  <FreightChrome part="header" />
 
   <main>
     <section id="top" class="navy">
@@ -139,6 +128,15 @@ const faq = [
           {F.services.map((s) => (
             <div class="row3"><h3>{s.name}</h3><p>{s.what}</p><p class="when"><a href="#quote" data-level={s.name} style="text-decoration:none">{s.when}</a></p></div>
           ))}
+        </div>
+        <div class="cols" style="--min:300px;margin-top:32px;align-items:start;gap:24px 40px">
+          <PriceEstimate />
+          <div>
+            <h3 style="font-size:20px;font-weight:700;margin-bottom:12px">Popular runs from Austin</h3>
+            <ul style="list-style:none;padding:0;margin:0;display:grid;gap:0;font-size:16px">
+              {routePages.map((c) => { const r = between('Austin', c); return <li><a href={`${F.path}/${slug('Austin', c)}`} style="font-weight:600;display:inline-flex;align-items:center;min-height:48px">Austin to {c}</a> <span style="color:#3A4A63">· {r.miles} mi · {routePrice(r.miles)}</span></li>; })}
+            </ul>
+          </div>
         </div>
       </div>
     </section>
@@ -334,40 +332,7 @@ const faq = [
     </section>
   </main>
 
-  <footer class="foot">
-    <div class="w">
-      <div class="cols" style="--min:220px;gap:32px 40px">
-        <div class="col" style="gap:14px">
-          <div style="display:flex;align-items:center;gap:10px"><Fragment set:html={mark(48)} /><span style="font-size:21px;font-weight:700">{F.name}</span></div>
-          <p style="max-width:34ch">Same-day job-site delivery across the Texas Triangle. Based in Leander, Texas.</p>
-        </div>
-        <div class="col">
-          <h3>Contact</h3>
-          {biz.phone && <a href={telHref}>{phoneDisplay()}, call or text</a>}
-          {biz.email && <a href={`mailto:${biz.email}`} style="overflow-wrap:anywhere">{biz.email}</a>}
-          {hours && <span>{hours}</span>}
-        </div>
-        <div class="col">
-          <h3>Service area</h3>
-          <span>Austin and Central Texas</span><span>San Antonio, Houston, Dallas–Fort Worth</span><span>Statewide by arrangement</span>
-        </div>
-        <div class="col">
-          <h3>Company</h3>
-          <a href="#services">Delivery services</a><a href="/">Trade services by {lb}</a><a href="#about">About</a><a href="#quote">Get a quote</a><a href="/privacy">Privacy</a>
-        </div>
-      </div>
-      <div class="legal">
-        <span>© {year} {operated.replace(/ USDOT.*/, '')} Owner: {biz.owner.name}.</span>
-        <span>{usdot() && <><a href={saferUrl()} rel="noopener" style="text-decoration:underline">USDOT {usdot()}</a>.</>} {insured && `${insured}.`}</span>
-      </div>
-    </div>
-  </footer>
-
-  <nav class="bar" aria-label="Contact">
-    {biz.phone && <a class="b b-line" href={telHref}><Icon name="call" />Call</a>}
-    {biz.phone && <a class="b b-line" href={smsHref('Hi! I need a freight quote.\n')}><Icon name="text" />Text</a>}
-    <a class="b b-cta" href="#quote"><Icon name="quote" />Quote</a>
-  </nav>
+  <FreightChrome part="footer" />
 <script is:inline>
 (function () {
   var f = document.getElementById('fit');

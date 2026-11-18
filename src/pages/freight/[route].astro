@@ -1,0 +1,96 @@
+---
+// One page per popular run from Austin (/freight/austin-to-houston, ...), so contractors searching for that route
+// find it. Distances and drive times come from src/data/routes.ts, the estimate from freight.estimate.
+import Brand from '../../layouts/Brand.astro';
+import FreightForm from '../../components/FreightForm.astro';
+import FreightChrome from '../../components/FreightChrome.astro';
+import PriceEstimate from '../../components/PriceEstimate.astro';
+import { biz, telHref, phoneDisplay, siteUrl, usdot } from '../../lib/derive.ts';
+import { freight as F } from '../../data/freight.ts';
+import { routePages, slug, between, routePrice, priceRange, driveText, type City } from '../../data/routes.ts';
+
+export function getStaticPaths() {
+  return routePages.map((to) => ({ params: { route: slug('Austin', to) }, props: { to } }));
+}
+const from: City = 'Austin';
+const { to } = Astro.props as { to: City };
+const r = between(from, to);
+const price = routePrice(r.miles);
+const [lo, hi] = priceRange(r.miles);
+const drive = driveText(r.minutes);
+const C = F.cargo;
+const ft = (i: number) => `${Math.floor(i / 12)} ft${i % 12 ? ` ${i % 12} in` : ''}`;
+const url = siteUrl();
+const path = `${F.path}/${slug(from, to)}`;
+const description = `Hot shot and same-day cargo van delivery from ${from} to ${to}: ${r.miles} miles, ${drive} of driving, estimated ${price}. Parts and materials to your job site, in an all-electric van.${usdot() ? ` USDOT ${usdot()}.` : ''}`;
+const ld = {
+  '@context': 'https://schema.org', '@type': 'Service', name: `${from} to ${to} delivery`, serviceType: 'Same-day freight delivery', description,
+  ...(url ? { url: url + path } : {}),
+  areaServed: [from, to].map((name) => ({ '@type': 'City', name })),
+  provider: { '@type': 'LocalBusiness', name: F.name, ...(url ? { url: url + F.path } : {}), ...(biz.phone ? { telephone: biz.phone } : {}), address: { '@type': 'PostalAddress', addressLocality: 'Leander', addressRegion: 'TX', addressCountry: 'US' } },
+  offers: { '@type': 'Offer', priceSpecification: { '@type': 'PriceSpecification', priceCurrency: 'USD', minPrice: lo, maxPrice: hi } },
+};
+const faq = [
+  [`Can you deliver from ${from} to ${to} the same day?`, `Yes. ${to} is in the same-day area. Call or text, and you’ll get a pickup time when you book. Hot shot runs go straight from pickup to your site with no other stops.`],
+  [`How long does it take?`, `The drive is ${r.miles} miles, ${drive} without traffic. Your pickup and delivery times are confirmed when you book.`],
+  [`What does it cost?`, `About ${price} for a run from ${from} to ${to}, based on ${F.estimate.perMileLow === F.estimate.perMileHigh ? `$${F.estimate.perMileLow}` : `$${F.estimate.perMileLow.toFixed(2)}–$${F.estimate.perMileHigh.toFixed(2)}`} per mile. Your rate is confirmed before the van moves.`],
+  [`Do you go the other way, ${to} to ${from}?`, `Yes. Runs go both ways, and between ${to} and anywhere else in the Texas Triangle.`],
+  [`What fits?`, `Up to 3 pallets or 2,300 lb. The cargo floor is ${ft(C.length)} long and ${ft(C.width)} wide, with ${ft(C.height)} of standing height.`],
+];
+const others = routePages.filter((c) => c !== to);
+---
+<Brand theme="cf" siteName={F.name} canonicalPath={path} ld={ld} ogImage="/og-freight.png"
+  icon="/brand/elektrx-favicon.png" touchIcon="/brand/elektrx-touch.png"
+  title={`${from} to ${to} hot shot and same-day delivery | ${F.name}`} description={description}>
+  <FreightChrome part="header" base={F.path} />
+  <main>
+    <section id="top" class="navy">
+      <div class="hero"><div class="w" style="align-items:center">
+        <div class="copy">
+          <p style="font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#F26A1B;margin:0"><a href={F.path} style="color:inherit;text-decoration:none">{F.name}</a></p>
+          <h1>{from} to {to} delivery, same day</h1>
+          <p>Parts and materials picked up in {from} and driven to your job site in {to}: {r.miles} miles, {drive} of driving. Hot shot, same-day and scheduled runs in an all-electric cargo van.</p>
+          <div class="btns">
+            <a class="b b-cta" href="#quote">Get a quote</a>
+            {biz.phone && <a class="b b-ghost" href={telHref}>Call {phoneDisplay()}</a>}
+          </div>
+        </div>
+        <div style="color:#0A1F44"><PriceEstimate from={from} to={to} /></div>
+      </div></div>
+    </section>
+
+    <section class="band">
+      <div class="w cols" style="--min:260px">
+        <div><h2 class="h2" style="font-size:24px;margin-bottom:8px">Services on this run</h2>
+          <ul style="padding-left:20px;margin:0;display:grid;gap:6px;font-size:16px">{F.services.map((s) => <li><b>{s.name}:</b> {s.what}</li>)}</ul></div>
+        <div><h2 class="h2" style="font-size:24px;margin-bottom:8px">What fits</h2>
+          <p class="lede" style="font-size:16px">Up to 3 pallets or 2,300 lb. Cargo floor {ft(C.length)} long, {ft(C.width)} wide, {ft(C.height)} tall: 4×8 sheets lie flat, and pipe and conduit up to 14 feet ride inside. <a href={`${F.path}#fits`}>See the diagrams and check your load</a>.</p></div>
+        <div><h2 class="h2" style="font-size:24px;margin-bottom:8px">How it works</h2>
+          <p class="lede" style="font-size:16px">Send the pickup, delivery and what’s moving. You get your rate and a pickup time, the van loads in {from}, and it goes straight to your site in {to}.</p></div>
+      </div>
+    </section>
+
+    <section class="band gray">
+      <div class="w" style="max-width:860px">
+        <h2 class="h2" style="margin-bottom:16px">Questions about {from} to {to}</h2>
+        {faq.map(([q, a]) => <details style="border-top:1px solid var(--line);padding:14px 0"><summary style="font-weight:700;font-size:17px;cursor:pointer">{q}</summary><p style="margin:8px 0 0;line-height:1.55">{a}</p></details>)}
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="w">
+        <h2 class="h2" style="font-size:24px;margin-bottom:12px">Other runs from {from}</h2>
+        <p style="display:flex;flex-wrap:wrap;gap:0 20px;margin:0;font-size:16px">{others.map((c) => <a href={`${F.path}/${slug(from, c)}`} style="font-weight:600;display:inline-flex;align-items:center;min-height:48px">{from} to {c}</a>)}</p>
+      </div>
+    </section>
+
+    <section id="quote" class="band gray">
+      <div class="w cols" style="--min:380px;align-items:start">
+        <div><h2 style="font-size:clamp(30px,3.6vw,46px);line-height:1.06">Get a quote</h2>
+          <p class="lede" style="margin-top:12px">Tell us what’s moving from {from} to {to}. You’ll get your rate and a pickup time before anything moves.</p></div>
+        <FreightForm />
+      </div>
+    </section>
+  </main>
+  <FreightChrome part="footer" base={F.path} />
+</Brand>

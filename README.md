@@ -8,7 +8,9 @@ a thumb's reach.
 > **Status (2026-11-17): LIVE at https://trades-landing-321.pages.dev** (Cloudflare Pages project `trades-landing`,
 > deployed from `main`). Locker Box at `/` and `/van` (the QR code) is back to its pre-split design (owner, 11-17: didn't like the
 > rebuild). The freight brand, ELEKTRX Freight (renamed from Chalkline 11-17), is at `/freight` (name only in
-> `src/data/freight.ts`), and the Locker Box page has a small `#freight` section linking to it. Moving is off the page until the TxDMV number is issued (restore steps are in the comment by
+> `src/data/freight.ts`), and the Locker Box page has a small `#freight` section linking to it. Since 11-18 /freight also has a "Will it fit?"
+> checker, an instant price estimate (rates in `freight.estimate`, assumed per one-way mile; driving miles in
+> `src/data/routes.ts` from OpenStreetMap routing) and ten route pages at `/freight/austin-to-<city>` (in the sitemap). Moving is off the page until the TxDMV number is issued (restore steps are in the comment by
 > `headline` in business.ts). The old `delivery-pages` branch is superseded by `/freight`. Deploy note: wrangler 4.15x tries to turn Pages projects into Workers and rewrites astro.config,
 > package.json and wrangler.jsonc; the project was created on classic Pages, so `npm run deploy` now works as is.
 > If those files ever change during a deploy, revert them.

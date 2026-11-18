@@ -1,0 +1,55 @@
+---
+// Instant price estimate between two same-day cities (driving miles from src/data/routes.ts, rates from
+// freight.estimate). "Quote this run" fills the pickup and delivery cities into the freight form below.
+import { cities, miles, minutes, routePrice, driveText, between, type City } from '../data/routes.ts';
+import { freight as F } from '../data/freight.ts';
+
+interface Props { from?: City; to?: City; }
+const { from = 'Austin', to = 'Houston' } = Astro.props;
+const d = between(from, to);
+const e = F.estimate;
+---
+<form id="est" class="card" data-m={JSON.stringify(miles)} data-t={JSON.stringify(minutes)} data-e={JSON.stringify(e)} novalidate>
+  <h3 style="font-size:20px;font-weight:700;margin-bottom:12px;color:#0A1F44">Instant estimate</h3>
+  <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))">
+    <label class="field">Pickup in
+      <select name="from">{cities.map((c) => <option selected={c === from}>{c}</option>)}</select>
+    </label>
+    <label class="field">Delivery to
+      <select name="to">{cities.map((c) => <option selected={c === to}>{c}</option>)}</select>
+    </label>
+  </div>
+  <p style="margin:0;font-size:15px;color:#3A4A63"><span id="est-trip">{d.miles} miles, {driveText(d.minutes)} of driving</span></p>
+  <p id="est-price" role="status" aria-live="polite" style="margin:4px 0 0;font-size:clamp(30px,4vw,40px);font-weight:800;line-height:1.1;color:#0A1F44">{routePrice(d.miles)}</p>
+  <p style="margin:6px 0 0;font-size:14px;color:#3A4A63">Estimate for one run, pickup to delivery. Your rate is confirmed before the van moves. Other towns and long runs across Texas are quoted by the trip.</p>
+  <a id="est-ask" class="b b-cta" href="#quote" style="margin-top:14px">Quote this run</a>
+</form>
+
+<script is:inline>
+(function () {
+  var f = document.getElementById('est');
+  if (!f) return;
+  var M = JSON.parse(f.getAttribute('data-m')), T = JSON.parse(f.getAttribute('data-t')), E = JSON.parse(f.getAttribute('data-e'));
+  var names = [].map.call(f.from.options, function (o) { return o.value; });
+  function five(n) { return Math.round(n / 5) * 5; }
+  function drive(min) { var r = Math.max(5, five(min)), h = Math.floor(r / 60), m = r % 60; return 'about ' + (h ? h + ' h' : '') + (h && m ? ' ' : '') + (m ? m + ' min' : ''); }
+  function update() {
+    var i = names.indexOf(f.from.value), j = names.indexOf(f.to.value);
+    var trip = document.getElementById('est-trip'), price = document.getElementById('est-price');
+    if (i === j) { trip.textContent = 'Same town'; price.textContent = '$' + E.from; return; }
+    var m = M[i][j], a = Math.max(E.from, five(m * E.perMileLow)), b = Math.max(E.from, five(m * E.perMileHigh));
+    trip.textContent = m + ' miles, ' + drive(T[i][j]) + ' of driving';
+    price.textContent = a === b ? '$' + a : '$' + a + '–$' + b;
+  }
+  f.addEventListener('change', update);
+  f.addEventListener('submit', function (e) { e.preventDefault(); });
+  document.getElementById('est-ask').addEventListener('click', function () {
+    var q = document.getElementById('freight-form');
+    if (!q) return;
+    var p = q.querySelector('[name=materials_pickup]'), d = q.querySelector('[name=address]'), n = q.querySelector('[name=details]');
+    if (p && !p.value) p.value = f.from.value + ', TX';
+    if (d && !d.value) d.value = f.to.value + ', TX';
+    if (n && !n.value) n.value = 'Estimate shown: ' + document.getElementById('est-price').textContent + '. ';
+  });
+})();
+</script>

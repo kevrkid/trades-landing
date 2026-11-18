@@ -21,6 +21,10 @@ export const freight = {
   // Prices approved by the owner 11-16 (freight from $95; Triangle runs about $2.50-$3 per mile).
   pricing: 'Runs start at $95 around Austin. Longer Texas Triangle runs are about $2.50–$3 per mile, and long runs across Texas are quoted by the trip. Your rate is confirmed before the van moves.',
 
+  // Instant estimate on /freight and the route pages, from the approved pricing above. Assumption (11-18): the
+  // per-mile rate applies to one-way driving miles from pickup to delivery. Change here if that's wrong.
+  estimate: { from: 95, perMileLow: 2.5, perMileHigh: 3 },
+
   services: [
     { name: 'Hot shot', what: 'Your load only, driven straight from pickup to your site.', when: 'For urgent loads' },
     { name: 'Same-day', what: 'Picked up and delivered the same day across the Texas Triangle.', when: 'Call or text any day' },

@@ -1,0 +1,69 @@
+---
+// Shared top bar / footer for the freight pages. `base` is '' on /freight and '/freight' on route pages, so the
+// section links point back to the main freight page.
+import Icon from './Icon.astro';
+import { biz, telHref, smsHref, phoneDisplay, saferUrl, usdot } from '../lib/derive.ts';
+import { freight as F } from '../data/freight.ts';
+import markSvg from '../assets/elektrx-mark.svg?raw';
+interface Props { base?: string; part: 'header' | 'footer'; }
+const { base = '', part } = Astro.props;
+const lb = biz.name || 'Locker Box';
+const insured = F.insurance;
+const hours = biz.hours.map((h) => `${h.days}: ${h.time}`).join(' · ');
+const year = new Date().getFullYear();
+const operated = `${F.name}, operated by ${lb}.${usdot() ? ` USDOT ${usdot()}.` : ''}`;
+const mark = (size: number) => markSvg.replace('<svg ', `<svg width="${size}" height="${size}" aria-hidden="true" `);
+---
+{part === 'header' && (
+  <header class="top">
+    <div class="w">
+      <a class="brand" href={base ? base : "#top"}>
+        <Fragment set:html={mark(56)} />
+        <span>{F.name}</span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a href={`${base}#services`}>Services</a><a href={`${base}#carry`}>What we carry</a><a href={`${base}#van`}>The van</a><a href={`${base}#about`}>About</a><a href="/">Trade services</a>
+      </nav>
+      <div class="top-cta">
+        {biz.phone && <a class="tel hide-sm" href={telHref}>{phoneDisplay()}</a>}
+        <a class="b b-cta b-sm" href="#quote">Get a quote</a>
+      </div>
+    </div>
+  </header>
+)}
+{part === 'footer' && (<>
+  <footer class="foot">
+    <div class="w">
+      <div class="cols" style="--min:220px;gap:32px 40px">
+        <div class="col" style="gap:14px">
+          <div style="display:flex;align-items:center;gap:10px"><Fragment set:html={mark(48)} /><span style="font-size:21px;font-weight:700">{F.name}</span></div>
+          <p style="max-width:34ch">Same-day job-site delivery across the Texas Triangle. Based in Leander, Texas.</p>
+        </div>
+        <div class="col">
+          <h3>Contact</h3>
+          {biz.phone && <a href={telHref}>{phoneDisplay()}, call or text</a>}
+          {biz.email && <a href={`mailto:${biz.email}`} style="overflow-wrap:anywhere">{biz.email}</a>}
+          {hours && <span>{hours}</span>}
+        </div>
+        <div class="col">
+          <h3>Service area</h3>
+          <span>Austin and Central Texas</span><span>San Antonio, Houston, Dallas–Fort Worth</span><span>Statewide by arrangement</span>
+        </div>
+        <div class="col">
+          <h3>Company</h3>
+          <a href={`${base}#services`}>Delivery services</a><a href="/">Trade services by {lb}</a><a href={`${base}#about`}>About</a><a href="#quote">Get a quote</a><a href="/privacy">Privacy</a>
+        </div>
+      </div>
+      <div class="legal">
+        <span>© {year} {operated.replace(/ USDOT.*/, '')} Owner: {biz.owner.name}.</span>
+        <span>{usdot() && <><a href={saferUrl()} rel="noopener" style="text-decoration:underline">USDOT {usdot()}</a>.</>} {insured && `${insured}.`}</span>
+      </div>
+    </div>
+  </footer>
+
+  <nav class="bar" aria-label="Contact">
+    {biz.phone && <a class="b b-line" href={telHref}><Icon name="call" />Call</a>}
+    {biz.phone && <a class="b b-line" href={smsHref('Hi! I need a freight quote.\n')}><Icon name="text" />Text</a>}
+    <a class="b b-cta" href="#quote"><Icon name="quote" />Quote</a>
+  </nav>
+</>)}

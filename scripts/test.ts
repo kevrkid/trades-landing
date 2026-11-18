@@ -275,7 +275,7 @@ try {
   ok((await page.locator('footer').innerText()).includes(op) && (await page.locator('footer').innerText()).includes('USDOT 4727545'), 'freight: footer says operated by Locker Box with USDOT');
   ok(await page.locator('a[href*="safer.fmcsa.dot.gov"][href*="4727545"]').count() > 0, 'freight: USDOT links to the FMCSA SAFER lookup');
   ok(await page.locator('a[href="/"]', { hasText: 'trade services' }).count() > 0, 'freight: links to Locker Box trade services');
-  ok(await page.locator('#services h3').allInnerTexts().then((t) => t.join('|') === 'Hot shot|Same-day|Scheduled|Dedicated route'), 'freight: the four delivery services');
+  ok(await page.locator('#services .row3 h3').allInnerTexts().then((t) => t.join('|') === 'Hot shot|Same-day|Scheduled|Dedicated route'), 'freight: the four delivery services');
   const ftext = (await page.locator('body').innerText());
   ok(!/tesla|spacex|samsung|badg|\bPPE\b|\bgates?\b/i.test(ftext + (await (async () => { await page.goto(R + '/'); return page.locator('body').innerText(); })())), 'brand pages: no client names, gates, PPE or badging');
   ok(!/testimonial|★/i.test(ftext), 'freight: no reviews or ratings');
@@ -312,6 +312,19 @@ try {
   ok(((await page.locator('meta[property="og:image"]').getAttribute('content')) || '').endsWith('/og-freight.png') && (await fetch(R + '/og-freight.png')).status === 200, 'freight: its own link-preview image');
   await page.goto(R + freight.path);
   ok((await page.locator('#van').innerText()).includes('14 ft 6 in (174 in)') && await page.locator('#fits svg').count() === 3, 'freight: cargo measurements in feet and inches, with 3 what-fits diagrams');
+  await page.locator('#est [name=to]').selectOption('Dallas');
+  ok(/^\d+ miles/.test(await page.locator('#est-trip').innerText()) && /^\$\d+–\$\d+$/.test(await page.locator('#est-price').innerText()), 'estimate: Austin to Dallas shows miles and a price range');
+  await page.locator('#est [name=to]').selectOption('Round Rock');
+  ok(await page.locator('#est-price').innerText() === '$' + freight.estimate.from, 'estimate: short runs show the minimum');
+  await page.locator('#est-ask').click();
+  ok(await page.locator('#freight-form [name=materials_pickup]').inputValue() === 'Austin, TX' && await page.locator('#freight-form [name=address]').inputValue() === 'Round Rock, TX', 'estimate: Quote this run fills pickup and delivery');
+  ok(await page.locator(`a[href="${freight.path}/austin-to-houston"]`).count() > 0, 'freight: links to the route pages');
+  await page.goto(R + freight.path + '/austin-to-houston');
+  ok((await page.locator('h1').innerText()).includes('Austin to Houston') && await page.locator('#est [name=to]').inputValue() === 'Houston' && await page.locator('#freight-form').count() === 1, 'route page: Austin to Houston with estimate and quote form');
+  const rld = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent()) || '{}');
+  ok(rld['@type'] === 'Service' && rld.offers?.priceSpecification?.minPrice > 0 && (await page.locator('link[rel=canonical]').getAttribute('href') || '').endsWith('/freight/austin-to-houston'), 'route page: search data and canonical');
+  ok(readFileSync('dist-real/sitemap.xml', 'utf8').includes('/freight/austin-to-dallas'), 'route pages: in the sitemap');
+  await page.goto(R + freight.path);
   const fit = page.locator('#fit'), fitOut = page.locator('#fit-out');
   await fit.locator('[name=l]').fill('12 ft'); await fit.locator('[name=w]').fill('4 ft'); await fit.locator('[name=h]').fill('2 ft');
   ok((await fitOut.innerText()).startsWith('It fits') && await page.locator('#fit-ask').isVisible(), 'will it fit: a 12 x 4 x 2 ft load fits');
