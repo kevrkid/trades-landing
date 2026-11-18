@@ -8,8 +8,9 @@ import { biz, isSample, siteUrl, todos } from '../lib/derive.ts';
 interface Props {
   title: string; description: string; canonicalPath: string; theme: 'lb' | 'cf';
   siteName: string; ogImage?: string; ld?: Record<string, unknown> | null; bar?: boolean;
+  icon?: string; touchIcon?: string;
 }
-const { title, description, canonicalPath, theme, siteName, ogImage = '', ld = null, bar = true } = Astro.props;
+const { title, description, canonicalPath, theme, siteName, ogImage = '', ld = null, bar = true, icon = '/favicon.png', touchIcon = '/apple-touch-icon.png' } = Astro.props;
 const url = siteUrl();
 const canonical = url ? url + (canonicalPath === '/' ? '/' : canonicalPath) : '';
 ---
@@ -23,8 +24,8 @@ const canonical = url ? url + (canonicalPath === '/' ? '/' : canonicalPath) : ''
     {(isSample || todos().some((t) => t.blocker)) && <meta name="robots" content="noindex" />}
     {canonical && <link rel="canonical" href={canonical} />}
     <meta name="theme-color" content="#0A1F44" />
-    <link rel="icon" href="/favicon.png" type="image/png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href={icon} type="image/png" />
+    <link rel="apple-touch-icon" href={touchIcon} />
     <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />

@@ -308,6 +308,8 @@ try {
   const fields = await ff.evaluate((f) => [...new Set([...(f as HTMLFormElement).elements].map((e) => (e as HTMLInputElement).name).filter(Boolean))]);
   ok(['service', 'materials_what', 'materials_pickup', 'address', 'timing', 'preferred_times', 'details', 'name', 'phone', 'source'].every((n) => fields.includes(n)), 'freight form: keeps every field the old freight quote sent');
   ok(readFileSync('dist-real/sitemap.xml', 'utf8').includes('/freight'), 'freight: in the sitemap');
+  ok(await page.locator('link[rel=icon]').getAttribute('href') === '/brand/elektrx-favicon.png' && (await fetch(R + '/brand/elektrx-favicon.png')).status === 200 && (await fetch(R + '/brand/elektrx-touch.png')).status === 200, 'freight: its own tab and home-screen icons');
+  ok(((await page.locator('meta[property="og:image"]').getAttribute('content')) || '').endsWith('/og-freight.png') && (await fetch(R + '/og-freight.png')).status === 200, 'freight: its own link-preview image');
   await page.goto(R + freight.path);
   ok((await page.locator('#van').innerText()).includes('14 ft 6 in (174 in)') && await page.locator('#fits svg').count() === 3, 'freight: cargo measurements in feet and inches, with 3 what-fits diagrams');
   ok(((await page.locator('animateMotion').first().getAttribute('path')) || '').split('L').length > 8, 'freight: the map token tours the whole map');
