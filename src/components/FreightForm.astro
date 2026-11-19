@@ -18,7 +18,7 @@ const levels = [...freight.services.map((s) => s.name), 'Trade service'];
   {key && <input type="hidden" name="access_key" value={key} />}
   {key && <input type="hidden" name="subject" value={`New freight quote request for ${freight.name}`} />}
   {key && <input type="hidden" name="from_name" value={`${freight.name} quote form`} />}
-  {key && site && <input type="hidden" name="redirect" value={`${site}/thanks`} />}
+  {key && site && <input type="hidden" name="redirect" value={`${site}${freight.path}/thanks`} />}
   <input type="hidden" name="source" value={freight.name} />
   <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off" />
 

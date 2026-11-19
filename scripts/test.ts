@@ -343,6 +343,8 @@ try {
   await page.locator('#wk-ask').click();
   ok((await page.locator('#freight-form [name=details]').inputValue()).startsWith('1 run a week'), 'dedicated routes: Quote this route fills the form');
   ok(readFileSync('dist-real/sitemap.xml', 'utf8').includes('/freight/dedicated-routes'), 'dedicated routes: in the sitemap');
+  { const th = readFileSync('dist-real/freight/thanks.html', 'utf8');
+    ok(th.includes('name="robots" content="noindex"') && th.includes('/freight.vcf') && !readFileSync('dist-real/sitemap.xml', 'utf8').includes('/freight/thanks') && readFileSync('src/components/FreightForm.astro', 'utf8').includes('${freight.path}/thanks'), 'freight thanks page: own brand, noindex, not in the sitemap, and the form sends people there'); }
   const fv = readFileSync('dist-real/freight.vcf', 'utf8');
   ok(fv.includes('FN:' + freight.name) && fv.includes('TEL;TYPE=CELL:' + business.phone) && await page.locator('a[href="/freight.vcf"]').count() >= 2 && readFileSync('dist-real/_headers', 'utf8').includes('/freight.vcf'), 'freight: Save to contacts card with the brand name and phone');
   await page.goto(R + freight.path);

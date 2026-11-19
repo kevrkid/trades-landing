@@ -1,0 +1,28 @@
+---
+// Where the freight quote form lands after Web3Forms sends it (once web3formsKey is set). Not in the sitemap.
+import Brand from '../../layouts/Brand.astro';
+import FreightChrome from '../../components/FreightChrome.astro';
+import Icon from '../../components/Icon.astro';
+import { biz, telHref, smsHref, phoneDisplay } from '../../lib/derive.ts';
+import { freight as F } from '../../data/freight.ts';
+---
+<Brand theme="cf" siteName={F.name} canonicalPath={`${F.path}/thanks`} noindex
+  icon="/brand/elektrx-favicon.png" touchIcon="/brand/elektrx-touch.png"
+  title={`Request sent | ${F.name}`} description="Your freight quote request was sent.">
+  <FreightChrome part="header" base={F.path} quote={`${F.path}#quote`} />
+  <main>
+    <section class="band">
+      <div class="w" style="max-width:640px;display:grid;gap:16px">
+        <h1 style="font-size:clamp(32px,5vw,48px);line-height:1.05">Got it. Your request is in.</h1>
+        <p class="lede" style="font-size:18px">You’ll get your rate and a pickup time{biz.phone && <> by text or a call from <span style="white-space:nowrap">{phoneDisplay()}</span></>}. In a hurry? Call or text now.</p>
+        {biz.phone && <div class="btns">
+          <a class="b b-cta" href={telHref}><Icon name="call" />Call</a>
+          <a class="b b-line" href={smsHref('Hi! I just sent a freight quote request. Photos of the load:')}><Icon name="text" />Text photos of the load</a>
+          <a class="b b-line" href="/freight.vcf">Save to contacts</a>
+        </div>}
+        <p style="display:flex;flex-wrap:wrap;gap:0 20px"><a href={F.path} style="text-decoration:underline;min-height:48px;display:inline-flex;align-items:center">Back to {F.name}</a><a href={`${F.path}/dedicated-routes`} style="text-decoration:underline;min-height:48px;display:inline-flex;align-items:center">Need this every week?</a></p>
+      </div>
+    </section>
+  </main>
+  <FreightChrome part="footer" base={F.path} quote={`${F.path}#quote`} />
+</Brand>

@@ -5,8 +5,9 @@ import Icon from './Icon.astro';
 import { biz, telHref, smsHref, phoneDisplay, saferUrl, usdot } from '../lib/derive.ts';
 import { freight as F } from '../data/freight.ts';
 import markSvg from '../assets/elektrx-mark.svg?raw';
-interface Props { base?: string; part: 'header' | 'footer'; }
-const { base = '', part } = Astro.props;
+interface Props { base?: string; part: 'header' | 'footer'; quote?: string; }
+// `quote`: where the Get a quote buttons go (the page's own form by default).
+const { base = '', part, quote = '#quote' } = Astro.props;
 const lb = biz.name || 'Locker Box';
 const insured = F.insurance;
 const hours = biz.hours.map((h) => `${h.days}: ${h.time}`).join(' · ');
@@ -26,7 +27,7 @@ const mark = (size: number) => markSvg.replace('<svg ', `<svg width="${size}" he
       </nav>
       <div class="top-cta">
         {biz.phone && <a class="tel hide-sm" href={telHref}>{phoneDisplay()}</a>}
-        <a class="b b-cta b-sm" href="#quote">Get a quote</a>
+        <a class="b b-cta b-sm" href={quote}>Get a quote</a>
       </div>
     </div>
   </header>
@@ -52,7 +53,7 @@ const mark = (size: number) => markSvg.replace('<svg ', `<svg width="${size}" he
         </div>
         <div class="col">
           <h3>Company</h3>
-          <a href={`${base}#services`}>Delivery services</a><a href="/">Trade services by {lb}</a><a href={`${base}#about`}>About</a><a href="#quote">Get a quote</a><a href="/privacy">Privacy</a>
+          <a href={`${base}#services`}>Delivery services</a><a href="/">Trade services by {lb}</a><a href={`${base}#about`}>About</a><a href={quote}>Get a quote</a><a href="/privacy">Privacy</a>
         </div>
       </div>
       <div class="legal">
@@ -65,6 +66,6 @@ const mark = (size: number) => markSvg.replace('<svg ', `<svg width="${size}" he
   <nav class="bar" aria-label="Contact">
     {biz.phone && <a class="b b-line" href={telHref}><Icon name="call" />Call</a>}
     {biz.phone && <a class="b b-line" href={smsHref('Hi! I need a freight quote.\n')}><Icon name="text" />Text</a>}
-    <a class="b b-cta" href="#quote"><Icon name="quote" />Quote</a>
+    <a class="b b-cta" href={quote}><Icon name="quote" />Quote</a>
   </nav>
 </>)}
