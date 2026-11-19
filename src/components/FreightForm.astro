@@ -4,7 +4,7 @@
 // freight fields (date_needed, pieces, weight, company, email). Sent the same way as the Locker Box form:
 // Web3Forms when a key is set, otherwise the visitor's own email or text app with the answers filled in.
 import Icon from './Icon.astro';
-import { biz, siteUrl, smsHref } from '../lib/derive.ts';
+import { biz, siteUrl, smsHref, phoneDisplay } from '../lib/derive.ts';
 import { freight } from '../data/freight.ts';
 
 const key = biz.web3formsKey;
@@ -61,6 +61,8 @@ const levels = [...freight.services.map((s) => s.name), 'Trade service'];
     {biz.email && <a class="b b-cta" id="freight-email">Send by email</a>}
     {biz.phone && <a class="b b-line" id="freight-text"><Icon name="text" />Send by text</a>}
   </div>
+  <button type="button" class="b b-line" style="margin-top:10px;width:100%" id="freight-copy">Copy my answers</button>
+  <p id="freight-copied" hidden style="margin:8px 0 0;font-size:15px">Copied. Paste it into a text{biz.phone && ` to ${phoneDisplay()}`}{biz.email && ` or an email to ${biz.email}`}.</p>
   <button type="button" class="textbtn" style="margin-top:8px" id="freight-edit">Change my answers</button>
 </div>
 
@@ -94,6 +96,18 @@ const levels = [...freight.services.map((s) => s.name), 'Trade service'];
     panel.hidden = false;
     panel.scrollIntoView({ block: 'center' });
   });
+  // No mail app (common on office computers)? Copy the answers so they can be pasted into any text or email.
+  function copyAnswers(btn, note) {
+    // The instant way first (works right inside the tap); the newer clipboard API only if that fails.
+    var t = summary(), done = function () { note.hidden = false; btn.textContent = 'Copied'; };
+    var a = document.createElement('textarea'), ok = false;
+    a.value = t; a.setAttribute('readonly', ''); a.style.position = 'fixed'; a.style.opacity = '0';
+    document.body.appendChild(a); a.select();
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    a.remove();
+    if (ok) done(); else if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, function () {});
+  }
+  document.getElementById('freight-copy').addEventListener('click', function () { copyAnswers(this, document.getElementById('freight-copied')); });
   document.getElementById('freight-edit').addEventListener('click', function () {
     document.getElementById('freight-send').hidden = true;
     f.hidden = false;

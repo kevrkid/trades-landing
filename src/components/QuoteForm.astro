@@ -3,7 +3,7 @@
 // With a Web3Forms key, answers go straight to your email. Without one, the customer's own
 // email or text app opens with the answers filled in, and they press send.
 import Icon from './Icon.astro';
-import { biz, surveyChoices, siteUrl, smsHref } from '../lib/derive.ts';
+import { biz, surveyChoices, siteUrl, smsHref, phoneDisplay } from '../lib/derive.ts';
 
 const { scan = false } = Astro.props as { scan?: boolean };
 const choices = surveyChoices();
@@ -119,6 +119,8 @@ const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevat
     {biz.email && <a class="btn btn-go" id="quote-email"><>Send by email</></a>}
     {biz.phone && <a class="btn btn-dark" id="quote-text"><Icon name="text" />Send by text</a>}
   </div>
+  <button type="button" class="btn btn-line mt-2.5 w-full" id="quote-copy">Copy my answers</button>
+  <p id="quote-copied" hidden class="mt-2">Copied. Paste it into a text{biz.phone && ` to ${phoneDisplay()}`}{biz.email && ` or an email to ${biz.email}`}.</p>
   <button type="button" class="textlink mt-2 bg-transparent cursor-pointer" id="quote-edit">Change my answers</button>
 </div>
 
@@ -205,6 +207,18 @@ const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevat
     panel.hidden = false;
     panel.scrollIntoView({ block: 'center' });
   });
+  // No mail app (common on office computers)? Copy the answers so they can be pasted into any text or email.
+  function copyAnswers(btn, note) {
+    // The instant way first (works right inside the tap); the newer clipboard API only if that fails.
+    var t = summary(), done = function () { note.hidden = false; btn.textContent = 'Copied'; };
+    var a = document.createElement('textarea'), ok = false;
+    a.value = t; a.setAttribute('readonly', ''); a.style.position = 'fixed'; a.style.opacity = '0';
+    document.body.appendChild(a); a.select();
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    a.remove();
+    if (ok) done(); else if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, function () {});
+  }
+  document.getElementById('quote-copy').addEventListener('click', function () { copyAnswers(this, document.getElementById('quote-copied')); });
   document.getElementById('quote-edit').addEventListener('click', function () {
     document.getElementById('quote-send').hidden = true;
     f.hidden = false;

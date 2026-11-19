@@ -143,6 +143,8 @@ try {
   await page.screenshot({ path: `${SHOTS}/survey-last.png` });
   await page.locator('#quote-submit').click();
   ok(await page.locator('#quote-send').isVisible(), 'survey reaches the send step');
+  await page.locator('#quote-copy').click();
+  ok(await page.locator('#quote-copied').isVisible() && (await page.locator('#quote-copy').textContent()) === 'Copied', 'survey: Copy my answers works when there is no mail app');
   const mailto = decodeURIComponent((await page.locator('#quote-email').getAttribute('href'))!);
   ok(mailto.startsWith('mailto:' + business.email) && mailto.includes('Service: Junk removal') && mailto.includes('Old couch and a fridge') && mailto.includes('A few items') && mailto.includes('When: This week') && mailto.includes('Name: Test Person') && !mailto.includes('Tear-down'), 'email has the answers');
   await page.screenshot({ path: `${SHOTS}/survey-send.png` });
@@ -313,6 +315,8 @@ try {
   ok(fmail.startsWith('mailto:' + business.email) && ['Service: Hot shot', 'Pickup: Supply house, Round Rock', 'Delivery: Job site, Taylor', 'What: 2 reels of wire', 'Pieces or pallets: 2', 'Weight (lb): 300', 'Company: Test Electric', 'Came from: ' + freight.name].every((x) => fmail.includes(x)), 'freight form: email carries the answers');
   const ftextHref = decodeURIComponent((await page.locator('#freight-text').getAttribute('href')) || '');
   ok(ftextHref.startsWith('sms:' + business.phone) && ftextHref.includes('Name: Test Person'), 'freight form: text carries the answers');
+  await page.locator('#freight-copy').click();
+  ok(await page.locator('#freight-copied').isVisible() && (await page.locator('#freight-copy').innerText()) === 'Copied' && (await page.locator('#freight-copied').innerText()).includes(business.email), 'freight form: Copy my answers works when there is no mail app');
   const fields = await ff.evaluate((f) => [...new Set([...(f as HTMLFormElement).elements].map((e) => (e as HTMLInputElement).name).filter(Boolean))]);
   ok(['service', 'materials_what', 'materials_pickup', 'address', 'timing', 'preferred_times', 'details', 'name', 'phone', 'source'].every((n) => fields.includes(n)), 'freight form: keeps every field the old freight quote sent');
   ok(readFileSync('dist-real/sitemap.xml', 'utf8').includes('/freight'), 'freight: in the sitemap');
