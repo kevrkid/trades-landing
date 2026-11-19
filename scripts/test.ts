@@ -355,6 +355,7 @@ try {
   ok((await fitOut.innerText()).includes('door opening'), 'will it fit: reads feet-and-inches and checks the door');
   await fit.locator('[name=l]').fill('14 1/2 ft'); await fit.locator('[name=w]').fill('3/4'); await fit.locator('[name=h]').fill('5 1/2');
   ok((await fitOut.innerText()).startsWith('Tight fit'), 'will it fit: reads fractions like 14 1/2 ft and 3/4');
+  await fit.locator('[name=l]').fill(`8' 6"`);
   await fit.locator('[name=w]').fill('48'); await fit.locator('[name=h]').fill('6'); await fit.locator('[name=lb]').fill('2500');
   ok((await fitOut.innerText()).includes('2,300 lb'), 'will it fit: checks the weight limit');
   await fit.locator('[name=lb]').fill('400'); await page.locator('#fit-ask').click();
