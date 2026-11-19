@@ -266,11 +266,16 @@ try {
     const fc = await browser.newContext({ viewport: { width: w, height: 800 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
     const fp = await fc.newPage(); const ferr: string[] = [];
     fp.on('console', (m) => { if (m.type() === 'error') ferr.push(m.text()); }); fp.on('pageerror', (e) => ferr.push(String(e)));
+    // Every freight page: no sideways scroll, no small tap targets (links inside a sentence are exempt), no errors.
+    for (const sub of ['', '/austin-to-houston', '/dedicated-routes', '/thanks']) {
+      await fp.goto(R + freight.path + sub);
+      const tag = `freight${sub} ${w}`;
+      ok(await fp.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${tag}: no sideways scroll`);
+      const fsmall = await fp.$$eval('a,button,select,input:not([type=hidden]):not([type=checkbox]),textarea,summary', (els) =>
+        els.filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height < 48 && !(getComputedStyle(e).display === 'inline' && e.closest('p,dd,figcaption')); }).map((e) => e.outerHTML.slice(0, 70)));
+      ok(!fsmall.length, `${tag}: tap targets 48px+ ${fsmall.join(' | ')}`);
+    }
     await fp.goto(R + freight.path);
-    ok(await fp.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `freight ${w}: no sideways scroll`);
-    const fsmall = await fp.$$eval('a,button,select,input:not([type=hidden]):not([type=checkbox]),textarea,summary', (els) =>
-      els.filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height < 48; }).map((e) => e.outerHTML.slice(0, 70)));
-    ok(!fsmall.length, `freight ${w}: tap targets 48px+ ${fsmall.join(' | ')}`);
     ok(!ferr.length, `freight ${w}: no console errors ${ferr.join(' | ')}`);
     await fp.screenshot({ path: `${SHOTS}/freight-${w}-full.png`, fullPage: true });
     await fc.close();

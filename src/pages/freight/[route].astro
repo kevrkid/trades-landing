@@ -73,7 +73,7 @@ const others = routePages.filter((c) => c !== to);
     <section class="band gray">
       <div class="w" style="max-width:860px">
         <h2 class="h2" style="margin-bottom:16px">Questions about {from} to {to}</h2>
-        {faq.map(([q, a]) => <details style="border-top:1px solid var(--line);padding:14px 0"><summary style="font-weight:700;font-size:17px;cursor:pointer">{q}</summary><p style="margin:8px 0 0;line-height:1.55">{a}</p></details>)}
+        {faq.map(([q, a]) => <details style="border-top:1px solid var(--line);padding:2px 0"><summary style="font-weight:700;font-size:17px;cursor:pointer;padding:12px 0;min-height:48px;box-sizing:border-box">{q}</summary><p style="margin:0 0 12px;line-height:1.55">{a}</p></details>)}
       </div>
     </section>
 
