@@ -174,6 +174,19 @@ To launch without moving, remove the Moving trade, change `headline` (e.g. to we
 
 Text `yourdomain/review` to every customer the day you finish a job.
 
+### ELEKTRX Freight: change rates, routes, the flyer
+
+- **Rates:** `estimate` in `src/data/freight.ts` (`from: 95`, `perMileLow: 2.5`, `perMileHigh: 3`). Assumed per
+  one-way mile, pickup to delivery; every estimate on the site and flyer follows it. Change it, `npm run flyer`, deploy.
+- **Driving miles:** `src/data/routes.ts` holds a mile/minute table for the 13 same-day cities, from OpenStreetMap
+  routing (router.project-osrm.org `table` API, fetched 2026-11-18). To add a city: add it to `cities`, refetch the
+  table with its coordinates, paste the rounded rows. Minutes are without traffic or charging stops.
+- **Route pages:** add a city to `routePages` and it gets `/freight/austin-to-<city>`, a sitemap entry and links.
+- **Flyer:** `npm run flyer`; a copy and the private supply-house visit list live in `~/Downloads/elektrx-logo/`
+  (the list is not in this public repo).
+- **Van sizes:** `cargo` in `freight.ts` uses published Sprinter high-roof figures; tape-measure the doors and
+  drop the "about" wording once confirmed.
+
 ### Steady income
 
 The page supports these; the income comes from doing them every time:
@@ -236,9 +249,10 @@ every page also carries `noindex` so Google doesn't list an unfinished site.
 | `npm run build` | Static build into `dist/` (or `OUT_DIR`) |
 | `npm run preview` | Serve the last build |
 | `npm run todo` | List blanks; blockers first |
-| `npm run images` | Logo sizes, favicon, apple-touch-icon and `public/og.png` from `brand-source/` + config (needs Playwright's Chromium) |
+| `npm run images` | Logo sizes, favicon, apple-touch-icon and `public/og.jpg` from `brand-source/` + config, then the freight icons and `public/og-freight.png` from `src/assets/elektrx-mark.svg` (needs Playwright's Chromium). Keep preview images under 300 KB (WhatsApp skips bigger ones; a test checks) |
 | `npm run qr` | `qr/van-qr.svg` + `.png` for `https://<domain>/van`; refuses without a domain |
 | `npm run decal` | `qr/van-decal.pdf/.png`, or the PREVIEW png until ready |
+| `npm run flyer` | `brand/elektrx/flyer.pdf` + `.png`: letter-size freight counter flyer; QR → `/freight/dedicated-routes` on the domain (or the pages.dev address) |
 | `npm test` | Builds sample and real versions, serves both with Cloudflare's local server, runs the checks |
 | `npm run deploy` | Blocker check → images → build → create project if needed → `wrangler pages deploy` |
 
@@ -263,10 +277,13 @@ every page also carries `noindex` so Google doesn't list an unfinished site.
 | `/thanks` | `src/pages/thanks.astro` | Web3Forms return page, `noindex` |
 | `/privacy` | `src/pages/privacy.astro` | Sections appear only for services actually in use |
 | `/404` | `src/pages/404.astro` | Call/Text buttons, `noindex` |
+| `/freight` | `src/pages/freight.astro` | ELEKTRX Freight (name only in `src/data/freight.ts`): map, services + instant estimate, what fits + "Will it fit?", quote form |
+| `/freight/austin-to-<city>` | `src/pages/freight/[route].astro` | One page per `routePages` city in `src/data/routes.ts` (10): miles, drive time, estimate, FAQ, quote form |
+| `/freight/dedicated-routes` | `src/pages/freight/dedicated-routes.astro` | Standing routes pitch + weekly estimate; form preset to "Dedicated route" |
 | `_redirects` | `scripts/site-files.ts` | `/book`, `/pay`, `/review` → 302 |
 | `_headers` | same | nosniff, referrer policy, `X-Frame-Options: DENY`, year-long cache on `/_astro/*`, vCard type |
-| `robots.txt`, `sitemap.xml` | same | Sitemap lists `/` and `/privacy` (needs a site URL) |
-| `contact.vcf` | same | Only when a phone is set |
+| `robots.txt`, `sitemap.xml` | same | Sitemap lists `/`, `/freight`, the route pages, dedicated routes and `/privacy` (needs a site URL) |
+| `contact.vcf`, `freight.vcf` | same | Locker Box / ELEKTRX Freight contact cards; only when a phone is set |
 
 ---
 
@@ -411,14 +428,13 @@ the live Cloudflare deploy, print output of the decal.
 
 ## 7. Status and next steps
 
-### Where things stand (2026-11-15)
+### Where things stand (2026-11-19)
 
-- Site complete against the real config; git repo `~/claude/trades-landing` (branch `main`, pushed to the public repo
-  https://github.com/kevrkid/trades-landing). Nothing deployed; Cloudflare not logged in (`wrangler login` timed out once while waiting).
-- A private preview artifact exists but is out of date (before the autoplay change):
-  https://claude.ai/artifact/7Xvsi6WCUvyZ7HGFpQy28i
-- Local review server, when running: `npx wrangler pages dev dist-sample --port 8850 --ip 0.0.0.0`
-  (http://localhost:8850; phones on the same Wi-Fi use this Mac's LAN address).
+- LIVE at https://trades-landing-321.pages.dev (Cloudflare Pages, deployed with `npm run deploy` from `main`, pushed
+  to https://github.com/kevrkid/trades-landing). `npm test`: 163 checks, including every internal link on all pages.
+- Locker Box: `/` and `/van`. ELEKTRX Freight: `/freight`, 10 route pages, `/freight/dedicated-routes`, flyer.
+- Open from Kevin: confirm the per-mile assumption; tape-measure the van doors; ELEKTRX trademark search; a domain
+  (then Google Search Console + `npm run qr` / `flyer`); Google Business Profile; visiting supply houses with the flyer.
 
 ### Needed from Kevin
 
@@ -426,7 +442,7 @@ the live Cloudflare deploy, print output of the decal.
 2. **Moving:** taken off the page 2026-11-16 to go live (headline now "Welding, hauling and tear-downs"). To bring it
    back, add the TxDMV household-goods number and restore the lines named in the comment by `headline` in business.ts. The old DOT 9994372 belongs to Investment Services
    Group, LLC and was removed.
-3. **Cloudflare sign-in** at dash.cloudflare.com, then `npx wrangler login`.
+3. ~~Cloudflare sign-in~~ done (deploys run from this Mac).
 4. **Domain:** buy `lockerboxtx.com` → `npm run qr`, `npm run decal`, custom domain in Cloudflare.
 5. Answers that unlock hidden parts: hours; base town for the 30-mile free-travel radius; free estimates?;
    deposits and cancellation policy (e.g. 24 hours); extras (dump fees, materials); insurance in your name;
