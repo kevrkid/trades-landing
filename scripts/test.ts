@@ -399,6 +399,35 @@ try {
     await ep.close();
     ok(bad.length === 0, `estimate: browser and build agree on all ${cities.length ** 2} city pairs, single run and weekly ${bad.slice(0, 3).join(' | ')}`);
   }
+  // Every built page: valid search data, its own title and description, a canonical pointing at itself,
+  // and no template leftovers ("undefined", "NaN", "[object Object]") in what visitors or Google see.
+  {
+    const { readdirSync, statSync } = await import('node:fs');
+    const D = 'dist-real';
+    const walk = (d: string): string[] => readdirSync(d).flatMap((f) => { const x = `${d}/${f}`; return statSync(x).isDirectory() ? walk(x) : [x]; });
+    const probs: string[] = [], titles = new Map<string, string>(), descs = new Map<string, string>();
+    for (const f of walk(D).filter((x) => x.endsWith('.html'))) {
+      const h = readFileSync(f, 'utf8'), path = '/' + f.slice(D.length + 1).replace(/\.html$/, '').replace(/^index$/, '');
+      const noindex = h.includes('name="robots" content="noindex"');
+      for (const [, j] of h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+        try { const o = JSON.parse(j); if (!o['@context'] || !o['@type']) probs.push(`${path}: search data missing @context/@type`); } catch { probs.push(`${path}: search data is not valid JSON`); }
+      }
+      const visible = h.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<style[\s\S]*?<\/style>/g, '');
+      const junk = visible.match(/\bundefined\b|\bNaN\b|\[object Object\]/);
+      if (junk) probs.push(`${path}: shows "${junk[0]}"`);
+      const t = h.match(/<title>([^<]*)<\/title>/)?.[1] || '', d = h.match(/<meta name="description" content="([^"]*)"/)?.[1] || '';
+      if (!t) probs.push(`${path}: no title`);
+      const canon = h.match(/<link rel="canonical" href="([^"]*)"/)?.[1] || '';
+      const canonPath = canon ? new URL(canon).pathname.replace(/\/$/, '') || '/' : path;
+      if (canon && !existsSync(D + (canonPath === '/' ? '/index' : canonPath) + '.html')) probs.push(`${path}: canonical ${canon} is not a page`);
+      // A page that names another page as the original (like /van -> /) may share its title and description.
+      if (!noindex && canonPath === (path || '/')) {
+        if (titles.has(t)) probs.push(`${path}: same title as ${titles.get(t)}`); else titles.set(t, path);
+        if (descs.has(d)) probs.push(`${path}: same description as ${descs.get(d)}`); else descs.set(d, path);
+      }
+    }
+    ok(probs.length === 0 && titles.size >= 13, `pages: valid search data, unique titles/descriptions, self canonicals, no template leftovers (${titles.size} indexed pages) ${probs.slice(0, 4).join(' | ')}`);
+  }
   // Every internal link and #section jump on every built page goes somewhere real.
   {
     const { readdirSync, statSync } = await import('node:fs');
