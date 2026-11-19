@@ -358,6 +358,32 @@ try {
   ok(((await page.locator('animateMotion').first().getAttribute('path')) || '').split('L').length > 8, 'freight: the map token tours the whole map');
   { const mc = await browser.newContext({ viewport: { width: 360, height: 800 } }); const mp = await mc.newPage(); await mp.goto(R + freight.path);
     const r = await mp.locator('svg[aria-label^="Route map"]').boundingBox(); ok(r && r.x >= 0 && r.x + r.width <= 360, 'freight: the map fits a phone screen without cutting off'); await mc.close(); }
+  // Every internal link and #section jump on every built page goes somewhere real.
+  {
+    const { readdirSync, statSync } = await import('node:fs');
+    const D = 'dist-real';
+    const walk = (d: string): string[] => readdirSync(d).flatMap((f) => { const x = `${d}/${f}`; return statSync(x).isDirectory() ? walk(x) : [x]; });
+    const pages = walk(D).filter((f) => f.endsWith('.html'));
+    const redirects = new Set(readFileSync(`${D}/_redirects`, 'utf8').split('\n').map((l) => l.split(' ')[0]).filter(Boolean));
+    const fileFor = (p: string) => [p === '/' ? '/index.html' : p + '.html', p, p + '/index.html'].map((x) => D + x).find((x) => existsSync(x) && statSync(x).isFile());
+    const ids = (f: string) => new Set([...readFileSync(f, 'utf8').matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+    const broken: string[] = [];
+    let checked = 0;
+    for (const f of pages) {
+      const here = '/' + f.slice(D.length + 1).replace(/\.html$/, '').replace(/^index$/, '');
+      for (const [, href] of readFileSync(f, 'utf8').matchAll(/\shref="([^"]+)"/g)) {
+        if (/^(https?:|mailto:|tel:|sms:|data:)/.test(href)) continue;
+        const [path, frag] = href.split('#');
+        const target = path ? path.replace(/\/$/, '') || '/' : here || '/';
+        if (path && redirects.has(target)) { checked++; continue; }
+        const file = fileFor(target);
+        if (!file) { broken.push(`${f}: ${href} (no page)`); continue; }
+        if (frag && file.endsWith('.html') && !ids(file).has(frag)) broken.push(`${f}: ${href} (no #${frag})`);
+        checked++;
+      }
+    }
+    ok(broken.length === 0 && checked > 100, `links: ${checked} internal links on ${pages.length} pages all resolve ${broken.slice(0, 5).join(' | ')}`);
+  }
 } finally {
   await browser.close();
   for (const s of servers) try { process.kill(-s.pid!); } catch {}
