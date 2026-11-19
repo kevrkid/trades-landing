@@ -4,6 +4,8 @@
 import { execSync, spawnSync } from 'node:child_process';
 import { business } from '../src/data/business.ts';
 import { todos } from '../src/lib/derive.ts';
+import { readFileSync } from 'node:fs';
+import { sourceHash, PASS_FILE } from './source-hash.ts';
 
 delete process.env.SAMPLE_DATA;
 const missing = todos().filter((t) => t.blocker);
@@ -11,6 +13,13 @@ if (missing.length && process.env.ALLOW_INCOMPLETE !== '1') {
   console.error('Not publishing yet. People scanning the van would land on a page missing:');
   missing.forEach((t) => console.error('  - ' + t.item));
   console.error('Fill these in at src/data/business.ts. To publish anyway: ALLOW_INCOMPLETE=1 npm run deploy');
+  process.exit(1);
+}
+const passed = (() => { try { return readFileSync(PASS_FILE, 'utf8').trim(); } catch { return ''; } })();
+if (passed !== sourceHash() && process.env.ALLOW_UNTESTED !== '1') {
+  console.error(passed ? 'Not publishing: the code changed since the last passing `npm test`. Run `npm test` first.'
+    : 'Not publishing: no passing `npm test` for this code yet (or the last run had failures). Run `npm test` first.');
+  console.error('To publish anyway: ALLOW_UNTESTED=1 npm run deploy');
   process.exit(1);
 }
 const run = (cmd: string) => execSync(cmd, { stdio: 'inherit' });

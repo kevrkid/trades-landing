@@ -254,7 +254,7 @@ every page also carries `noindex` so Google doesn't list an unfinished site.
 | `npm run decal` | `qr/van-decal.pdf/.png`, or the PREVIEW png until ready |
 | `npm run flyer` | `brand/elektrx/flyer.pdf` + `.png`: letter-size freight counter flyer; QR → `/freight/dedicated-routes` on the domain (or the pages.dev address) |
 | `npm test` | Builds sample and real versions, serves both with Cloudflare's local server, runs the checks |
-| `npm run deploy` | Blocker check → images → build → create project if needed → `wrangler pages deploy` |
+| `npm run deploy` | Blocker check → passing-tests check → images → build → create project if needed → `wrangler pages deploy` |
 
 ### Environment variables
 
@@ -263,6 +263,7 @@ every page also carries `noindex` so Google doesn't list an unfinished site.
 | `SAMPLE_DATA=1` | build | Use the made-up data in `src/data/sample.ts` (tests and layout previews only; shows a yellow SAMPLE bar and is always `noindex`) |
 | `OUT_DIR` | build | Output folder (tests use `dist-sample`, `dist-real`) |
 | `ALLOW_INCOMPLETE=1` | deploy | Publish despite blockers |
+| `ALLOW_UNTESTED=1` | deploy | Publish even though `npm test` hasn't passed on the current code (deploy normally checks `.test-pass`, the fingerprint `npm test` writes when everything passes) |
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | deploy (wrangler) | Headless login; keep in the shell profile, never in the repo |
 | `QR_DOMAIN`, `QR_DIR` | qr | Override the domain / output folder (testing) |
 | `DECAL_PHONE`, `DECAL_DOMAIN`, `DECAL_BASE` | decal | Layout testing with fake values (skips the moving hold) |

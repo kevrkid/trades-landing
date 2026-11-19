@@ -423,4 +423,7 @@ try {
   for (const s of servers) try { process.kill(-s.pid!); } catch {}
 }
 console.log(`${good} passed, ${bad} failed`);
+// Remember which code passed, so `npm run deploy` can refuse untested changes.
+{ const { sourceHash, PASS_FILE } = await import('./source-hash.ts'); const { writeFileSync, rmSync } = await import('node:fs');
+  if (bad) rmSync(PASS_FILE, { force: true }); else writeFileSync(PASS_FILE, sourceHash() + '\n'); }
 process.exit(bad ? 1 : 0);
