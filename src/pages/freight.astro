@@ -134,7 +134,7 @@ const faq = [
           <div>
             <h3 style="font-size:20px;font-weight:700;margin-bottom:12px">Popular runs from Austin</h3>
             <ul style="list-style:none;padding:0;margin:0;display:grid;gap:0;font-size:16px">
-              {routePages.map((c) => { const r = between('Austin', c); return <li><a href={`${F.path}/${slug('Austin', c)}`} style="font-weight:600;display:inline-flex;align-items:center;min-height:48px">Austin to {c}</a> <span style="color:#3A4A63">· {r.miles} mi · {routePrice(r.miles)}</span></li>; })}
+              {routePages.map((c) => { const r = between('Austin', c); return <li><a href={`${F.path}/${slug('Austin', c)}`} style="font-weight:600;display:inline-flex;align-items:center;min-height:48px;text-decoration:underline;text-decoration-color:#F26A1B;text-decoration-thickness:2px;text-underline-offset:4px">Austin to {c}</a> <span style="color:#3A4A63">· {r.miles} mi · {routePrice(r.miles)}</span></li>; })}
             </ul>
           </div>
         </div>

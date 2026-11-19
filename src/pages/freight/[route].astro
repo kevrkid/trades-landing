@@ -81,7 +81,7 @@ const others = routePages.filter((c) => c !== to);
       <div class="w">
         <h2 class="h2" style="font-size:24px;margin-bottom:12px">Other runs from {from}</h2>
         <p class="lede" style="font-size:16px;margin-bottom:8px">Need this run every week? <a href={`${F.path}/dedicated-routes`}>Set up a dedicated route</a>.</p>
-        <p style="display:flex;flex-wrap:wrap;gap:0 20px;margin:0;font-size:16px">{others.map((c) => <a href={`${F.path}/${slug(from, c)}`} style="font-weight:600;display:inline-flex;align-items:center;min-height:48px">{from} to {c}</a>)}</p>
+        <p style="display:flex;flex-wrap:wrap;gap:0 20px;margin:0;font-size:16px">{others.map((c) => <a href={`${F.path}/${slug(from, c)}`} style="font-weight:600;display:inline-flex;align-items:center;min-height:48px;text-decoration:underline;text-decoration-color:#F26A1B;text-decoration-thickness:2px;text-underline-offset:4px">{from} to {c}</a>)}</p>
       </div>
     </section>
 
