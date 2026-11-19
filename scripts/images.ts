@@ -46,6 +46,6 @@ await page.evaluate(() => {
   let size = 58;
   while (size > 30 && h.getBoundingClientRect().bottom > t.getBoundingClientRect().top - 14) h.style.fontSize = (size -= 2) + 'px';
 });
-await page.screenshot({ path: 'public/og.png' });
+await page.screenshot({ path: 'public/og.jpg', type: 'jpeg', quality: 84 }); // JPEG: WhatsApp skips preview images over ~300 KB
 await browser.close();
-console.log('Made the logo sizes, icons and public/og.png');
+console.log('Made the logo sizes, icons and public/og.jpg');

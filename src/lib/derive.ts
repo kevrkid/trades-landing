@@ -81,7 +81,7 @@ export function jsonLd(): Record<string, unknown> | null {
   if (!biz.name) return null;
   const url = siteUrl();
   const ld: Record<string, unknown> = { '@context': 'https://schema.org', '@type': biz.schemaType, name: biz.name };
-  if (url) { ld.url = url; ld.image = `${url}/og.png`; }
+  if (url) { ld.url = url; ld.image = `${url}/og.jpg`; }
   if (biz.logoOnLight && url) ld.logo = url + biz.logoOnLight;
   if (biz.rate) ld.priceRange = biz.rate;
   if (biz.phone) ld.telephone = biz.phone;

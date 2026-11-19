@@ -104,7 +104,7 @@ try {
   ok(await page.getByText('Thanks for scanning').count() === 0, 'home has no van banner');
   const ld = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent())!);
   ok(ld['@type'] === business.schemaType && ld.areaServed?.length === 3 && !ld.address, 'JSON-LD: type, areaServed, no street address');
-  ok(await page.locator('meta[property="og:image"]').getAttribute('content') === 'https://example.com/og.png', 'OG image');
+  ok(await page.locator('meta[property="og:image"]').getAttribute('content') === 'https://example.com/og.jpg' && readFileSync('public/og.jpg').length < 300_000 && readFileSync('public/og-freight.png').length < 300_000, 'OG image (under 300 KB so WhatsApp shows it)');
 
   // Redirects on Cloudflare's server.
   for (const [path, to] of [['/book', 'https://example.com/square-booking'], ['/pay', 'https://example.com/square-deposit'], ['/review', 'https://example.com/google-review']]) {
