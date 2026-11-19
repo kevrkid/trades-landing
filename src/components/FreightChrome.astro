@@ -42,6 +42,7 @@ const mark = (size: number) => markSvg.replace('<svg ', `<svg width="${size}" he
         <div class="col">
           <h3>Contact</h3>
           {biz.phone && <a href={telHref}>{phoneDisplay()}, call or text</a>}
+          {biz.phone && <a href="/freight.vcf">Save to contacts</a>}
           {biz.email && <a href={`mailto:${biz.email}`} style="overflow-wrap:anywhere">{biz.email}</a>}
           {hours && <span>{hours}</span>}
         </div>

@@ -95,7 +95,7 @@ const how = [
       <div class="w cols" style="--min:380px;align-items:start">
         <div><h2 style="font-size:clamp(30px,3.6vw,46px);line-height:1.06">Set up a route</h2>
           <p class="lede" style="margin-top:12px">Send where it starts, the stops, the days and the times. You’ll get a per-run rate and a start date.</p>
-          {biz.phone && <p style="margin-top:12px"><a class="b b-line" href={smsHref('Hi! I’d like to set up a standing delivery route.\nFrom:\nStops:\nDays and times:\n')}>Text the route instead</a></p>}</div>
+          {biz.phone && <p style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px"><a class="b b-line" href={smsHref('Hi! I’d like to set up a standing delivery route.\nFrom:\nStops:\nDays and times:\n')}>Text the route instead</a> <a class="b b-line" href="/freight.vcf">Save to contacts</a></p>}</div>
         <FreightForm />
       </div>
     </section>

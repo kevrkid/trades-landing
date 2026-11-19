@@ -331,6 +331,8 @@ try {
   await page.locator('#wk-ask').click();
   ok((await page.locator('#freight-form [name=details]').inputValue()).startsWith('1 run a week'), 'dedicated routes: Quote this route fills the form');
   ok(readFileSync('dist-real/sitemap.xml', 'utf8').includes('/freight/dedicated-routes'), 'dedicated routes: in the sitemap');
+  const fv = readFileSync('dist-real/freight.vcf', 'utf8');
+  ok(fv.includes('FN:' + freight.name) && fv.includes('TEL;TYPE=CELL:' + business.phone) && await page.locator('a[href="/freight.vcf"]').count() >= 2 && readFileSync('dist-real/_headers', 'utf8').includes('/freight.vcf'), 'freight: Save to contacts card with the brand name and phone');
   await page.goto(R + freight.path);
   const fit = page.locator('#fit'), fitOut = page.locator('#fit-out');
   await fit.locator('[name=l]').fill('12 ft'); await fit.locator('[name=w]').fill('4 ft'); await fit.locator('[name=h]').fill('2 ft');
