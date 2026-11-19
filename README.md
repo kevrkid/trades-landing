@@ -433,7 +433,9 @@ the live Cloudflare deploy, print output of the decal.
 - LIVE at https://trades-landing-321.pages.dev (Cloudflare Pages, deployed with `npm run deploy` from `main`, pushed
   to https://github.com/kevrkid/trades-landing). `npm test`: 163 checks, including every internal link on all pages.
 - Locker Box: `/` and `/van`. ELEKTRX Freight: `/freight`, 10 route pages, `/freight/dedicated-routes`, flyer.
-- Open from Kevin: confirm the per-mile assumption; tape-measure the van doors; ELEKTRX trademark search; a domain
+- Quote forms send through the visitor's own email or text app (no `web3formsKey` yet), with "Copy answers instead"
+  as the fallback. A free Web3Forms key makes requests arrive as email directly.
+- Open from Kevin: the free Web3Forms key; confirm the per-mile assumption; tape-measure the van doors; ELEKTRX trademark search; a domain
   (then Google Search Console + `npm run qr` / `flyer`); Google Business Profile; visiting supply houses with the flyer.
 
 ### Needed from Kevin
