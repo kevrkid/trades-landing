@@ -165,7 +165,15 @@ try {
   await page.locator('#work video').first().scrollIntoViewIfNeeded();
   await page.waitForTimeout(2500);
   ok(!!(await page.locator('#work video').first().getAttribute('poster')), 'real: video cover loads when scrolled to');
-  const playing = await page.evaluate(() => [...document.querySelectorAll('#work video')].map((x) => { const v = x as HTMLVideoElement; return { on: !v.paused && v.currentTime > 0, muted: v.muted, loop: v.loop, controls: v.controls }; }));
+  // Each clip plays while at least a quarter of it is on screen, so check them one at a time, waiting for real
+  // playback instead of a fixed sleep (a fixed wait made this flaky when the second clip sat below the fold).
+  const playing = [];
+  for (const v of await page.locator('#work video').all()) {
+    await v.scrollIntoViewIfNeeded();
+    const on = await v.evaluate((x) => new Promise<boolean>((res) => { const el = x as HTMLVideoElement, t0 = Date.now(); (function poll() { if (!el.paused && el.currentTime > 0) res(true); else if (Date.now() - t0 > 10000) res(false); else setTimeout(poll, 100); })(); }));
+    playing.push({ on, ...(await v.evaluate((x) => { const el = x as HTMLVideoElement; return { muted: el.muted, loop: el.loop, controls: el.controls }; })) });
+  }
+  await page.locator('#work video').first().scrollIntoViewIfNeeded();
   ok(playing.every((v) => v.on && v.muted && v.loop && !v.controls), `real: videos autoplay muted on a loop ${JSON.stringify(playing)}`);
   await page.evaluate(() => { const v = document.querySelector('#work video') as HTMLVideoElement; v.currentTime = Math.max(0, v.duration - 0.2); });
   await page.waitForTimeout(1200);
