@@ -61,8 +61,8 @@ const levels = [...freight.services.map((s) => s.name), 'Trade service'];
     {biz.email && <a class="b b-cta" id="freight-email">Send by email</a>}
     {biz.phone && <a class="b b-line" id="freight-text"><Icon name="text" />Send by text</a>}
   </div>
-  <button type="button" class="b b-line" style="margin-top:10px;width:100%" id="freight-copy">Copy my answers</button>
-  <p id="freight-copied" hidden style="margin:8px 0 0;font-size:15px">Copied. Paste it into a text{biz.phone && ` to ${phoneDisplay()}`}{biz.email && ` or an email to ${biz.email}`}.</p>
+  <button type="button" class="b b-line" style="margin-top:10px;width:100%" id="freight-copy">Copy answers instead</button>
+  <p id="freight-copied" hidden style="margin:8px 0 0;font-size:15px">Now paste it into a text{biz.phone && <> to <span style="white-space:nowrap">{phoneDisplay()}</span></>}{biz.email && <> or an email to <span style="overflow-wrap:anywhere">{biz.email}</span></>}.</p>
   <button type="button" class="textbtn" style="margin-top:8px" id="freight-edit">Change my answers</button>
 </div>
 

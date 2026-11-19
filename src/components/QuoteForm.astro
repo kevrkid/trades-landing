@@ -119,8 +119,8 @@ const stairs = ['No stairs', 'Stairs at one end', 'Stairs at both ends', 'Elevat
     {biz.email && <a class="btn btn-go" id="quote-email"><>Send by email</></a>}
     {biz.phone && <a class="btn btn-dark" id="quote-text"><Icon name="text" />Send by text</a>}
   </div>
-  <button type="button" class="btn btn-line mt-2.5 w-full" id="quote-copy">Copy my answers</button>
-  <p id="quote-copied" hidden class="mt-2">Copied. Paste it into a text{biz.phone && ` to ${phoneDisplay()}`}{biz.email && ` or an email to ${biz.email}`}.</p>
+  <button type="button" class="btn btn-line mt-2.5 w-full" id="quote-copy">Copy answers instead</button>
+  <p id="quote-copied" hidden class="mt-2">Now paste it into a text{biz.phone && <> to <span style="white-space:nowrap">{phoneDisplay()}</span></>}{biz.email && <> or an email to <span style="overflow-wrap:anywhere">{biz.email}</span></>}.</p>
   <button type="button" class="textlink mt-2 bg-transparent cursor-pointer" id="quote-edit">Change my answers</button>
 </div>
 
