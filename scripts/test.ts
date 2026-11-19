@@ -365,6 +365,33 @@ try {
   ok(((await page.locator('animateMotion').first().getAttribute('path')) || '').split('L').length > 8, 'freight: the map token tours the whole map');
   { const mc = await browser.newContext({ viewport: { width: 360, height: 800 } }); const mp = await mc.newPage(); await mp.goto(R + freight.path);
     const r = await mp.locator('svg[aria-label^="Route map"]').boundingBox(); ok(r && r.x >= 0 && r.x + r.width <= 360, 'freight: the map fits a phone screen without cutting off'); await mc.close(); }
+  // The estimate is worked out twice (at build time in routes.ts, and in the browser when the cities change).
+  // Every city pair must give the same price and miles both ways, on /freight and on the weekly widget.
+  {
+    const { cities, miles, routePrice, priceRange } = await import('../src/data/routes.ts');
+    const ep = await browser.newPage();
+    await ep.goto(R + freight.path);
+    const shown = await ep.evaluate((n) => { const f = document.getElementById('est') as HTMLFormElement, out: string[][] = [];
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { (f.from as HTMLSelectElement).selectedIndex = i; (f.to as HTMLSelectElement).selectedIndex = j; f.dispatchEvent(new Event('change'));
+        out.push([document.getElementById('est-price')!.textContent!, document.getElementById('est-trip')!.textContent!]); }
+      return out; }, cities.length);
+    const bad: string[] = [];
+    shown.forEach(([price, trip], k) => { const i = Math.floor(k / cities.length), j = k % cities.length;
+      const want = i === j ? '$' + freight.estimate.from : routePrice(miles[i][j]);
+      if (price !== want || (i !== j && !trip.startsWith(miles[i][j] + ' miles'))) bad.push(`${cities[i]}→${cities[j]}: ${price} vs ${want}`); });
+    await ep.goto(R + freight.path + '/dedicated-routes');
+    const weekly = await ep.evaluate((n) => { const f = document.getElementById('wk') as HTMLFormElement, out: string[] = [];
+      (f.n as HTMLSelectElement).value = '5';
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { (f.from as HTMLSelectElement).selectedIndex = i; (f.to as HTMLSelectElement).selectedIndex = j; f.dispatchEvent(new Event('change')); out.push(document.getElementById('wk-total')!.textContent!); }
+      return out; }, cities.length);
+    weekly.forEach((t, k) => { const i = Math.floor(k / cities.length), j = k % cities.length;
+      const [a, b] = i === j ? [freight.estimate.from, freight.estimate.from] : priceRange(miles[i][j]);
+      const m = (x: number) => '$' + (x * 5).toLocaleString('en-US');
+      const want = (a === b ? m(a) : m(a) + '–' + m(b)) + ' a week';
+      if (t !== want) bad.push(`weekly ${cities[i]}→${cities[j]}: ${t} vs ${want}`); });
+    await ep.close();
+    ok(bad.length === 0, `estimate: browser and build agree on all ${cities.length ** 2} city pairs, single run and weekly ${bad.slice(0, 3).join(' | ')}`);
+  }
   // Every internal link and #section jump on every built page goes somewhere real.
   {
     const { readdirSync, statSync } = await import('node:fs');
