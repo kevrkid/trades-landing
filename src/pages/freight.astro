@@ -342,6 +342,9 @@ const faq = [
   // "14 ft", "8' 6\"", "8 ft 6 in", "96" (inches), "2.5 ft" -> inches; blank -> 0; nonsense -> NaN.
   function inches(v) {
     v = String(v || '').toLowerCase().replace(/feet|foot/g, 'ft').replace(/inches|inch/g, 'in').trim();
+    // Fractions the way tradespeople write them: "14 1/2", "8' 6 1/2", "3/4" -> decimals.
+    v = v.replace(/(\d+)\s+(\d+)\/(\d+)/g, function (_, w, n, d) { return String(+w + n / d); })
+         .replace(/(\d+)\/(\d+)/g, function (_, n, d) { return String(n / d); });
     if (!v) return 0;
     var m = v.match(/^(\d+(?:\.\d+)?)\s*(?:ft|')\s*(?:(\d+(?:\.\d+)?)\s*(?:in|"|'')?)?$/);
     if (m) return Math.round(parseFloat(m[1]) * 12 + (m[2] ? parseFloat(m[2]) : 0));
